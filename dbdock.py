@@ -15,7 +15,6 @@ import os, sys
 coords_dir = "lig_mols/"
 energies_dir = "energies/"
 energies_file = "energies_sorted.dat"
-binary_outfile = "inputData.npz"
 dataSize = 100000
 rbf_c = 1.0
 v = False
@@ -106,7 +105,7 @@ def sortInputData(mols,deltaGs):
 	train = []
 	test = []
 	count = 0
-	test_frac = int(len(mols)/int(dataSize)) + 1
+	test_frac = int(len(mols)/int(dataSize))
 
 	if v:
 		print "Assemble training and testing data..."
@@ -164,12 +163,14 @@ def saveModel(model):
 
 # Save the compiled data as a binary file for faster loading
 def saveAsBin(train,test):
+	binary_outfile = "inputData_{}.npz".format(dataSize)
 	np.savez(binary_outfile,train,test)
 
 # Load binary data file
 def loadBin(binary_outfile):
 	if v:
 		print ("Loading binary file: {}".format(binary_outfile))
+	binary_outfile = "inputData_{}.npz".format(dataSize)
 	arrs = np.load(binary_outfile)
 	trainingData = arrs['arr_0.npy']
 	if v:
