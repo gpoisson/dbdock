@@ -7,6 +7,7 @@ import functions
 from sklearn.svm import SVR
 from sklearn.externals import joblib
 from sklearn import preprocessing
+import operator
 import os, sys
 
 #################
@@ -25,9 +26,8 @@ if (len(sys.argv) > 2):
 
 # Find, read, and compile input data
 def readInputData():
-	if v:
-		print "Read input data..."
 	try:							# Try to load a saved binary containing our data
+		binary_outfile = "inputData_{}.npz".format(dataSize)
 		trainingData, testData = loadBin(binary_outfile)
 	except Exception:				# If the binary does not exist, compile data from scratch and save binary
 		allValidMols = []
@@ -84,8 +84,6 @@ def makeXValues(data,count=dataSize,f="train"):
 			for val in feature:
 				x[-1].append(val)
 		x.append([])
-	#if (len(x) < count):
-		#return (np.asarray(x[:-1]))
 	x = x[:-1]			# remove final empty entry
 	x = preprocessing.scale(np.asarray(x[:int(count)]))
 	return x
@@ -95,13 +93,98 @@ def makeYValues(data,count=dataSize,f="train"):
 	y = []
 	for mol in data:
 		y.append(mol[2])
-	#if (len(y) < count):
-		#return y
 	y = preprocessing.scale(y[:int(count)])
 	return y
 
 # Sort input data into training and testing datasets
+def sortInputNew(mols,deltaGs):
+	train = []
+	test = []
+	trainIndeces = []		# Keep track of molecules used for training; use the rest for testing
+	c = 0
+	p = 0
+	count = 0
+
+	if v:
+		print "Assemble training and testing data..."
+
+	sorted_mols = sorted(mols.items(), key=operator.itemgetter(1))
+
+	# Build dict, sort by deltaG
+	# Starting from smallest deltaG, working towards largest, extract features and make a data point
+	# Store the data points in a long np array and save the binary
+	# Sort the data points into training and testing
+	
+
+# Sort input data into training and testing datasets
+# Picks n evenly-indexed mols for training, rest go to testing
 def sortInputData(mols,deltaGs):
+	train = []
+	test = []
+	trainIndeces = []		# Keep track of molecules used for training; use the rest for testing
+	c = 0
+	p = 0
+	count = 0
+
+	if v:
+		print "Assemble training and testing data..."
+	while (count < int(dataSize)):
+		if (count == 0):									# If no molecules have been sorted, take the first one
+			try:	
+				if (mols[0][1] == None):
+					continue
+				else:
+					ligand_name = mols[0][0]
+					features = extractFeatureData(mols[0][1])
+					dg = deltaGs[ligand_name]
+					train.append([ligand_name,features,dg])
+					trainIndeces.append(0)
+			except KeyError:
+				continue
+		else:												# If more than two molecules have been sorted, evenly distribute the rest
+			c += 1
+			index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1				# Apply a logarithmic distribution to evenly choose training/testing samples
+			if (index >= len(mols)):
+				p += 1
+				c = 0
+				index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1
+			try:	
+				if (mols[index][1] == None):
+					continue
+				else:
+					ligand_name = mols[index][0]
+					features = extractFeatureData(mols[index][1])
+					dg = deltaGs[ligand_name]
+					train.append([ligand_name,features,dg])
+					trainIndeces.append(index)
+			except KeyError:
+				continue
+		count = len(train)
+
+	count = 0
+	for mol in mols:										# Use record of training molecule indeces to add non-training molecules to test
+		if count in trainIndeces:
+			continue
+		else:
+			try:
+				if (mol[1] == None):
+					continue
+				else:
+					ligand_name = mols[count][0]
+					features = extractFeatureData(mols[count][1])
+					dg = deltaGs[ligand_name]
+					test.append([ligand_name,features,dg])
+			except KeyError:
+				continue
+		count += 1
+	if v:
+		print "Sorted {} molecules into {} training points and {} test points.".format(len(mols),len(train),len(test))
+	return train, test
+
+
+# Sort input data into training and testing datasets
+# Places every nth mol into train, rest into test
+def sortInputStep(mols,deltaGs):
 	train = []
 	test = []
 	count = 0
@@ -170,7 +253,6 @@ def saveAsBin(train,test):
 def loadBin(binary_outfile):
 	if v:
 		print ("Loading binary file: {}".format(binary_outfile))
-	binary_outfile = "inputData_{}.npz".format(dataSize)
 	arrs = np.load(binary_outfile)
 	trainingData = arrs['arr_0.npy']
 	if v:
