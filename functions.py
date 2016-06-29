@@ -34,7 +34,7 @@ def makeSinglePlot(x_data,y_data,title='Plot',x_label='x',y_label='y',axes_on=Tr
 # 
 #def makeMultiPlot(x_data,y_data,title='Plot',x_label='x',y_label='y',axes_on=True,marker_type='x',add_lobf=True,x_min=None,x_max=None,y_min=None,y_max=None):
 
-
+# Compile all ligand name, coordinate, and energy data into one comprehensive binary file for faster accessing
 def makeUnsortedBinary():
 	coords_dir = "lig_mols/"
 	allValidMols = []
@@ -59,10 +59,44 @@ def makeUnsortedBinary():
 		except KeyError:
 			continue
 	data = np.asarray(data)
-	np.save("unsorted.npy",data)
+	np.save("unsorted_ligs.npy",data)
 	if v:
 		print " Read in {} mols, {} names, {} feature sets, {} dgs.".format(len(allValidMols),len(data[:][0]),len(data[:][1]),len(data[:][2]))
 	return data
+
+# Splits the unsorted binary into multiple smaller binaries.
+# Binaries are <100 MB for GitHub purposes.
+def makeSplitUnsortedBinary():
+	mols_per_bin = 100000				# number of ligands to store in each binary file (to regulate file size)
+	binary = loadUnsortedBinary()
+	bin_count = 0
+	binr = []
+	for mol in binary:
+		binr.append(mol)				# add ligands to binr array
+		if (len(binr) >= mols_per_bin):										# if max no. of mols is reached,
+			print ("Binr size: {} mols".format(len(binr)))					# save out the binary and start a
+			binr = np.asarray(binr)											# new one.
+			np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)
+			bin_count += 1
+			binr = []
+	if (len(binr) >= 0):													# once all mols have been read through,
+		binr = np.asarray(binr)												# save out whatever mols are left in 
+		np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)			# memory
+
+# Assembles split binaries into one single ligand db binary
+def combineSplitBinaries():
+	files = os.listdir("./")
+	bins = []
+	master_bin = []
+	for f in files:
+		if (f[:-5] == "unsorted_ligs_part_"):			# find any partial ligand binaries in the directory
+			bins.append(f)
+	for b in bins:
+		t = np.load(b)
+		for mol in t:
+			master_bin.append(mol)
+	master_bin = np.asarray(master_bin)
+	np.save("unsorted_ligs.npy",master_bin)
 
 # Reads in energy valus for each ligand
 def readInputEnergies():
@@ -82,5 +116,7 @@ def readInputEnergies():
 	return deltaGs
 
 def loadUnsortedBinary():
-	t = np.load("unsorted.npy")
+	t = np.load("unsorted_ligs.npy")
 	return t
+
+combineSplitBinaries()
