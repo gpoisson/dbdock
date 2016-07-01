@@ -119,4 +119,4 @@ def loadUnsortedBinary():
 	t = np.load("unsorted_ligs.npy")
 	return t
 
-combineSplitBinaries()
+# combineSplitBinaries()

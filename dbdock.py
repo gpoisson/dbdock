@@ -19,36 +19,36 @@ energies_file = "energies_sorted.dat"
 dataSize = 100000
 rbf_c = 1.0
 v = False
+n = False
 if (len(sys.argv) > 1):
 	v = sys.argv[1]
 if (len(sys.argv) > 2):
 	dataSize = sys.argv[2]
+if (len(sys.argv) > 3):
+	n = sys.argv[3]
 
 # Find, read, and compile input data
+# Due to file size limits on GitHub, I have used split binaries which are
+#   recombined before use.
 def readInputData():
-	try:							# Try to load a saved binary containing our data
-		binary_outfile = "inputData_{}.npz".format(dataSize)
-		trainingData, testData = loadBin(binary_outfile)
-	except Exception:				# If the binary does not exist, compile data from scratch and save binary
-		allValidMols = []
-		ligand_list = os.listdir(coords_dir)
-		fails = 0
-		for ligand_file in ligand_list:
-			ligand_name = ligand_file[:-4]		# ligand name is ligand file name without ".mol" extention
-			try:
-				mol = Chem.MolFromMolFile("{}{}".format(coords_dir,ligand_file))
-				allValidMols.append([ligand_name,mol])
-			except IOError:
-				fails += 1
-				continue
-		if v:
-			print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
-		deltaGs = readInputEnergies()
-		trainingData, testData = sortInputData(allValidMols,deltaGs)
-		if v:
-			print " Read in {} training data, {} test data.".format(len(trainingData),len(testData))
-		saveAsBin(trainingData, testData)
-	return [trainingData, testData]
+	if n:							# Allows user to force building a new binary from raw data. Will likely overwrite existing binary.
+		functions.makeUnsortedBinary()
+	try:							# Load a saved binary containing our data
+		binary_outfile = "unsorted_ligs.npy"
+		unsortedData = loadUnsortedBin(binary_outfile)
+		return unsortedData
+	except Exception:				# If a binary isn't found, look for partial binaries and combine them.
+		try:
+			if v:
+				print ("Failed to find binary. Looking for partial binaries...")
+			functions.combineSplitBinaries()
+			readInputData()
+		except Exception:			# If no binaries of any type are found, assemble a new one.
+			if v:
+				print ("Failed to find partial binaries. Looking for raw data...")
+			functions.makeUnsortedBinary()
+			readInputData()
+
 
 # Reads in energy valus for each ligand
 def readInputEnergies():
@@ -246,7 +246,7 @@ def saveModel(model):
 
 # Save the compiled data as a binary file for faster loading
 def saveAsBin(train,test):
-	binary_outfile = "inputData_{}.npz".format(dataSize)
+	binary_outfile = "sorted_ligs_{}.npz".format(dataSize)
 	np.savez(binary_outfile,train,test)
 
 # Load binary data file
@@ -262,11 +262,19 @@ def loadBin(binary_outfile):
 		print (" Test data loaded.\n\tSize: {} molecules".format(len(testData)))
 	return trainingData, testData
 
+def loadUnsortedBin(binary_outfile):
+	if v: 
+		print ("Loading binary file: {}".format(binary_outfile))
+	arr = np.load(binary_outfile)
+	if v:
+		print ("Training data loaded.\n\tSize: {} unsorted molecules".format(len(arr)))
+	return arr
+
 #########################################
 ################  MAIN  #################
 #########################################
 def main():
-	trainingData, testData = readInputData()
+	allMolData = readInputData()
 	model = fitModel(trainingData)
 	saveModel(model)
 	testModel(model,testData)
