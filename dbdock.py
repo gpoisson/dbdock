@@ -182,24 +182,54 @@ def getTargetData(trainingIndeces,allMolData):
 		tData.append(allMolData[i][2])
 	return tData
 
+# Returns a set of test data which has not been used to train a model
+def getTestData(trainingIndeces,allMolData,totalMolCount):
+	ratio = totalMolCount / additions_per_fitting
+	index_list = np.arange(additions_per_fitting) * ratio
+	for index in index_list:
+		while (index in trainingIndeces):
+			index += 1
+	tData = [[]]
+	expected = []
+	for index in index_list:
+		d = extractFeatureData(allMolData[index][1])
+		expected.append(allMolData[index][2])
+		for feature in d:
+			for data in feature:
+				tData[-1].append(data)
+		tData.append([])
+	return tData[:-1], expected
+
 # Fit a small model using evenly distributed data points.
 # Then use the model to determine another small data set which will 
 #   be used for further training
 def fitModelContinuousTest(allMolData):
+	modelFitCount = 0
 	initialModel = SVR(kernel='rbf')
 	model = SVR(kernel='rbf')
 	totalMolCount = len(allMolData)
 	trainingIndeces = []
+	if v:
+		print "Fitting initial model..."
 
-	# Train a model on a small, evenly distributed dataset
+	# Train a base model on a small, evenly distributed dataset
 	getNextIndeces(initialModel,trainingIndeces,totalMolCount)
 	trainData = getTrainData(trainingIndeces,allMolData)
 	targetData = getTargetData(trainingIndeces,allMolData)
 	initialModel.fit(trainData,targetData)
 	model = initialModel
-	
-	# Use the model to determine the next dataset to train on
+	modelFitCount += 1
+	if v:
+		print "{} model fit iterations.".format(modelFitCount)
 
+	# Use the model to determine the next dataset to train on
+	testData, expected = getTestData(trainingIndeces,allMolData,totalMolCount)
+	predicted = model.predict(testData)
+	error = abs(predicted-expected)
+	if v:
+		print " Mean delta G prediction error: {}".format(np.mean(error))
+		print " Max delta G prediction error: {}".format(np.amax(error))
+		print " Index: {}".format(np.argmax(error))
 	# Train a new model on the entire current training dataset
 
 	return model, trainingIndeces
@@ -212,6 +242,6 @@ def main():
 	allMolData = readInputData()
 	model, trainingIndeces = fitModelContinuousTest(allMolData)
 	#saveModel(model)
-	testModel(model,testData)
+	# testModel(model,testData)
 
 main()
