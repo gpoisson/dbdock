@@ -115,6 +115,104 @@ def readInputEnergies():
 				continue
 	return deltaGs
 
+# Sort input data into training and testing datasets
+# Picks n evenly-indexed mols for training, rest go to testing
+def sortInputData(mols,deltaGs):
+	train = []
+	test = []
+	trainIndeces = []		# Keep track of molecules used for training; use the rest for testing
+	c = 0
+	p = 0
+	count = 0
+
+	if v:
+		print "Assemble training and testing data..."
+	while (count < int(dataSize)):
+		if (count == 0):									# If no molecules have been sorted, take the first one
+			try:	
+				if (mols[0][1] == None):
+					continue
+				else:
+					ligand_name = mols[0][0]
+					features = extractFeatureData(mols[0][1])
+					dg = deltaGs[ligand_name]
+					train.append([ligand_name,features,dg])
+					trainIndeces.append(0)
+			except KeyError:
+				continue
+		else:												# If more than two molecules have been sorted, evenly distribute the rest
+			c += 1
+			index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1				# Apply a logarithmic distribution to evenly choose training/testing samples
+			if (index >= len(mols)):
+				p += 1
+				c = 0
+				index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1
+			try:	
+				if (mols[index][1] == None):
+					continue
+				else:
+					ligand_name = mols[index][0]
+					features = extractFeatureData(mols[index][1])
+					dg = deltaGs[ligand_name]
+					train.append([ligand_name,features,dg])
+					trainIndeces.append(index)
+			except KeyError:
+				continue
+		count = len(train)
+
+	count = 0
+	for mol in mols:										# Use record of training molecule indeces to add non-training molecules to test
+		if count in trainIndeces:
+			continue
+		else:
+			try:
+				if (mol[1] == None):
+					continue
+				else:
+					ligand_name = mols[count][0]
+					features = extractFeatureData(mols[count][1])
+					dg = deltaGs[ligand_name]
+					test.append([ligand_name,features,dg])
+			except KeyError:
+				continue
+		count += 1
+	if v:
+		print "Sorted {} molecules into {} training points and {} test points.".format(len(mols),len(train),len(test))
+	return train, test
+
+
+# Sort input data into training and testing datasets
+# Places every nth mol into train, rest into test
+def sortInputStep(mols,deltaGs):
+	train = []
+	test = []
+	count = 0
+	test_frac = int(len(mols)/int(dataSize))
+
+	if v:
+		print "Assemble training and testing data..."
+	for mol in mols:
+		if (mol[1] == None):
+			continue
+		else:
+			ligand = mol[0]									# ligand name (string)
+			features = extractFeatureData(mol[1])			# mol[1] = mol object (rdkit)
+			try:
+				dg = deltaGs[ligand]							# deltaG for this ligand
+				if (count % test_frac != 0):
+					test.append([ligand,features,dg])
+				else:
+					train.append([ligand,features,dg])
+				count += 1
+			except KeyError:
+				continue
+	return train, test
+
+# Save the compiled data as a binary file for faster loading
+def saveAsBin(train,test):
+	binary_outfile = "sorted_ligs_{}.npz".format(dataSize)
+	np.savez(binary_outfile,train,test)
+
 def loadUnsortedBinary():
 	t = np.load("unsorted_ligs.npy")
 	return t
