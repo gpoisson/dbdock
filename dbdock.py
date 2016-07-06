@@ -17,6 +17,7 @@ coords_dir = "lig_mols/"
 energies_dir = "energies/"
 energies_file = "energies_sorted.dat"
 dataSize = 100000
+additions_per_fitting = 50			# Number of new points to add to the model at each fitting
 rbf_c = 1.0
 v = False
 n = False
@@ -270,12 +271,32 @@ def loadUnsortedBin(binary_outfile):
 		print ("Training data loaded.\n\tSize: {} unsorted molecules".format(len(arr)))
 	return arr
 
+# Determines the indeces of the next molecules to be included in the model
+def getNextIndeces(model,trainingIndeces,totalMolCount):
+	print
+
+# Fit a small model using evenly distributed data points.
+# Then use the model to determine another small data set which will 
+def fitModelContinuous(allMolData):
+	initialModel = SVR()
+	totalMolCount = len(allMolData)
+	trainingIndeces = []
+
+	# Train a model on a small, evenly distributed dataset
+	initialIndeces = getNextIndeces(initialModel,trainingIndeces,totalMolCount)
+	# Recursively use the model to determine the next dataset to train on
+
+	# Recursively train a new model on the entire current training dataset
+
+	return model, unusedData
+
+
 #########################################
 ################  MAIN  #################
 #########################################
 def main():
 	allMolData = readInputData()
-	model = fitModel(trainingData)
+	model, unusedData = fitModelContinuous(allMolData)
 	saveModel(model)
 	testModel(model,testData)
 

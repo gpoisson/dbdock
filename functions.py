@@ -119,4 +119,11 @@ def loadUnsortedBinary():
 	t = np.load("unsorted_ligs.npy")
 	return t
 
+# Takes an entry from unsorted_ligs.npy and draws it to a PNG file
+def drawMolToPng(mol):
+	m2 = Chem.AddHs(mol[1])
+	AllChem.EmbedMolecule(m2)
+	AllChem.Compute2DCoords(m2)
+	Draw.MolToFile(m2,"{}.png".format(mol[0]))
+
 # combineSplitBinaries()
