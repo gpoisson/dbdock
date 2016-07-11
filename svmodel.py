@@ -16,4 +16,3 @@ lig_count = len(lig_data)
 
 
 def main():
-	
