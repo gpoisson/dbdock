@@ -15,4 +15,5 @@ lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
 
 
-def 
+def main():
+	
