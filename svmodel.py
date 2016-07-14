@@ -12,9 +12,11 @@ import os, sys
 import matplotlib.pyplot as plt
 
 data_file_name = "sorted_ligs_by_deltaG.npy"
-samples_per_step = sys.argv[1]
+sample_layers = int(sys.argv[1]) + 1			# naive dataset takes <sample_layer> samples per bin
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
+
+print " Ligand binary read: {} molecules".format(lig_count)
 
 # Extract the features of interest from a specified molecule
 def extractFeatureData(mol):
@@ -38,3 +40,24 @@ def countDistribDeltaG():
 		x.append(dg)
 		y.append(count)
 	return x, y
+
+def getNaiveDataset():
+	x, y = countDistribDeltaG()
+	data_dict = {}
+	for d in lig_data:						# Build a dictionary, with mols being stored under the entry for
+		if (d[2] in data_dict):				#    their respective delta G values
+			data_dict[d[2]].append(d[1])
+		else:
+			data_dict[d[2]] = [d[1]]
+	samples = []
+	for layer in range(sample_layers-1):
+		for dg in data_dict:
+			sample_count = len(data_dict[dg])							# number of molecules at each delta g value
+			rand_index = int(np.random.random() * sample_count - 1)		# choose a random molecule from each bin
+			samples.append([dg,data_dict[dg][rand_index]])
+	return x,y,samples
+
+x,y,samples = getNaiveDataset()
+print len(samples)
+plt.figure()
+plt.plot(x,y,'x',mew=3, ms=5)
