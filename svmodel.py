@@ -41,8 +41,9 @@ def countDistribDeltaG():
 		y.append(count)
 	return x, y
 
+# Returns a naive sample of the molecules
+# samples = [[dg, <rdkit mol>],[dg, <rdkit mol>],...]
 def getNaiveDataset():
-	x, y = countDistribDeltaG()
 	data_dict = {}
 	for d in lig_data:						# Build a dictionary, with mols being stored under the entry for
 		if (d[2] in data_dict):				#    their respective delta G values
@@ -55,9 +56,9 @@ def getNaiveDataset():
 			sample_count = len(data_dict[dg])							# number of molecules at each delta g value
 			rand_index = int(np.random.random() * sample_count - 1)		# choose a random molecule from each bin
 			samples.append([dg,data_dict[dg][rand_index]])
-	return x,y,samples
+	return samples
 
-x,y,samples = getNaiveDataset()
+samples = getNaiveDataset()
 print len(samples)
 plt.figure()
 plt.plot(x,y,'x',mew=3, ms=5)
