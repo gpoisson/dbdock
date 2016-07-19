@@ -8,7 +8,10 @@ from sklearn.externals import joblib
 from sklearn import preprocessing
 import operator
 import os, sys
+import time
 import matplotlib.pyplot as plt
+
+start = time.time()
 
 data_file_name = "sorted_ligs_by_deltaG.npy"
 sample_layers = int(sys.argv[1])				# naive dataset takes <sample_layer> samples per bin
@@ -87,6 +90,23 @@ def getNaiveDataset():
 				lig_data = np.delete(lig_data,i,0)
 			i += 1
 	print "Successfully sampled total of {} molecules.\n".format(lig_count - len(lig_data))
+
+	'''
+	r = int(np.random.random() * len(lig_data))
+	random_ligand = lig_data[r]
+	print "lig_data[{}] = {}".format(r,random_ligand)
+	rlig_dg = 0
+	ind = 0
+	for dg in data_dict:
+		ind += 1
+		if (isinstance(dg,float)):
+			rlig_dg = float(dg)
+			if rlig_dg in random_ligand:
+				for samp in data_dict[ind]:
+					if samp[0] in random_ligand:
+						print samp, dg
+	'''
+
 	return naive_samples, dgs
 
 # Focus another sampling on the delta G region where the model's error is highest
@@ -128,6 +148,23 @@ def getNextDataset(sampling_count, max_sampling_count, dg_max_err, max_err):
 				lig_data = np.delete(lig_data,i,0)
 	#new_samples = getRandomSamples(data_dict,i,sampled)
 	print "Successfully sampled total of {} molecules.\n".format(lig_count - len(lig_data))
+
+	'''
+	r = int(np.random.random() * len(lig_data))
+	random_ligand = lig_data[r]
+	print "lig_data[{}] = {}".format(r,random_ligand)
+	rlig_dg = 0
+	ind = 0
+	for dg in data_dict:
+		ind += 1
+		if (isinstance(dg,float)):
+			rlig_dg = float(dg)
+			if rlig_dg in random_ligand:
+				for samp in data_dict[ind]:
+					if samp[0] in random_ligand:
+						print samp, dg
+	'''
+
 	return new_samples, dgs
 
 
@@ -223,26 +260,35 @@ def plotData(predicted,expected,sample_count):
 	plt.show()
 
 
+def main():
+	global data_file_name, sample_layers, lig_data, lig_count
 
-samples, dgs = getNaiveDataset()
-model, init_sample_count = fitModel(samples, dgs)
+	samples, dgs = getNaiveDataset()
+	model, init_sample_count = fitModel(samples, dgs)
 
-dg_max_err, max_err, mean_err, predicted, expected = testModel(model, init_sample_count)
+	dg_max_err, max_err, mean_err, predicted, expected = testModel(model, init_sample_count)
 
-sample_layers_done = 0
-mean_errs = []
-max_errs = []
+	sample_layers_done = 0
+	mean_errs = []
+	max_errs = []
 
-while (sample_layers_done < sample_layers):
-	new_samples, new_dgs = getNextDataset(sample_layers_done,sample_layers,dg_max_err, max_err)
-	for s in new_samples:
-		samples.append(s)
-	for d in new_dgs:
-		dgs.append(d)
-	model, last_sample_count = fitModel(samples, dgs)
-	dg_max_err, max_err, mean_err, predicted, expected = testModel(model, last_sample_count)
-	max_errs.append(max_err)
-	mean_errs.append(mean_err)
-	sample_layers_done += 1
+	while (sample_layers_done < sample_layers):
+		new_samples, new_dgs = getNextDataset(sample_layers_done,sample_layers,dg_max_err, max_err)
+		for s in new_samples:
+			samples.append(s)
+		for d in new_dgs:
+			dgs.append(d)
+		model, last_sample_count = fitModel(samples, dgs)
+		dg_max_err, max_err, mean_err, predicted, expected = testModel(model, last_sample_count)
+		max_errs.append(max_err)
+		mean_errs.append(mean_err)
+		sample_layers_done += 1
 
-plotData(range(len(mean_errs)),mean_errs,last_sample_count)
+
+	end = time.time()
+
+	print ("Program executed in {} seconds".format(end-start))
+
+	plotData(range(len(max_errs)),max_errs,last_sample_count)
+
+main()
