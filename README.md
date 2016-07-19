@@ -1,16 +1,19 @@
 # dbdock
 Scripts related to machine learning drug binding project
 
-Currently, dbdock.py implements a support vector machine to compare experimentally-determined protein-ligand binding affinities to the structural properties of ligands in a database. The goal is to produce a model that can accurately predict binding affinity for a new ligand with known structural properties. 
+svmodel.py is the script which imports the data binary and fits a support vector machine to predict binding affinity.
+functions.py contains a number of auxilliary functions, including graphing and feature extracting functions.
+dockti.py is intended to wrap the functionality of svmodel and functions into a script which will screen large databases of ligands for potential drug candidates, and then run the selected samples through autodock.
 
 # Usage
 
-$ python dbdock.py (verbose) (training size)
+> Currently, svmodel works as a standalone script, and will illustrate prediction error with respect to training iterations.
+>   Suggested training sample count: 150
+$ python svmodel.py <training_sample_count>
 
 > Example:
 
-  $ python dbdock.py True 20000    
+  $ python svmodel.py 150
 
-> Builds SVR model on 20,000 training samples with verbose output ON
+> Builds SVR model on a naive sample across all available delta G values, then adaptively samples 150 additional ligands
 
-dbdock also uses features.py, an auxillary library containing wrappers for generating matplotlib plots
