@@ -211,7 +211,7 @@ def testModel(model, sample_count):
 		if e > max_err:
 			max_err = e
 			dg_max_err = expected[np.where(errs==e)[0][0]]
-	return (dg_max_err, e, predicted, expected)
+	return (dg_max_err, e, np.mean(errs), predicted, expected)
 
 # Plot model results
 def plotData(predicted,expected,sample_count):
@@ -230,6 +230,9 @@ model, init_sample_count = fitModel(samples, dgs)
 dg_max_err, max_err, predicted, expected = testModel(model, init_sample_count)
 
 sample_layers_done = 0
+mean_errs = []
+max_errs = []
+
 while (sample_layers_done < sample_layers):
 	new_samples, new_dgs = getNextDataset(sample_layers_done,sample_layers,dg_max_err, max_err)
 	for s in new_samples:
@@ -237,7 +240,9 @@ while (sample_layers_done < sample_layers):
 	for d in new_dgs:
 		dgs.append(d)
 	model, last_sample_count = fitModel(samples, dgs)
-	dg_max_err, max_err, predicted, expected = testModel(model, last_sample_count)
+	dg_max_err, max_err, mean_err, predicted, expected = testModel(model, last_sample_count)
+	max_errs.append(max_err)
+	mean_errs.append(mean_err)
 	sample_layers_done += 1
 
 plotData(predicted,expected,last_sample_count)
