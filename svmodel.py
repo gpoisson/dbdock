@@ -217,9 +217,9 @@ def testModel(model, sample_count):
 def plotData(predicted,expected,sample_count):
 	plt.figure()
 	plt.plot(predicted,expected,'x')
-	plt.suptitle("Accuracy and Precision of Model, {} Samples".format(sample_count ))
-	plt.xlabel("Predicted Delta G")
-	plt.ylabel("Known Delta G")
+	plt.suptitle("Mean Error of Model Over {} Samples".format(sample_count ))
+	plt.xlabel("Sample Count")
+	plt.ylabel("Mean Model Error")
 	plt.show()
 
 
@@ -227,7 +227,7 @@ def plotData(predicted,expected,sample_count):
 samples, dgs = getNaiveDataset()
 model, init_sample_count = fitModel(samples, dgs)
 
-dg_max_err, max_err, predicted, expected = testModel(model, init_sample_count)
+dg_max_err, max_err, mean_err, predicted, expected = testModel(model, init_sample_count)
 
 sample_layers_done = 0
 mean_errs = []
@@ -245,4 +245,4 @@ while (sample_layers_done < sample_layers):
 	mean_errs.append(mean_err)
 	sample_layers_done += 1
 
-plotData(predicted,expected,last_sample_count)
+plotData(len(mean_errs),mean_errs,last_sample_count)
