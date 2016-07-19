@@ -245,4 +245,4 @@ while (sample_layers_done < sample_layers):
 	mean_errs.append(mean_err)
 	sample_layers_done += 1
 
-plotData(len(mean_errs),mean_errs,last_sample_count)
+plotData(range(len(mean_errs)),mean_errs,last_sample_count)
