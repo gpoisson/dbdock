@@ -17,6 +17,8 @@ data_file_name = "sorted_ligs_by_deltaG.npy"
 sample_layers = int(sys.argv[1])				# naive dataset takes <sample_layer> samples per bin
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
+test_count = 5000
+test_ligs = []
 
 print "\n Ligand binary read: {} molecules".format(lig_count)
 
@@ -25,15 +27,44 @@ def extractFeatureData(mol):
 	smr_vsa = rdMolDescriptors.SMR_VSA_(mol)
 	slogp_vsa = rdMolDescriptors.SlogP_VSA_(mol)
 	peoe_vsa = rdMolDescriptors.PEOE_VSA_(mol)
+	hbd = rdMolDescriptors.CalcNumHBD(mol)
+	hba = rdMolDescriptors.CalcNumHBA(mol)
 
-	feats = [smr_vsa,slogp_vsa,peoe_vsa]
+	feats = [smr_vsa,slogp_vsa,peoe_vsa,hbd,hba]
 
 	feature_data = []
 	for f in feats:
-		for data in f:
-			feature_data.append(data)
+		if (isinstance(f,int)):
+			feature_data.append(f)
+		else:
+			for data in f:
+				feature_data.append(data)
 	#feature_data = np.asarray(feature_data)						# convert to numpy array
 	return feature_data
+
+# Extract <test_count> many test ligands to use as a control test group
+def getTestData():
+	global test_ligs, lig_data
+	i = 0
+	remove = []
+	for mol in lig_data:
+		if ((i % 5 == 3) & (len(test_ligs) < test_count)):
+			test_ligs.append(mol)
+			remove.append(i)
+		i += 1
+	for ind in remove:
+		lig_data = np.delete(lig_data,ind,0)
+	print "Test data collected. {} test samples.".format(len(test_ligs))
+
+	expected = []
+	test_data = []
+	for lig in test_ligs:
+		expected.append(float(lig[2]))
+		test_data.append(extractFeatureData(lig[1]))
+	print len(lig_data)
+
+	return expected, test_data
+
 
 # Measures the distribution of delta G values in the dataset
 # Used for plotting the dataset histogram
@@ -59,7 +90,9 @@ def getNaiveDataset():
 	dgs = []
 	sampled = []
 	for d in lig_data:						# Build a data set, with mols being stored under the entry for
-		if d[2] in data_dict:				#    their delta G value
+		if (isinstance(d,float)):
+			continue
+		elif d[2] in data_dict:				#    their delta G value
 			data_dict[data_dict.index(d[2]) + 1].append([d[0],d[1]])
 		else:
 			data_dict.append(d[2])
@@ -89,7 +122,7 @@ def getNaiveDataset():
 			if mol[0] == samp:
 				lig_data = np.delete(lig_data,i,0)
 			i += 1
-	print "Successfully sampled total of {} molecules.\n".format(lig_count - len(lig_data))
+	print "Successfully sampled total of {} molecules.\n".format(lig_count - len(lig_data) - test_count)
 
 	'''
 	r = int(np.random.random() * len(lig_data))
@@ -136,7 +169,21 @@ def getNextDataset(sampling_count, max_sampling_count, dg_max_err, max_err):
 				rand_index = int(np.random.random() * len(data_dict[i]))
 				sampled.append(data_dict[i][rand_index][0])
 				new_samples.append(extractFeatureData(data_dict[i][rand_index][1]))
+	if (len(new_samples) == 0):				# if there are no more samples available at dg with greatest error,
+		closest_dg = abs(dg_max_err)						#   sample from the dg bin which is closest to the dg of greatest error
+		min_d = closest_dg
+		i = 1
+		for d in range(len(data_dict)):								# find closest delta g value to max error delta g
+			if (isinstance(data_dict[d],float)):
+				if (abs(closest_dg - abs(data_dict[d])) < min_d):
+					min_d = abs(closest_dg - abs(data_dict[d]))
+					i = d + 1
+		rand_index = int(np.random.random() * len(data_dict[i]))	# sample from the nearest delta g dataset
+		sampled.append(data_dict[i][rand_index][0])
+		new_samples.append(extractFeatureData(data_dict[i][rand_index][1]))
+
 	print " Getting layer {} target data...".format(sampling_count + 1)
+	print "   {} additional ligand(s)".format(len(new_samples))
 	for lig in lig_data:
 		if lig[0] in sampled:
 			dgs.append(float(lig[2]))
@@ -147,7 +194,7 @@ def getNextDataset(sampling_count, max_sampling_count, dg_max_err, max_err):
 			if mol[0] == samp:
 				lig_data = np.delete(lig_data,i,0)
 	#new_samples = getRandomSamples(data_dict,i,sampled)
-	print "Successfully sampled total of {} molecules.\n".format(lig_count - len(lig_data))
+	print "Successfully sampled total of {} molecules.\n".format(lig_count - len(lig_data) - test_count)
 
 	'''
 	r = int(np.random.random() * len(lig_data))
@@ -226,29 +273,19 @@ def fitModel(samples, dgs):
 	return model, sample_count
 
 # Test SVR model against the test data
-def testModel(model, sample_count):
+def testModel(model, sample_count, test_data, expected):
 	predicted = []
-	expected = []
-	test_data = []
-	print " Compiling test data from {} of the remaining {} ligands...".format(len(lig_data)/3, len(lig_data))
-	c = 0
-	for lig in lig_data:
-		if c % 3 == 0:
-			expected.append(float(lig[2]))
-			test_data.append(extractFeatureData(lig[1]))
-		c += 1
-	print "Test data compiled"
+	print "Testing model..."
 	test_data = np.asarray(test_data)
 	predicted = model.predict(test_data)
 	print "Predictions made"
 	errs = abs(predicted - expected)
-	max_err = 0
-	dg_max_err = 0
-	for e in errs:
-		if e > max_err:
-			max_err = e
-			dg_max_err = expected[np.where(errs==e)[0][0]]
-	return (dg_max_err, e, np.mean(errs), predicted, expected)
+	errs = [ round(elem, 2) for elem in errs ]
+	max_err = np.amax(errs)
+	dg_max_err = expected[np.where(errs==max_err)[0][0]]
+	mean_err = np.mean(errs)
+	print "Max error: {}\tMean error: {}".format(max_err,mean_err)
+	return (dg_max_err, max_err, mean_err, predicted)
 
 # Plot model results
 def plotData(predicted,expected,sample_count):
@@ -257,16 +294,18 @@ def plotData(predicted,expected,sample_count):
 	plt.suptitle("Mean Error of Model Over {} Samples".format(sample_count ))
 	plt.xlabel("Sample Count")
 	plt.ylabel("Mean Model Error")
+	plt.grid(True)
 	plt.show()
 
 
 def main():
 	global data_file_name, sample_layers, lig_data, lig_count
 
+	expected, test_data = getTestData()
 	samples, dgs = getNaiveDataset()
 	model, init_sample_count = fitModel(samples, dgs)
 
-	dg_max_err, max_err, mean_err, predicted, expected = testModel(model, init_sample_count)
+	dg_max_err, max_err, mean_err, predicted = testModel(model, init_sample_count, test_data, expected)
 
 	sample_layers_done = 0
 	mean_errs = []
@@ -279,7 +318,7 @@ def main():
 		for d in new_dgs:
 			dgs.append(d)
 		model, last_sample_count = fitModel(samples, dgs)
-		dg_max_err, max_err, mean_err, predicted, expected = testModel(model, last_sample_count)
+		dg_max_err, max_err, mean_err, predicted = testModel(model, last_sample_count, test_data, expected)
 		max_errs.append(max_err)
 		mean_errs.append(mean_err)
 		sample_layers_done += 1
@@ -289,6 +328,6 @@ def main():
 
 	print ("Program executed in {} seconds".format(end-start))
 
-	plotData(range(len(max_errs)),max_errs,last_sample_count)
+	plotData(range(len(mean_errs)),mean_errs,last_sample_count)
 
 main()
