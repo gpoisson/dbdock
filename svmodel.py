@@ -18,6 +18,7 @@ data_file_name = "dev_data.npy"
 sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols after naive set
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
+lig_feature_data = []
 test_count = 5000
 test_ligs = []
 index_of_1d_feature = None
@@ -92,7 +93,13 @@ def drawNaiveSet(lig_feature_data):
 
 def removeSampledLigs(lig_set):
 	global lig_feature_data
-	
+	sampled_names = lig_set
+	remaining_names = lig_feature_data
+
+	for s in sampled_names:
+		if s in remaining_names:
+			rem_index = remaining_names.index(s)
+			del lig_feature_data[rem_index]
 
 # Simulates running autodock by looking up delta G in a table and waiting for some time
 def getDeltaG(mol):
@@ -123,15 +130,21 @@ def fitSet(ligand_set, deltaGs):
 	return model
 
 # Use model to choose the next ligand to be tested
-def getNextLigand(model, lig_feature_data):
-	print ""
+def getNextLigand(predictions, lig_feature_data):
+	print " Determining next sample to include in model..."
+
 
 # Compute the accuracy of the current model
 def testModel(model, lig_feature_data):
-
+	test_data = []
+	for lig in lig_feature_data:
+		test_data.append(lig[1])
+	test_data = np.asarray(test_data)
+	predictions = model.predict(test_data)
 	new_lig = getNextLigand(model, lig_feature_data)
 
 def main():
+	global lig_feature_data
 	lig_feature_data = getAllFeatureData(lig_data)
 	naive_set, deltaGs = drawNaiveSet(lig_feature_data)
 	model = fitSet(naive_set, deltaGs)
