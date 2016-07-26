@@ -15,7 +15,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 start = time.time()
 
-data_file_name = "dev_data.npy"
+data_file_name = "sorted_no_dg.npy"
 # data_file_name = "sorted_no_dg.npy"
 sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols after naive set
 threshold = float(sys.argv[2])					# minimum value accepted for max_error of prediction
@@ -36,7 +36,7 @@ def extractFeatureData(mol):
 	hbd = rdMolDescriptors.CalcNumHBD(mol)
 	hba = rdMolDescriptors.CalcNumHBA(mol)
 
-	index_of_1d_feature = -1		# Need to make sure this references the index of a 1D feature
+	index_of_1d_feature = -7		# Need to make sure this references the index of a 1D feature
 									#  (a negative index refers to counting backwards from the end of a list)
 	feats = [smr_vsa,slogp_vsa,peoe_vsa,hbd,hba]
 
@@ -163,7 +163,14 @@ def getMostUniquePrediction(predictions, deltaGs, lig_feature_data):
 				index = predictions.index(pred)
 				c_pred = pred
 				max_diff = abs(val-pred)
+
+	print " There are {} known delta Gs and {} predictions to compare.".format(len(deltaGs),len(predictions))
 	return lig_feature_data[index], c_pred
+
+# Return a random ligand to verify usefulness of the algorithm
+def getRandomPrediction(predictions, deltaGs, lig_feature_data):
+	rand_index = int(np.random.random() * len(lig_feature_data))
+	return lig_feature_data[rand_index], predictions[rand_index]
 
 # Use model to choose the next ligand to be tested
 def getNextLigand(predictions, lig_feature_data, deltaGs):
@@ -209,7 +216,7 @@ def makePlots(errors, predictions, deltaGs, durations, mean_error):
 
 	ax_ar1.plot(predictions,deltaGs,'x',color='r',ms=3,mew=5)
 	ax_ar1.grid(True)
-	ax_ar1.set_title("Predicted vs Acutal Delta G (kcal/mol)")
+	ax_ar1.set_title("Predicted vs Actual Delta G (kcal/mol)")
 	ax_ar1.set_xlabel("Predicted Delta G (kcal/mol)")
 	ax_ar1.set_ylabel("Actual Delta G (kcal/mol)")
 
@@ -231,10 +238,10 @@ def makePlots(errors, predictions, deltaGs, durations, mean_error):
 	ax_ar4.set_xlabel("Number of Training Iterations")
 	ax_ar4.set_ylabel("Mean Error (kcal/mol)")
 
-	#plt.show()
-	pp = PdfPages("plots/{}_samples.pdf".format(len(predictions))
-	plt.savefig()
-	pp.close()
+	plt.show()
+	#pp = PdfPages("plots/{}_samples.pdf".format(len(predictions))
+	#plt.savefig()
+	#pp.close()
 
 def main():
 	global lig_feature_data
