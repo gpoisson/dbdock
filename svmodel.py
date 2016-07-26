@@ -10,6 +10,7 @@ import operator
 import os, sys
 import time
 import matplotlib.pyplot as plt
+import matplotlib.pylab
 
 start = time.time()
 
@@ -160,6 +161,7 @@ def getMostUniquePrediction(predictions, deltaGs, lig_feature_data):
 			if (abs(val - pred) > max_diff):
 				index = predictions.index(pred)
 				c_pred = pred
+				max_diff = abs(val-pred)
 	return lig_feature_data[index], c_pred
 
 # Use model to choose the next ligand to be tested
@@ -222,6 +224,8 @@ def makePlots(errors, predictions, deltaGs, durations):
 	axis_array[3].set_ylabel("Time (seconds")
 
 	plt.show()
+	#plt.savefig("{}_ligs.png",len(predictions),dpi=1200)
+	#plt.close(f)
 
 def main():
 	global lig_feature_data
