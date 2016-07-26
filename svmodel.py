@@ -16,6 +16,7 @@ start = time.time()
 data_file_name = "dev_data.npy"
 # data_file_name = "sorted_no_dg.npy"
 sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols after naive set
+threshold = int(sys.argv[2])					# minimum value accepted for max_error of prediction
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
 lig_feature_data = []
@@ -91,6 +92,15 @@ def drawNaiveSet(lig_feature_data):
 	# choose a small set of ligands which are roughly equidistant in this small feature space
 	return naive_set, deltaGs
 
+# Combines the newest ligand with the last set
+def drawNextSet(last_set, new_lig):
+	next_set = []
+	for lig in last_set:
+		next_set.append(lig)
+	next_set.append(new_lig)
+	return next_set, deltaGs
+
+# Removes a list of ligands from the database of ligand feature data
 def removeSampledLigs(lig_set):
 	global lig_feature_data
 	sampled_names = lig_set
@@ -114,6 +124,7 @@ def getDeltaG(mol):
 	print "Failed to find a delta G for {}".format(mol)
 	return 0
 
+# Return a model fitted to all the current known data
 def fitSet(ligand_set, deltaGs):
 	model = SVR(kernel='rbf')
 	x = []
@@ -129,25 +140,49 @@ def fitSet(ligand_set, deltaGs):
 	print "Model successfully fitted."
 	return model
 
+# Identify the predicted delta G which is most unlike the other known values
+def getMostUniquePrediction(predictions, deltaGs, lig_feature_data):
+	max_diff = 0
+	index = 0
+	predictions = predictions.tolist()
+	for val in deltaGs:
+		for pred in predictions:
+			if (abs(val - pred) > max_diff):
+				index = predictions.index(pred)
+	return lig_feature_data[index]
+
 # Use model to choose the next ligand to be tested
-def getNextLigand(predictions, lig_feature_data):
+def getNextLigand(predictions, lig_feature_data, deltaGs):
 	print " Determining next sample to include in model..."
+	next_lig = getMostUniquePrediction(predictions, deltaGs, lig_feature_data)
+	removeSampledLigs([next_lig[0]])
+	print "  Returned {}".format(next_lig[0])
+	return next_lig
 
 
-# Compute the accuracy of the current model
-def testModel(model, lig_feature_data):
+
+# Picks next sample, updates current model, measures error
+def updateModel(model, lig_feature_data, deltaGs):
 	test_data = []
 	for lig in lig_feature_data:
 		test_data.append(lig[1])
 	test_data = np.asarray(test_data)
 	predictions = model.predict(test_data)
-	new_lig = getNextLigand(model, lig_feature_data)
+	new_lig = getNextLigand(predictions, lig_feature_data, deltaGs)
+	next_set, deltaGs = drawNextSet(last_set, new_lig)
+	model = fitSet(next_set, deltaGs)
+	return error, next_set, deltaGs,
 
 def main():
 	global lig_feature_data
 	lig_feature_data = getAllFeatureData(lig_data)
 	naive_set, deltaGs = drawNaiveSet(lig_feature_data)
 	model = fitSet(naive_set, deltaGs)
-	error = testModel(model, lig_feature_data)
+	error = 100
+	last_set = naive_set
+	while (error > threhshold):
+		model = fitSet(last_set, deltaGs)
+		error = testModel()
+		error = updateModel(model, lig_feature_data, deltaGs)
 
 main()
