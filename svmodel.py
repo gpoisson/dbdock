@@ -15,7 +15,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 start = time.time()
 
-data_file_name = "sorted_no_dg.npy"
+data_file_name = "dev_data.npy"
 # data_file_name = "sorted_no_dg.npy"
 sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols after naive set
 threshold = float(sys.argv[2])					# minimum value accepted for max_error of prediction
@@ -25,6 +25,9 @@ lig_feature_data = []
 test_count = 5000
 test_ligs = []
 index_of_1d_feature = None
+training_data_known = []
+training_data_predictions = []
+dgs = []
 print "\n Ligand binary read: {} molecules".format(lig_count)
 
 # Extract the features of interest from a specified molecule
@@ -103,6 +106,7 @@ def drawNextSet(last_set, new_lig, deltaGs):
 
 # Removes a list of ligands from the database of ligand feature data
 def removeSampledLigs(lig_set):
+	global training_data_known
 	global lig_feature_data
 	#print " lig feature data: {} things".format(len(lig_feature_data))
 	#print " lig feature [0]: {} things".format(len(lig_feature_data[0]))
@@ -118,6 +122,7 @@ def removeSampledLigs(lig_set):
 		if s in remaining_names:
 			rem_index = remaining_names.index(s)
 			print " Removing sampled ligand from database: {}".format(lig_feature_data[rem_index][0])
+			training_data_known.append(lig_feature_data[rem_index])
 			del lig_feature_data[rem_index]
 		else:
 			print "Didn't find {} in the remaining {} names. (Example: {})".format(s, len(remaining_names), remaining_names[0])
@@ -137,7 +142,7 @@ def getDeltaG(mol):
 
 # Return a model fitted to all the current known data
 def fitSet(ligand_set, deltaGs):
-	model = SVR(kernel='rbf')
+	model = SVR(kernel='rbf',C=1e6)
 	x = []
 	y = deltaGs
 
@@ -184,11 +189,20 @@ def getNextLigand(predictions, lig_feature_data, deltaGs):
 	print "  Returned {}\tPredicted {}".format(next_lig[0], pred)
 	return next_lig, pred, dur
 
-
+def getTrainingDataStats(model):
+	global training_data_known,training_data_predictions,dgs
+	known_dgs = dgs
+	test_data = []
+	print "Measuring model quality"
+	for lig in training_data_known:
+		test_data.append(lig[1])
+	training_data_predictions = model.predict(test_data)
+	return known_dgs, training_data_predictions
+	
 
 # Picks next sample, updates current model, measures error
 def updateModel(model, this_set, deltaGs, meas, durations):
-	global lig_feature_data
+	global lig_feature_data, dgs
 	test_data = []
 	for lig in lig_feature_data:
 		test_data.append(lig[1])
@@ -197,6 +211,7 @@ def updateModel(model, this_set, deltaGs, meas, durations):
 	new_lig, pred, dur = getNextLigand(predictions, lig_feature_data, deltaGs)
 	durations.append(dur)
 	next_set, deltaGs = drawNextSet(this_set, new_lig, deltaGs)
+	dgs = deltaGs
 	meas.append(deltaGs[-1])
 	model = fitSet(next_set, deltaGs)
 	#removeSampledLigs([new_lig])
@@ -204,7 +219,7 @@ def updateModel(model, this_set, deltaGs, meas, durations):
 	print " Error: {}".format(error)
 	return model, next_set, deltaGs, error, meas, pred, durations
 
-def makePlots(errors, predictions, deltaGs, durations, mean_error):
+def makePlots(errors, predictions, deltaGs, durations, mean_error, training_data_known, training_data_predictions):
 	f, ((ax_ar0,ax_ar1),(ax_ar2,ax_ar3),(ax_ar4,ax_ar5)) = plt.subplots(3, 2)
 	f.subplots_adjust(hspace=0.52)
 	ax_ar0.plot(range(len(errors)),errors,'x',ms=3,mew=5)
@@ -238,6 +253,13 @@ def makePlots(errors, predictions, deltaGs, durations, mean_error):
 	ax_ar4.set_xlabel("Number of Training Iterations")
 	ax_ar4.set_ylabel("Mean Error (kcal/mol)")
 
+	ax_ar5.plot(training_data_known,training_data_predictions,'x',color='k',ms=3,mew=5)
+	ax_ar5.plot(training_data_known,np.poly1d(np.polyfit(training_data_known, training_data_predictions, 1))(training_data_known))
+	ax_ar5.grid(True)
+	ax_ar5.set_title("Training Data Predicted vs Actual Delta G (kcal/mol)")
+	ax_ar5.set_xlabel("Known Delta G (kcal/mol)")
+	ax_ar5.set_ylabel("Predicted Delta G (kcal/mol)")
+
 	plt.show()
 	#pp = PdfPages("plots/{}_samples.pdf".format(len(predictions))
 	#plt.savefig()
@@ -262,8 +284,9 @@ def main():
 		errors.append(error)
 		mean_error.append(np.mean(errors))
 		predictions.append(pred)
+		tdk, tdp = getTrainingDataStats(model)
 		current_layers += 1
 		print "Iterated {} layers out of {}\n".format(current_layers, sample_layers)
-	makePlots(errors, predictions, meas, durations, mean_error)
+	makePlots(errors, predictions, meas, durations, mean_error, tdk, tdp)
 
 main()
