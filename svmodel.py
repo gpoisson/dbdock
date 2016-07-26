@@ -16,7 +16,7 @@ start = time.time()
 data_file_name = "dev_data.npy"
 # data_file_name = "sorted_no_dg.npy"
 sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols after naive set
-threshold = int(sys.argv[2])					# minimum value accepted for max_error of prediction
+threshold = float(sys.argv[2])					# minimum value accepted for max_error of prediction
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
 lig_feature_data = []
@@ -102,13 +102,23 @@ def drawNextSet(last_set, new_lig, deltaGs):
 # Removes a list of ligands from the database of ligand feature data
 def removeSampledLigs(lig_set):
 	global lig_feature_data
-	sampled_names = lig_set
-	remaining_names = lig_feature_data
+	#print " lig feature data: {} things".format(len(lig_feature_data))
+	#print " lig feature [0]: {} things".format(len(lig_feature_data[0]))
+	#print " lig feature [0][0]: {} things".format(len(lig_feature_data[0][0]))
+	sampled_names = []
+	for lig in lig_set:
+		sampled_names.append(lig[0])
+	remaining_names = []
+	for lig in lig_feature_data:
+		remaining_names.append(lig[0])
 
 	for s in sampled_names:
 		if s in remaining_names:
 			rem_index = remaining_names.index(s)
+			print " Removing sampled ligand from database: {}".format(lig_feature_data[rem_index][0])
 			del lig_feature_data[rem_index]
+		else:
+			print "Didn't find {} in the remaining {} names. (Example: {})".format(s, len(remaining_names), remaining_names[0])
 
 # Simulates running autodock by looking up delta G in a table and waiting for some time
 def getDeltaG(mol):
@@ -144,46 +154,94 @@ def getMostUniquePrediction(predictions, deltaGs, lig_feature_data):
 	max_diff = 0
 	index = 0
 	predictions = predictions.tolist()
+	c_pred = 0									# predicted value for chosen ligand
 	for val in deltaGs:
 		for pred in predictions:
 			if (abs(val - pred) > max_diff):
 				index = predictions.index(pred)
-	return lig_feature_data[index]
+				c_pred = pred
+	return lig_feature_data[index], c_pred
 
 # Use model to choose the next ligand to be tested
 def getNextLigand(predictions, lig_feature_data, deltaGs):
 	print " Determining next sample to include in model..."
-	next_lig = getMostUniquePrediction(predictions, deltaGs, lig_feature_data)
-	removeSampledLigs([next_lig[0]])
-	print "  Returned {}".format(next_lig[0])
-	return next_lig
+	start = time.time()
+	next_lig, pred = getMostUniquePrediction(predictions, deltaGs, lig_feature_data)
+	end = time.time()
+	dur = end-start
+	print " Finding next ligand took {} seconds".format(dur)
+	removeSampledLigs([next_lig])
+	print "  Returned {}\tPredicted {}".format(next_lig[0], pred)
+	return next_lig, pred, dur
 
 
 
 # Picks next sample, updates current model, measures error
-def updateModel(model, lig_feature_data, this_set, deltaGs):
+def updateModel(model, this_set, deltaGs, meas, durations):
+	global lig_feature_data
 	test_data = []
 	for lig in lig_feature_data:
 		test_data.append(lig[1])
 	test_data = np.asarray(test_data)
 	predictions = model.predict(test_data)
-	new_lig = getNextLigand(predictions, lig_feature_data, deltaGs)
+	new_lig, pred, dur = getNextLigand(predictions, lig_feature_data, deltaGs)
+	durations.append(dur)
 	next_set, deltaGs = drawNextSet(this_set, new_lig, deltaGs)
+	meas.append(deltaGs[-1])
 	model = fitSet(next_set, deltaGs)
-	removeSampledLigs(new_lig)
-	return next_set, deltaGs
+	#removeSampledLigs([new_lig])
+	error = abs(pred - deltaGs[-1])
+	print " Error: {}".format(error)
+	return model, next_set, deltaGs, error, meas, pred, durations
+
+def makePlots(errors, predictions, deltaGs, durations):
+	f, axis_array = plt.subplots(4, sharex=False)
+	f.subplots_adjust(hspace=0.52)
+	axis_array[0].plot(range(len(errors)),errors,'x',ms=3,mew=5)
+	axis_array[0].grid(True)
+	axis_array[0].set_title("Model Error Over Time")
+	axis_array[0].set_xlabel("Number of Training Iterations")
+	axis_array[0].set_ylabel("Model Error")
+
+	axis_array[1].plot(predictions,deltaGs,'x',color='r',ms=3,mew=5)
+	axis_array[1].grid(True)
+	axis_array[1].set_title("Predicted vs Acutal Delta G (kcal/mol)")
+	axis_array[1].set_xlabel("Predicted Delta G (kcal/mol)")
+	axis_array[1].set_ylabel("Actual Delta G (kcal/mol)")
+
+	axis_array[2].plot(range(len(predictions)),predictions,'x',color='k',ms=3,mew=5)
+	axis_array[2].grid(True)
+	axis_array[2].set_title("Predictions over Time")
+	axis_array[2].set_xlabel("Number of Training Iterations")
+	axis_array[2].set_ylabel("Predicted Delta G (kcal/mol)")
+
+	axis_array[3].plot(range(len(durations)),durations,'x',color='g',ms=3,mew=5)
+	axis_array[3].grid(True)
+	axis_array[3].set_title("Duration of New Ligand Selection (seconds)")
+	axis_array[3].set_xlabel("Iterative Samples Taken")
+	axis_array[3].set_ylabel("Time (seconds")
+
+	plt.show()
 
 def main():
 	global lig_feature_data
 	lig_feature_data = getAllFeatureData(lig_data)
 	naive_set, deltaGs = drawNaiveSet(lig_feature_data)
 	model = fitSet(naive_set, deltaGs)
-	max_error = 100
+	error = None
+	errors = []
+	predictions = []
+	meas = []
+	durations = []
 	next_set = naive_set
-	while (max_error > threshold):
+	current_layers = 0
+	while (((error == None) or (error > threshold)) | (current_layers < sample_layers)):
 		this_set = next_set
-		model = fitSet(this_set, deltaGs)
-		next_set, deltaGs = updateModel(model, lig_feature_data, this_set, deltaGs)
-		max_error = testModel(model, deltaGs)
+		model, next_set, deltaGs, error, meas, pred, durations = updateModel(model, this_set, deltaGs, meas, durations)
+		errors.append(error)
+		predictions.append(pred)
+		current_layers += 1
+		print "Iterated {} layers out of {}\n".format(current_layers, sample_layers)
+	makePlots(errors, predictions, meas, durations)
 
 main()
