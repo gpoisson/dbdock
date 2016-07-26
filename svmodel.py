@@ -36,7 +36,7 @@ def extractFeatureData(mol):
 	hbd = rdMolDescriptors.CalcNumHBD(mol)
 	hba = rdMolDescriptors.CalcNumHBA(mol)
 
-	index_of_1d_feature = -7		# Need to make sure this references the index of a 1D feature
+	index_of_1d_feature = -1		# Need to make sure this references the index of a 1D feature
 									#  (a negative index refers to counting backwards from the end of a list)
 	feats = [smr_vsa,slogp_vsa,peoe_vsa,hbd,hba]
 
