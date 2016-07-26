@@ -93,11 +93,10 @@ def drawNaiveSet(lig_feature_data):
 	return naive_set, deltaGs
 
 # Combines the newest ligand with the last set
-def drawNextSet(last_set, new_lig):
-	next_set = []
-	for lig in last_set:
-		next_set.append(lig)
+def drawNextSet(last_set, new_lig, deltaGs):
+	next_set = last_set
 	next_set.append(new_lig)
+	deltaGs.append(getDeltaG(new_lig))
 	return next_set, deltaGs
 
 # Removes a list of ligands from the database of ligand feature data
@@ -162,27 +161,29 @@ def getNextLigand(predictions, lig_feature_data, deltaGs):
 
 
 # Picks next sample, updates current model, measures error
-def updateModel(model, lig_feature_data, deltaGs):
+def updateModel(model, lig_feature_data, this_set, deltaGs):
 	test_data = []
 	for lig in lig_feature_data:
 		test_data.append(lig[1])
 	test_data = np.asarray(test_data)
 	predictions = model.predict(test_data)
 	new_lig = getNextLigand(predictions, lig_feature_data, deltaGs)
-	next_set, deltaGs = drawNextSet(last_set, new_lig)
+	next_set, deltaGs = drawNextSet(this_set, new_lig, deltaGs)
 	model = fitSet(next_set, deltaGs)
-	return error, next_set, deltaGs,
+	removeSampledLigs(new_lig)
+	return next_set, deltaGs
 
 def main():
 	global lig_feature_data
 	lig_feature_data = getAllFeatureData(lig_data)
 	naive_set, deltaGs = drawNaiveSet(lig_feature_data)
 	model = fitSet(naive_set, deltaGs)
-	error = 100
-	last_set = naive_set
-	while (error > threhshold):
-		model = fitSet(last_set, deltaGs)
-		error = testModel()
-		error = updateModel(model, lig_feature_data, deltaGs)
+	max_error = 100
+	next_set = naive_set
+	while (max_error > threshold):
+		this_set = next_set
+		model = fitSet(this_set, deltaGs)
+		next_set, deltaGs = updateModel(model, lig_feature_data, this_set, deltaGs)
+		max_error = testModel(model, deltaGs)
 
 main()
