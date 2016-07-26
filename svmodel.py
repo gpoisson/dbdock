@@ -11,6 +11,7 @@ import os, sys
 import time
 import matplotlib.pyplot as plt
 import matplotlib.pylab
+from matplotlib.backends.backend_pdf import PdfPages
 
 start = time.time()
 
@@ -128,7 +129,7 @@ def getDeltaG(mol):
 		line = line.split()
 		if line[0] == mol[0]:
 			print ("Computing delta G for {}...".format(line[0]))
-			#time.sleep(1)
+			#time.sleep(2)
 			print ("  Result = {}".format(line[1]))
 			return float(line[1])
 	print "Failed to find a delta G for {}".format(mol)
@@ -196,36 +197,44 @@ def updateModel(model, this_set, deltaGs, meas, durations):
 	print " Error: {}".format(error)
 	return model, next_set, deltaGs, error, meas, pred, durations
 
-def makePlots(errors, predictions, deltaGs, durations):
-	f, axis_array = plt.subplots(4, sharex=False)
+def makePlots(errors, predictions, deltaGs, durations, mean_error):
+	f, ((ax_ar0,ax_ar1),(ax_ar2,ax_ar3),(ax_ar4,ax_ar5)) = plt.subplots(3, 2)
 	f.subplots_adjust(hspace=0.52)
-	axis_array[0].plot(range(len(errors)),errors,'x',ms=3,mew=5)
-	axis_array[0].grid(True)
-	axis_array[0].set_title("Model Error Over Time")
-	axis_array[0].set_xlabel("Number of Training Iterations")
-	axis_array[0].set_ylabel("Model Error")
+	ax_ar0.plot(range(len(errors)),errors,'x',ms=3,mew=5)
+	ax_ar0.grid(True)
+	ax_ar0.plot(range(len(errors)),np.poly1d(np.polyfit(range(len(errors)), errors, 1))(range(len(errors))))
+	ax_ar0.set_title("Model Error Over Time (kcal/mol)")
+	ax_ar0.set_xlabel("Number of Training Iterations")
+	ax_ar0.set_ylabel("Model Error")
 
-	axis_array[1].plot(predictions,deltaGs,'x',color='r',ms=3,mew=5)
-	axis_array[1].grid(True)
-	axis_array[1].set_title("Predicted vs Acutal Delta G (kcal/mol)")
-	axis_array[1].set_xlabel("Predicted Delta G (kcal/mol)")
-	axis_array[1].set_ylabel("Actual Delta G (kcal/mol)")
+	ax_ar1.plot(predictions,deltaGs,'x',color='r',ms=3,mew=5)
+	ax_ar1.grid(True)
+	ax_ar1.set_title("Predicted vs Acutal Delta G (kcal/mol)")
+	ax_ar1.set_xlabel("Predicted Delta G (kcal/mol)")
+	ax_ar1.set_ylabel("Actual Delta G (kcal/mol)")
 
-	axis_array[2].plot(range(len(predictions)),predictions,'x',color='k',ms=3,mew=5)
-	axis_array[2].grid(True)
-	axis_array[2].set_title("Predictions over Time")
-	axis_array[2].set_xlabel("Number of Training Iterations")
-	axis_array[2].set_ylabel("Predicted Delta G (kcal/mol)")
+	ax_ar2.plot(range(len(predictions)),predictions,'x',color='k',ms=3,mew=5)
+	ax_ar2.grid(True)
+	ax_ar2.set_title("Predictions over Time (kcal/mol)")
+	ax_ar2.set_xlabel("Number of Training Iterations")
+	ax_ar2.set_ylabel("Predicted Delta G (kcal/mol)")
 
-	axis_array[3].plot(range(len(durations)),durations,'x',color='g',ms=3,mew=5)
-	axis_array[3].grid(True)
-	axis_array[3].set_title("Duration of New Ligand Selection (seconds)")
-	axis_array[3].set_xlabel("Iterative Samples Taken")
-	axis_array[3].set_ylabel("Time (seconds")
+	ax_ar3.plot(range(len(durations)),durations,'x',color='g',ms=3,mew=5)
+	ax_ar3.grid(True)
+	ax_ar3.set_title("Duration of New Ligand Selection (seconds)")
+	ax_ar3.set_xlabel("Number of Training Iterations")
+	ax_ar3.set_ylabel("Time (seconds")
 
-	plt.show()
-	#plt.savefig("{}_ligs.png",len(predictions),dpi=1200)
-	#plt.close(f)
+	ax_ar4.plot(range(len(mean_error)),mean_error,'x',color='r',ms=3,mew=5)
+	ax_ar4.grid(True)
+	ax_ar4.set_title("Mean Error During Sampling")
+	ax_ar4.set_xlabel("Number of Training Iterations")
+	ax_ar4.set_ylabel("Mean Error (kcal/mol)")
+
+	#plt.show()
+	pp = PdfPages("plots/{}_samples.pdf".format(len(predictions))
+	plt.savefig()
+	pp.close()
 
 def main():
 	global lig_feature_data
@@ -234,6 +243,7 @@ def main():
 	model = fitSet(naive_set, deltaGs)
 	error = None
 	errors = []
+	mean_error = []
 	predictions = []
 	meas = []
 	durations = []
@@ -243,9 +253,10 @@ def main():
 		this_set = next_set
 		model, next_set, deltaGs, error, meas, pred, durations = updateModel(model, this_set, deltaGs, meas, durations)
 		errors.append(error)
+		mean_error.append(np.mean(errors))
 		predictions.append(pred)
 		current_layers += 1
 		print "Iterated {} layers out of {}\n".format(current_layers, sample_layers)
-	makePlots(errors, predictions, meas, durations)
+	makePlots(errors, predictions, meas, durations, mean_error)
 
 main()
