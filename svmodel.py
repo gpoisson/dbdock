@@ -10,12 +10,15 @@ import operator
 import os, sys
 import time
 import matplotlib.pyplot as plt
+import matplotlib.pylab
+from matplotlib.backends.backend_pdf import PdfPages
 
 start = time.time()
 
 data_file_name = "dev_data.npy"
 # data_file_name = "sorted_no_dg.npy"
 sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols after naive set
+threshold = float(sys.argv[2])					# minimum value accepted for max_error of prediction
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
 lig_feature_data = []
@@ -91,15 +94,33 @@ def drawNaiveSet(lig_feature_data):
 	# choose a small set of ligands which are roughly equidistant in this small feature space
 	return naive_set, deltaGs
 
+# Combines the newest ligand with the last set
+def drawNextSet(last_set, new_lig, deltaGs):
+	next_set = last_set
+	next_set.append(new_lig)
+	deltaGs.append(getDeltaG(new_lig))
+	return next_set, deltaGs
+
+# Removes a list of ligands from the database of ligand feature data
 def removeSampledLigs(lig_set):
 	global lig_feature_data
-	sampled_names = lig_set
-	remaining_names = lig_feature_data
+	#print " lig feature data: {} things".format(len(lig_feature_data))
+	#print " lig feature [0]: {} things".format(len(lig_feature_data[0]))
+	#print " lig feature [0][0]: {} things".format(len(lig_feature_data[0][0]))
+	sampled_names = []
+	for lig in lig_set:
+		sampled_names.append(lig[0])
+	remaining_names = []
+	for lig in lig_feature_data:
+		remaining_names.append(lig[0])
 
 	for s in sampled_names:
 		if s in remaining_names:
 			rem_index = remaining_names.index(s)
+			print " Removing sampled ligand from database: {}".format(lig_feature_data[rem_index][0])
 			del lig_feature_data[rem_index]
+		else:
+			print "Didn't find {} in the remaining {} names. (Example: {})".format(s, len(remaining_names), remaining_names[0])
 
 # Simulates running autodock by looking up delta G in a table and waiting for some time
 def getDeltaG(mol):
@@ -108,12 +129,13 @@ def getDeltaG(mol):
 		line = line.split()
 		if line[0] == mol[0]:
 			print ("Computing delta G for {}...".format(line[0]))
-			#time.sleep(1)
+			#time.sleep(2)
 			print ("  Result = {}".format(line[1]))
 			return float(line[1])
 	print "Failed to find a delta G for {}".format(mol)
 	return 0
 
+# Return a model fitted to all the current known data
 def fitSet(ligand_set, deltaGs):
 	model = SVR(kernel='rbf')
 	x = []
@@ -129,25 +151,112 @@ def fitSet(ligand_set, deltaGs):
 	print "Model successfully fitted."
 	return model
 
+# Identify the predicted delta G which is most unlike the other known values
+def getMostUniquePrediction(predictions, deltaGs, lig_feature_data):
+	max_diff = 0
+	index = 0
+	predictions = predictions.tolist()
+	c_pred = 0									# predicted value for chosen ligand
+	for val in deltaGs:
+		for pred in predictions:
+			if (abs(val - pred) > max_diff):
+				index = predictions.index(pred)
+				c_pred = pred
+				max_diff = abs(val-pred)
+	return lig_feature_data[index], c_pred
+
 # Use model to choose the next ligand to be tested
-def getNextLigand(predictions, lig_feature_data):
+def getNextLigand(predictions, lig_feature_data, deltaGs):
 	print " Determining next sample to include in model..."
+	start = time.time()
+	next_lig, pred = getMostUniquePrediction(predictions, deltaGs, lig_feature_data)
+	end = time.time()
+	dur = end-start
+	print " Finding next ligand took {} seconds".format(dur)
+	removeSampledLigs([next_lig])
+	print "  Returned {}\tPredicted {}".format(next_lig[0], pred)
+	return next_lig, pred, dur
 
 
-# Compute the accuracy of the current model
-def testModel(model, lig_feature_data):
+
+# Picks next sample, updates current model, measures error
+def updateModel(model, this_set, deltaGs, meas, durations):
+	global lig_feature_data
 	test_data = []
 	for lig in lig_feature_data:
 		test_data.append(lig[1])
 	test_data = np.asarray(test_data)
 	predictions = model.predict(test_data)
-	new_lig = getNextLigand(model, lig_feature_data)
+	new_lig, pred, dur = getNextLigand(predictions, lig_feature_data, deltaGs)
+	durations.append(dur)
+	next_set, deltaGs = drawNextSet(this_set, new_lig, deltaGs)
+	meas.append(deltaGs[-1])
+	model = fitSet(next_set, deltaGs)
+	#removeSampledLigs([new_lig])
+	error = abs(pred - deltaGs[-1])
+	print " Error: {}".format(error)
+	return model, next_set, deltaGs, error, meas, pred, durations
+
+def makePlots(errors, predictions, deltaGs, durations, mean_error):
+	f, ((ax_ar0,ax_ar1),(ax_ar2,ax_ar3),(ax_ar4,ax_ar5)) = plt.subplots(3, 2)
+	f.subplots_adjust(hspace=0.52)
+	ax_ar0.plot(range(len(errors)),errors,'x',ms=3,mew=5)
+	ax_ar0.grid(True)
+	ax_ar0.plot(range(len(errors)),np.poly1d(np.polyfit(range(len(errors)), errors, 1))(range(len(errors))))
+	ax_ar0.set_title("Model Error Over Time (kcal/mol)")
+	ax_ar0.set_xlabel("Number of Training Iterations")
+	ax_ar0.set_ylabel("Model Error")
+
+	ax_ar1.plot(predictions,deltaGs,'x',color='r',ms=3,mew=5)
+	ax_ar1.grid(True)
+	ax_ar1.set_title("Predicted vs Acutal Delta G (kcal/mol)")
+	ax_ar1.set_xlabel("Predicted Delta G (kcal/mol)")
+	ax_ar1.set_ylabel("Actual Delta G (kcal/mol)")
+
+	ax_ar2.plot(range(len(predictions)),predictions,'x',color='k',ms=3,mew=5)
+	ax_ar2.grid(True)
+	ax_ar2.set_title("Predictions over Time (kcal/mol)")
+	ax_ar2.set_xlabel("Number of Training Iterations")
+	ax_ar2.set_ylabel("Predicted Delta G (kcal/mol)")
+
+	ax_ar3.plot(range(len(durations)),durations,'x',color='g',ms=3,mew=5)
+	ax_ar3.grid(True)
+	ax_ar3.set_title("Duration of New Ligand Selection (seconds)")
+	ax_ar3.set_xlabel("Number of Training Iterations")
+	ax_ar3.set_ylabel("Time (seconds")
+
+	ax_ar4.plot(range(len(mean_error)),mean_error,'x',color='r',ms=3,mew=5)
+	ax_ar4.grid(True)
+	ax_ar4.set_title("Mean Error During Sampling")
+	ax_ar4.set_xlabel("Number of Training Iterations")
+	ax_ar4.set_ylabel("Mean Error (kcal/mol)")
+
+	#plt.show()
+	pp = PdfPages("plots/{}_samples.pdf".format(len(predictions))
+	plt.savefig()
+	pp.close()
 
 def main():
 	global lig_feature_data
 	lig_feature_data = getAllFeatureData(lig_data)
 	naive_set, deltaGs = drawNaiveSet(lig_feature_data)
 	model = fitSet(naive_set, deltaGs)
-	error = testModel(model, lig_feature_data)
+	error = None
+	errors = []
+	mean_error = []
+	predictions = []
+	meas = []
+	durations = []
+	next_set = naive_set
+	current_layers = 0
+	while (((error == None) or (error > threshold)) | (current_layers < sample_layers)):
+		this_set = next_set
+		model, next_set, deltaGs, error, meas, pred, durations = updateModel(model, this_set, deltaGs, meas, durations)
+		errors.append(error)
+		mean_error.append(np.mean(errors))
+		predictions.append(pred)
+		current_layers += 1
+		print "Iterated {} layers out of {}\n".format(current_layers, sample_layers)
+	makePlots(errors, predictions, meas, durations, mean_error)
 
 main()

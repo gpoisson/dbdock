@@ -2,7 +2,6 @@ import numpy as np
 import scipy
 from rdkit import Chem
 from rdkit.Chem import AllChem, Draw, rdMolDescriptors
-import MDAnalysis as md
 from sklearn.svm import SVR
 from sklearn.externals import joblib
 from sklearn import preprocessing
