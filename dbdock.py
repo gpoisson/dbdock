@@ -12,6 +12,7 @@ start = time.time()
 
 data_file_name = "dev_data.npy"
 sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols after naive set
+#c_val = None
 c_val = float(sys.argv[2])						# C Parameter for SVR
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
@@ -211,6 +212,7 @@ def plotResults(errors, max_errs, mean_errs):
 	#pp.close()
 
 def main():
+	lig_count = len(lig_data)
 	extractAllFeatureData()
 	chooseInitialSet_A(0.01)
 	model = makeNewModel()
@@ -225,5 +227,6 @@ def main():
 		max_errs.append(max_err)
 		mean_errs.append(mean_err)
 	plotResults(errors, max_errs, mean_errs)
+	return max_errs, mean_errs
 
 main()
