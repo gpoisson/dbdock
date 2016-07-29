@@ -164,21 +164,22 @@ def fitNextLigand(model):
 	return new_model
 
 def plotResults(errors, max_errs, mean_errs):
-	f, ((ax_ar0,ax_ar1),(ax_ar2,ax_ar3),(ax_ar4,ax_ar5)) = plt.subplots(3, 2)
+	f, (ax_ar0,ax_ar1) = plt.subplots(2, 1)
+	#f, ((ax_ar0,ax_ar1,ax_ar2),(ax_ar3,ax_ar4,ax_ar5)) = plt.subplots(2, 3)
 	f.subplots_adjust(hspace=0.52)
-	ax_ar0.plot(range(len(errors)),errors,'x',ms=1,mew=3)
+	ax_ar0.plot(range(len(max_errs)),max_errs,'x',ms=1,mew=3)
 	ax_ar0.grid(True)
-	ax_ar0.plot(range(len(errors)),np.poly1d(np.polyfit(range(len(errors)), errors, 1))(range(len(errors))))
-	ax_ar0.set_title("Model Error Over Time (kcal/mol)")
+	ax_ar0.plot(range(len(max_errs)),np.poly1d(np.polyfit(range(len(max_errs)), max_errs, 1))(range(len(max_errs))))
+	ax_ar0.set_title("Max Model Error Over Time (kcal/mol)")
 	ax_ar0.set_xlabel("Number of Training Iterations")
-	ax_ar0.set_ylabel("Model Error")
+	ax_ar0.set_ylabel("Max Model Error")
 
-	ax_ar1.plot(predictions,deltaGs,'x',color='r',ms=1,mew=3)
+	ax_ar1.plot(range(len(mean_errs)),mean_errs,'x',color='r',ms=1,mew=3)
 	ax_ar1.grid(True)
-	ax_ar1.set_title("Predicted vs Actual Delta G (kcal/mol)")
-	ax_ar1.set_xlabel("Predicted Delta G (kcal/mol)")
-	ax_ar1.set_ylabel("Actual Delta G (kcal/mol)")
-
+	ax_ar1.set_title("Mean Model Error Over Time (kcal/mol)")
+	ax_ar1.set_xlabel("Number of Training Iterations")
+	ax_ar1.set_ylabel("Mean Model Error")
+	'''
 	ax_ar2.plot(range(len(predictions)),predictions,'x',color='k',ms=1,mew=3)
 	ax_ar2.grid(True)
 	ax_ar2.set_title("Predictions over Time (kcal/mol)")
@@ -203,10 +204,10 @@ def plotResults(errors, max_errs, mean_errs):
 	ax_ar5.set_title("Training Data Predicted vs Actual Delta G (kcal/mol)")
 	ax_ar5.set_xlabel("Known Delta G (kcal/mol)")
 	ax_ar5.set_ylabel("Predicted Delta G (kcal/mol)")
-
+	'''
 	#plt.show()
 	#pp = PdfPages("plots/{}_samples.pdf".format(len(predictions))
-	plt.savefig("c_{}_{}_samps.png".format(c_val,sample_layers),dpi=900)
+	plt.savefig("c_{}_{}_samps.png".format(c_val,sample_layers))
 	#pp.close()
 
 def main():
