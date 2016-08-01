@@ -6,6 +6,8 @@ from sklearn.externals import joblib
 from sklearn import preprocessing
 import os, sys
 import time
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 start = time.time()
@@ -16,8 +18,9 @@ sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols aft
 c_val = float(sys.argv[2])						# C Parameter for SVR
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
-index_of_1d_features = [-1]
+index_of_1d_features = [-1,-2]
 training_set = []
+total_dg_hist = {}
 
 print "\n Ligand binary read: {} molecules".format(lig_count)
 
@@ -27,7 +30,8 @@ class ligand():
 	feature_data = None
 	known_dg = None
 	predicted_dg = None
-	total_training_sample_count_at_last_prediction = None
+	total_training_sample_count_at_last_prediction = 0
+	feature_distance = None
 
 # Extract the features of interest from a specified molecule
 def extractFeatureData(mol):
@@ -65,6 +69,13 @@ def extractAllFeatureData():
 		drug.name = lig[0]
 		drug.mol = lig[1]
 		drug.feature_data = extractFeatureData(drug.mol)
+		f_dist = 0
+		for i in index_of_1d_features:
+			if index_of_1d_features.index(i) == 0:
+				f_dist += drug.feature_data[i] ** 2
+			else:
+				f_dist -= drug.feature_data[i] ** 2
+		drug.feature_distance = (f_dist)
 		lig_db.append(drug)
 		if (len(lig_db) % 5000 == 0):
 			sys.stdout.write('.')
@@ -78,6 +89,7 @@ def moveLigandToTrainingSet(ligand):
 	training_set.append(ligand)
 	del lig_data[lig_data.index(ligand)]
 	print "Ligand {} moved to training set.".format(training_set[-1].name)
+	print "\tFeature distance: {}".format(ligand.feature_distance)
 
 # Simulates running autodock by looking up delta G in a table and waiting for some time
 def getDeltaG(mol):
@@ -145,7 +157,48 @@ def getKnownDeltaGHistogram():
 			dg_histogram[drug.known_dg] = 1
 	return dg_histogram
 
-def getMostUniqueDrug(dg_histogram, model):
+def getFeatureDistanceHistogram():
+	f_hist = {}
+	for drug in lig_data:
+		if drug.feature_distance in f_hist:
+			f_hist[drug.feature_distance] += 1
+		else:
+			f_hist[drug.feature_distance] = 1
+	return f_hist
+
+# base uniqueness on error of dg prediction (original algorithm)
+def getMostUniqueDrug_0(dg_histogram, f_histogram, model):
+	max_error = 0
+	drug_w_max_error = None
+	for drug in lig_data:
+		if drug.known_dg == None:
+			drug.known_dg = getDeltaG(drug.name)
+		drug.predicted_dg = model.predict([drug.feature_data])
+		drug.total_training_sample_count_at_last_prediction += 1
+		error = abs(drug.known_dg - drug.predicted_dg)
+		if (error > max_error):
+			max_error = error
+			drug_w_max_error = drug
+	return drug
+
+# base uniqueness on error of dg prediction (original algorithm)
+def getMostUniqueDrug_1(dg_histogram, f_histogram, model):
+	min_error = 12.0
+	drug_w_min_error = None
+	for drug in lig_data:
+		if drug.known_dg == None:
+			drug.known_dg = getDeltaG(drug.name)
+		drug.predicted_dg = model.predict([drug.feature_data])
+		drug.total_training_sample_count_at_last_prediction += 1
+		error = abs(drug.known_dg - drug.predicted_dg)
+		if (error < min_error):
+			min_error = error
+			drug_w_min_error = drug
+	return drug
+	
+
+# base uniqueness on max lowest pairwise distance in delta G spectrum between prediction and known
+def getMostUniqueDrug_A(dg_histogram, f_histogram, model):
 	most_unique_drug = None
 	max_difference = 0
 	for drug in lig_data:
@@ -157,9 +210,24 @@ def getMostUniqueDrug(dg_histogram, model):
 				most_unique_drug = drug
 	return most_unique_drug
 
+# base uniquness on square of difference between specified 1d features
+def getMostUniqueDrug_B(dg_histogram, f_histogram, model):
+	most_unique_drug = None
+	f_lowest_occurances = 99999
+	print f_histogram
+	for val in f_histogram.iterkeys():
+		occurances = int(f_histogram[val])
+		if occurances < f_lowest_occurances:
+			f_lowest_occurances = occurances
+	for drug in lig_data:
+		if drug.feature_distance == f_lowest_occurances:
+			return drug
+	return None
+
 def fitNextLigand(model):
 	dg_histogram = getKnownDeltaGHistogram()
-	most_unique_drug = getMostUniqueDrug(dg_histogram, model)
+	f_histogram = getFeatureDistanceHistogram()
+	most_unique_drug = getMostUniqueDrug_1(dg_histogram, f_histogram, model)
 	moveLigandToTrainingSet(most_unique_drug)
 	new_model = makeNewModel()
 	return new_model
@@ -208,25 +276,34 @@ def plotResults(errors, max_errs, mean_errs):
 	'''
 	#plt.show()
 	#pp = PdfPages("plots/{}_samples.pdf".format(len(predictions))
-	plt.savefig("c_{}_{}_samps.png".format(c_val,sample_layers))
+	plt.savefig("expData/c_{}_{}_samps.png".format(c_val,sample_layers))
 	#pp.close()
 
 def main():
 	lig_count = len(lig_data)
 	extractAllFeatureData()
-	chooseInitialSet_A(0.01)
+	chooseInitialSet_A(0.005)
 	model = makeNewModel()
 	max_errs = []
 	mean_errs = []
-	errors, max_err, mean_err = testModelOnTrainingSet(model)
+	prediction_errs = []
+	e, max_err, mean_err = testModelOnTrainingSet(model)
+	prediction_errs.append(e)
 	max_errs.append(max_err)
 	mean_errs.append(mean_err)
 	for layer in range(sample_layers):
 		model = fitNextLigand(model)
-		errors, max_err, mean_err = testModelOnTrainingSet(model)
+		e, max_err, mean_err = testModelOnTrainingSet(model)
+		prediction_errs.append(e)
 		max_errs.append(max_err)
 		mean_errs.append(mean_err)
-	plotResults(errors, max_errs, mean_errs)
-	return max_errs, mean_errs
+	plotResults(prediction_errs, max_errs, mean_errs)
+	prediction_errs = np.asarray(prediction_errs)
+	np.save("expData/prediction_errs_c_{}_samps_{}.npy".format(c_val,sample_layers),prediction_errs)
+	max_errs = np.asarray(max_errs)
+	np.save("expData/max_err_c_{}_samps_{}.npy".format(c_val,sample_layers),max_errs)
+	mean_errs = np.asarray(mean_errs)
+	np.save("expData/mean_err_c_{}_samps_{}.npy".format(c_val,sample_layers),mean_errs)
+	return prediction_errs, max_errs, mean_errs
 
 main()
