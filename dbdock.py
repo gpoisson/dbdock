@@ -35,7 +35,7 @@ class ligand():
 
 def randomizeLigData():
 	global lig_data
-	print "Suffling ligand data"
+	print "Shuffling ligand data"
 	lig_data = np.asarray(lig_data)
 	np.random.shuffle(lig_data)
 	lig_data = np.array(lig_data.tolist())
