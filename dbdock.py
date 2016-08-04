@@ -148,6 +148,22 @@ def testModelOnTrainingSet(model):
 	print "Model tested against training set.\n\tTraining sample count: {}\n\tMax error: {}\tMean error: {}".format(len(training_set),max_err,mean_err)
 	return errors, max_err, mean_err
 
+def testModelOnUnknownSet(model):
+	print " Testing model on unknown data"
+	predictions = []
+	errors = []
+	for drug in lig_data:
+		drug.predicted_dg = round(model.predict([drug.feature_data]),1)
+		drug.total_training_sample_count_at_last_prediction = len(training_set)
+		predictions.append(drug.predicted_dg)
+		if drug.known_dg == None:
+			drug.known_dg = getDeltaG(drug.name)
+		errors.append(abs(drug.predicted_dg - drug.known_dg))
+	max_err = np.amax(errors)
+	mean_err = np.mean(errors)
+	print "Model tested against unknown set."
+	return errors, max_err, mean_err
+
 def getKnownDeltaGHistogram():
 	dg_histogram = {}
 	for drug in training_set:
@@ -287,13 +303,13 @@ def main():
 	max_errs = []
 	mean_errs = []
 	prediction_errs = []
-	e, max_err, mean_err = testModelOnTrainingSet(model)
+	e, max_err, mean_err = testModelOnUnknownSet(model)
 	prediction_errs.append(e)
 	max_errs.append(max_err)
 	mean_errs.append(mean_err)
 	for layer in range(sample_layers):
 		model = fitNextLigand(model)
-		e, max_err, mean_err = testModelOnTrainingSet(model)
+		e, max_err, mean_err = testModelOnUnknownSet(model)
 		prediction_errs.append(e)
 		max_errs.append(max_err)
 		mean_errs.append(mean_err)
