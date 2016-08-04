@@ -33,6 +33,14 @@ class ligand():
 	total_training_sample_count_at_last_prediction = 0
 	feature_distance = None
 
+def randomizeLigData():
+	global lig_data
+	print "Suffling ligand data"
+	lig_data = np.asarray(lig_data)
+	np.random.shuffle(lig_data)
+	lig_data = np.array(lig_data.tolist())
+	print "...done."
+
 # Extract the features of interest from a specified molecule
 def extractFeatureData(mol):
 	global index_of_1d_features
@@ -297,6 +305,7 @@ def plotResults(errors, max_errs, mean_errs):
 
 def main():
 	lig_count = len(lig_data)
+	randomizeLigData()
 	extractAllFeatureData()
 	chooseInitialSet_A(0.005)
 	model = makeNewModel()
