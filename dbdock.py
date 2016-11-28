@@ -7,6 +7,7 @@ from sklearn import preprocessing
 import os, sys
 import time
 import matplotlib
+from scipy.spatial import distance
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -18,9 +19,12 @@ sample_layers = int(sys.argv[1])				# train on <sample_layer> number of mols aft
 c_val = float(sys.argv[2])						# C Parameter for SVR
 lig_data = np.load(data_file_name)
 lig_count = len(lig_data)
-index_of_1d_features = [-1,-2]
+index_of_1d_features = [5,10]
 training_set = []
 total_dg_hist = {}
+
+hbd = Chem.MolFromSmarts('[#7H,#7H2,#7H3,#8H]')
+hba = Chem.MolFromSmarts('[#7X1,#7X2,#7X3,#8,#9,#17]')
 
 print "\n Ligand binary read: {} molecules".format(lig_count)
 
@@ -44,17 +48,33 @@ def randomizeLigData():
 # Extract the features of interest from a specified molecule
 def extractFeatureData(mol):
 	global index_of_1d_features
+	
+	dist_bins = getDistBins(mol)
+
 	smr_vsa = rdMolDescriptors.SMR_VSA_(mol)
 	slogp_vsa = rdMolDescriptors.SlogP_VSA_(mol)
 	peoe_vsa = rdMolDescriptors.PEOE_VSA_(mol)
 	hbd = rdMolDescriptors.CalcNumHBD(mol)
 	hba = rdMolDescriptors.CalcNumHBA(mol)
+	
+	molwt = rdMolDescriptors.CalcExactMolWt(mol)
+	nalrings = rdMolDescriptors.CalcNumAliphaticRings(mol)
+	nalhet = rdMolDescriptors.CalcNumAliphaticHeterocycles(mol)
+	narohet = rdMolDescriptors.CalcNumAromaticHeterocycles(mol)
+	narorings = rdMolDescriptors.CalcNumAromaticRings(mol)
+	nHBA = rdMolDescriptors.CalcNumHBA(mol)
+	nHBD = rdMolDescriptors.CalcNumHBD(mol)
+	rotbounds = rdMolDescriptors.CalcNumRotatableBonds(mol)
 
-	feats = [smr_vsa,slogp_vsa,peoe_vsa,hbd,hba]
+	#feats = [smr_vsa,slogp_vsa,peoe_vsa,hbd,hba]
+	#feats = [molwt,nalrings,nalhet,narohet,narorings,nHBA,nHBD,rotbounds]
+	feats = [smr_vsa,slogp_vsa,peoe_vsa,hbd,hba,molwt,nalrings,nalhet,narohet,narorings,nHBA,nHBD,rotbounds,dist_bins]
 	
 	feature_data = []
 	for f in feats:
 		if (isinstance(f,int)):
+			feature_data.append(f)
+		elif (isinstance(f,float)):
 			feature_data.append(f)
 		else:
 			for data in f:
@@ -111,6 +131,39 @@ def getDeltaG(mol):
 			return float(line[1])
 	print "Failed to find a delta G for {}".format(mol)
 	return 0
+
+# Gets Euclidian distances for all HBA/HBD pairs, returns a histogram of their values
+def getDistBins(mol):
+	global hbd, hba
+	try:
+		mol2 = mol
+		mol2 =  Chem.AddHs(mol2)
+		max_dist = 30							# keep track of hba/hbd distances of up to max_dist angstroms
+		AllChem.EmbedMolecule(mol2)
+		AllChem.UFFOptimizeMolecule(mol2)
+		atom_coords = []
+		mol_dists = np.arange(max_dist)
+		bins = np.zeros(max_dist)
+		block = Chem.MolToMolBlock(mol2)
+		block = block.split("\n")
+		for line in block:
+			line = line.split()
+			if (len(line) == 16):
+				atom_coords.append([float(line[0]),float(line[1]),float(line[2])])
+		atoms = mol2.GetAtoms()
+		hbds = mol2.GetSubstructMatches(hbd)
+		hbas = mol2.GetSubstructMatches(hba)
+		for d, in hbds:				# go through all hbas and all hbds, compute relative distances
+			for a, in hbas:
+				if a != d:
+					sq_dist = np.sum(np.asarray(atom_coords[a])**2 + np.asarray(atom_coords[d])**2)
+					dist = np.sqrt(sq_dist)
+					bins[int(dist)] += 1
+	except:
+		return [None]
+	
+	return bins
+
 
 # Initial Set Selection Method A:
 #	Choose a fraction of ligands which are evenly distributed through the dataset.
@@ -251,13 +304,13 @@ def getMostUniqueDrug_B(dg_histogram, f_histogram, model):
 def fitNextLigand(model):
 	dg_histogram = getKnownDeltaGHistogram()
 	f_histogram = getFeatureDistanceHistogram()
-	most_unique_drug = getMostUniqueDrug_1(dg_histogram, f_histogram, model)
+	most_unique_drug = getMostUniqueDrug_A(dg_histogram, f_histogram, model)
 	moveLigandToTrainingSet(most_unique_drug)
 	new_model = makeNewModel()
 	return new_model
 
-def plotResults(errors, max_errs, mean_errs):
-	f, (ax_ar0,ax_ar1) = plt.subplots(2, 1)
+def plotResults(errors, max_errs, mean_errs, max_train, mean_train):
+	f, (ax_ar0,ax_ar1,ax_ar2,ax_ar3) = plt.subplots(4, 1)
 	#f, ((ax_ar0,ax_ar1,ax_ar2),(ax_ar3,ax_ar4,ax_ar5)) = plt.subplots(2, 3)
 	f.subplots_adjust(hspace=0.52)
 	ax_ar0.plot(range(len(max_errs)),max_errs,'x',ms=1,mew=3)
@@ -272,19 +325,19 @@ def plotResults(errors, max_errs, mean_errs):
 	ax_ar1.set_title("Mean Model Error Over Time (kcal/mol)")
 	ax_ar1.set_xlabel("Number of Training Iterations")
 	ax_ar1.set_ylabel("Mean Model Error")
-	'''
-	ax_ar2.plot(range(len(predictions)),predictions,'x',color='k',ms=1,mew=3)
+	
+	ax_ar2.plot(range(len(max_train)),max_train,'x',color='k',ms=1,mew=3)
 	ax_ar2.grid(True)
-	ax_ar2.set_title("Predictions over Time (kcal/mol)")
+	ax_ar2.set_title("Max Model Error Over Time (kcal/mol) on Training Set")
 	ax_ar2.set_xlabel("Number of Training Iterations")
-	ax_ar2.set_ylabel("Predicted Delta G (kcal/mol)")
+	ax_ar2.set_ylabel("Max Model Error")
 
-	ax_ar3.plot(range(len(durations)),durations,'x',color='g',ms=1,mew=3)
+	ax_ar3.plot(range(len(mean_train)),mean_train,'x',color='g',ms=1,mew=3)
 	ax_ar3.grid(True)
-	ax_ar3.set_title("Duration of New Ligand Selection (seconds)")
+	ax_ar3.set_title("Mean Model Error Over Time (kcal/mol) on Training Set")
 	ax_ar3.set_xlabel("Number of Training Iterations")
-	ax_ar3.set_ylabel("Time (seconds")
-
+	ax_ar3.set_ylabel("Mean Model Error")
+	'''
 	ax_ar4.plot(range(len(mean_error)),mean_error,'x',color='r',ms=1,mew=3)
 	ax_ar4.grid(True)
 	ax_ar4.set_title("Mean Error During Sampling")
@@ -312,6 +365,7 @@ def main():
 	max_errs = []
 	mean_errs = []
 	prediction_errs = []
+	e_train, max_train, mean_train = testModelOnTrainingSet(model)
 	e, max_err, mean_err = testModelOnUnknownSet(model)
 	prediction_errs.append(e)
 	max_errs.append(max_err)
@@ -322,7 +376,7 @@ def main():
 		prediction_errs.append(e)
 		max_errs.append(max_err)
 		mean_errs.append(mean_err)
-	plotResults(prediction_errs, max_errs, mean_errs)
+	plotResults(prediction_errs, max_errs, mean_errs, max_train, mean_train)
 	prediction_errs = np.asarray(prediction_errs)
 	np.save("expData/prediction_errs_c_{}_samps_{}.npy".format(c_val,sample_layers),prediction_errs)
 	max_errs = np.asarray(max_errs)
