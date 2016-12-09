@@ -7,7 +7,9 @@ from sklearn import preprocessing
 from sklearn.decomposition import PCA
 import os, sys
 import time
+import matplotlib
 from scipy.spatial import distance
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
@@ -41,33 +43,34 @@ def shuffleXY(X,y):
 
 # Gets Euclidian distances for all HBA/HBD pairs, returns a histogram of their values
 def getDistBins(mol):
-	global hbd, hba
-	try:
-		mol2 = mol
-		mol2 =  Chem.AddHs(mol2)
-		max_dist = 30							# keep track of hba/hbd distances of up to max_dist angstroms
-		AllChem.EmbedMolecule(mol2)
-		AllChem.UFFOptimizeMolecule(mol2)
-		atom_coords = []
-		mol_dists = np.arange(max_dist)
-		bins = np.zeros(max_dist)
-		block = Chem.MolToMolBlock(mol2)
-		block = block.split("\n")
-		for line in block:
-			line = line.split()
-			if (len(line) == 16):
-				atom_coords.append([float(line[0]),float(line[1]),float(line[2])])
-		atoms = mol2.GetAtoms()
-		hbds = mol2.GetSubstructMatches(hbd)
-		hbas = mol2.GetSubstructMatches(hba)
-		for d, in hbds:				# go through all hbas and all hbds, compute relative distances
-			for a, in hbas:
-				if a != d:
-					sq_dist = np.sum(np.asarray(atom_coords[a])**2 + np.asarray(atom_coords[d])**2)
-					dist = np.sqrt(sq_dist)
-					bins[int(dist)] += 1
-	except:
-		return [None]
+	hbd = Chem.MolFromSmarts('[#7H,#7H2,#7H3,#8H]')
+	hba = Chem.MolFromSmarts('[#7X1,#7X2,#7X3,#8,#9,#17]')
+	#try:
+	mol2 = mol
+	mol2 =  Chem.AddHs(mol2)
+	max_dist = 30							# keep track of hba/hbd distances of up to max_dist angstroms
+	AllChem.EmbedMolecule(mol2,useRandomCoords=True)
+	AllChem.UFFOptimizeMolecule(mol2)
+	atom_coords = []
+	mol_dists = np.arange(max_dist)
+	bins = np.zeros(max_dist)
+	block = Chem.MolToMolBlock(mol2)
+	block = block.split("\n")
+	for line in block:
+		line = line.split()
+		if (len(line) == 16):
+			atom_coords.append([float(line[0]),float(line[1]),float(line[2])])
+	atoms = mol2.GetAtoms()
+	hbds = mol2.GetSubstructMatches(hbd)
+	hbas = mol2.GetSubstructMatches(hba)
+	for d, in hbds:				# go through all hbas and all hbds, compute relative distances
+		for a, in hbas:
+			if a != d:
+				sq_dist = np.sum(np.asarray(atom_coords[a])**2 + np.asarray(atom_coords[d])**2)
+				dist = np.sqrt(sq_dist)
+				bins[int(dist)] += 1
+	#except:
+	#	return [None]
 	
 	return bins
 
@@ -106,6 +109,7 @@ def extractFeatureData(mol):
 			for data in f:
 				feature_data.append(data)
 	feature_data = np.asarray(feature_data)						# convert to numpy array
+	print feature_data
 	return feature_data
 
 def readOriginalData(saveNewBin=True):
@@ -206,6 +210,8 @@ def main():
 	plt.grid(True)
 	plt.show()
 
+	plt.savefig("check_results/oos_{}k_c{}.png".format(len(train_predictions),c_val,))
+
 	plt.figure()
 	plt.suptitle("Prediction vs Actual Delta G\nTraining Set")
 	plt.xlabel("Predicted Delta G")
@@ -213,6 +219,8 @@ def main():
 	plt.plot(train_predictions,naive_y,'x',ms=2,mew=3)
 	plt.grid(True)
 	plt.show()
+
+	plt.savefig("check_results/is_{}k_c{}.png".format(len(train_predictions),c_val,))
 
 
 main()
