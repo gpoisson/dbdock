@@ -45,32 +45,33 @@ def shuffleXY(X,y):
 def getDistBins(mol):
 	hbd = Chem.MolFromSmarts('[#7H,#7H2,#7H3,#8H]')
 	hba = Chem.MolFromSmarts('[#7X1,#7X2,#7X3,#8,#9,#17]')
-	#try:
-	mol2 = mol
-	mol2 =  Chem.AddHs(mol2)
-	max_dist = 30							# keep track of hba/hbd distances of up to max_dist angstroms
-	AllChem.EmbedMolecule(mol2,useRandomCoords=True)
-	AllChem.UFFOptimizeMolecule(mol2)
-	atom_coords = []
-	mol_dists = np.arange(max_dist)
-	bins = np.zeros(max_dist)
-	block = Chem.MolToMolBlock(mol2)
-	block = block.split("\n")
-	for line in block:
-		line = line.split()
-		if (len(line) == 16):
-			atom_coords.append([float(line[0]),float(line[1]),float(line[2])])
-	atoms = mol2.GetAtoms()
-	hbds = mol2.GetSubstructMatches(hbd)
-	hbas = mol2.GetSubstructMatches(hba)
-	for d, in hbds:				# go through all hbas and all hbds, compute relative distances
-		for a, in hbas:
-			if a != d:
-				sq_dist = np.sum(np.asarray(atom_coords[a])**2 + np.asarray(atom_coords[d])**2)
-				dist = np.sqrt(sq_dist)
-				bins[int(dist)] += 1
-	#except:
-	#	return [None]
+	try:
+		mol =  Chem.AddHs(mol)
+		max_dist = 15							# keep track of hba/hbd distances of up to max_dist angstroms
+		AllChem.EmbedMolecule(mol,useRandomCoords=True)
+		r = 1
+		while (r == 1):		# This optimization returns 1 if it did not converge, so it iterates until it converges
+			r = AllChem.UFFOptimizeMolecule(mol)
+		atom_coords = []
+		mol_dists = np.arange(max_dist)
+		bins = np.zeros(max_dist)
+		block = Chem.MolToMolBlock(mol)
+		block = block.split("\n")
+		for line in block:
+			line = line.split()
+			if (len(line) == 16):
+				atom_coords.append([float(line[0]),float(line[1]),float(line[2])])
+		atoms = mol.GetAtoms()
+		hbds = mol.GetSubstructMatches(hbd)
+		hbas = mol.GetSubstructMatches(hba)
+		for d, in hbds:				# go through all hbas and all hbds, compute relative distances
+			for a, in hbas:
+				if a != d:
+					sq_dist = np.sum(np.asarray(atom_coords[a])**2 + np.asarray(atom_coords[d])**2)
+					dist = np.sqrt(sq_dist)
+					bins[int(dist)] += 1
+	except:
+		return [None]
 	
 	return bins
 
@@ -109,7 +110,24 @@ def extractFeatureData(mol):
 			for data in f:
 				feature_data.append(data)
 	feature_data = np.asarray(feature_data)						# convert to numpy array
+	'''
+	print ("smr_vsa:\t{}".format(smr_vsa))
+	print ("slogp_vsa:\t{}".format(slogp_vsa))
+	print ("peoe_vsa:\t{}".format(peoe_vsa))
+	print ("hbd:\t{}".format(hbd))
+	print ("hba:\t{}".format(hba))
+	print ("molwt:\t{}".format(molwt))
+	print ("nalrings:\t{}".format(nalrings))
+	print ("nalhet:\t{}".format(nalhet))
+	print ("narohet:\t{}".format(narohet))
+	print ("narorings:\t{}".format(narorings))
+	print ("nHBA:\t{}".format(nHBA))
+	print ("nHBD:\t{}".format(nHBD))
+	print ("rotbounds:\t{}".format(rotbounds))
+	print ("dist bins:\t{}".format(dist_bins))
+	print ("")
 	print feature_data
+	'''
 	return feature_data
 
 def readOriginalData(saveNewBin=True):
