@@ -17,6 +17,9 @@ c_val = 1.0
 rebuild_db = False
 db = "lig_db_full_3D.npy"
 
+bad_ligs = 0
+sulfur_ligs = 0
+
 if (len(sys.argv) > 2):
 	c_val = int(sys.argv[1])
 	rebuild_db = sys.argv[2]
@@ -43,6 +46,7 @@ def shuffleXY(X,y):
 
 # Gets Euclidian distances for all HBA/HBD pairs, returns a histogram of their values
 def getDistBins(mol):
+	global bad_ligs
 	hbd = Chem.MolFromSmarts('[#7H,#7H2,#7H3,#8H]')
 	hba = Chem.MolFromSmarts('[#7X1,#7X2,#7X3,#8,#9,#17]')
 	try:
@@ -71,7 +75,11 @@ def getDistBins(mol):
 					dist = np.sqrt(sq_dist)
 					bins[int(dist)] += 1
 	except:
+		bad_ligs += 1
 		return [None]
+
+	block_text = (Chem.MolToMolBlock(mol))
+	print block_text
 	
 	return bins
 
@@ -109,7 +117,7 @@ def extractFeatureData(mol):
 		else:
 			for data in f:
 				feature_data.append(data)
-	feature_data = np.asarray(feature_data)						# convert to numpy array
+	feature_data = np.asarray(feature_data)						# convert to numpy 
 	'''
 	print ("smr_vsa:\t{}".format(smr_vsa))
 	print ("slogp_vsa:\t{}".format(slogp_vsa))
@@ -126,7 +134,7 @@ def extractFeatureData(mol):
 	print ("rotbounds:\t{}".format(rotbounds))
 	print ("dist bins:\t{}".format(dist_bins))
 	print ("")
-	print feature_data
+	#print feature_data
 	'''
 	return feature_data
 
@@ -141,11 +149,14 @@ def readOriginalData(saveNewBin=True):
 	print("Extracting feature data")
 	for lig in ligs1:
 		ligs.append(lig)
+		print (lig[0])
 		X.append(extractFeatureData(lig[1]))
 		y.append(lig[2])
 
 	for lig in ligs2:
 		ligs.append(lig)
+		name = (lig[0])
+		print name
 		X.append(extractFeatureData(lig[1]))
 		y.append(lig[2])
 
