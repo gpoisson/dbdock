@@ -21,7 +21,7 @@ test_size = 1 - train_size
 batches = 5
 
 def main():
-	#compileFeaturesAndLabels()
+	compileFeaturesAndLabels()
 	X = np.load("features.npy")
 	y = np.load("labels.npy")
 
@@ -112,21 +112,21 @@ def recurseMolHCount(mol):
 	# Build hash table of atoms
 	numAtoms = len(mol.GetAtoms())
 	atom_table = {}
+	hbond_table = []
 	for atom_index in range(numAtoms):
 		atom = mol.GetAtomWithIdx(atom_index)
 		atom_table[atom_index] = []
 		neighbors = atom.GetNeighbors()
 		for n in neighbors:
 			atom_table[atom_index].append(n.GetIdx())
-	# Build table of Hs
-	h_table = {}
-	for atom_index in range(numAtoms):
-		if (mol.GetAtomWithIdx(atom_index).GetSymbol() == 'H'):
-			h_table[atom_index] = 'H'
-	# Build distribution of distances betweeen Hs
-	dists = getDists(numAtoms, h_table, atom_table)
+		name = atom.GetSymbol()
+		if ((name == "N") | (name == "O") | (name == "F") | (name == "S")):
+			hbond_table.append(atom_index)
+	# atom_table is now a list of lists:  eg ([atom_index: [neighbor_atom_index_1, neighbor_atom_index_2,...]])
+	
+	dists = getDists(numAtoms, hbond_table, atom_table)
 
-def getDists(numAtoms, h_table, atom_table):
+def getDists(numAtoms, hbond_table, atom_table):
 	dists = {}
 	dists[1] = 0
 	dists[2] = 0
@@ -139,10 +139,44 @@ def getDists(numAtoms, h_table, atom_table):
 	dists[9] = 0
 	dists[10] = 0
 
-	for h1 in h_table:
-		for h2 in h_table:
-			if (h1 != h2):
-				
+	for index1 in range(len(hbond_table)):
+		for index2 in range(len(hbond_table)):
+			if (index1 < index2):
+				dist = getDist(hbond_table[index1], hbond_table[index2], atom_table)
+				if dist in dists:
+					dists[dist] += 1
+	return dists
+
+# Use Dijkstra's to find shortest path from atom at index1 to atom at index2
+def getDist(index1, index2, atom_table):
+	start = index1 	# index of one of terminal atoms
+	goal = index2 	# index of one of terminal atoms
+	distances = {}	# dict of minimum distances to atoms in atom_table
+	unvisited = []	# list of indeces of unvisited atoms in atom_table
+	goal_found = False		# flag to make computation loop until complete
+
+	# populate the distance table
+	for atom in atom_table:
+		if (atom == start):
+			distances[atom] = 0
+		else:
+			distances[atom] = 99999
+		unvisited.append(atom)		# store the dict index
+
+	closest = None			# closest unvisited atom to starting point
+	closest_dist = None		# distance of closest unvisited atom
+	while (!goal_found):	# goal_found is false until the shortest path from start to goal is found
+		for atom in unvisited:							# loop through unvisited atoms, find nearest unvisited
+			if (closest == None):
+				closest = atom
+				closest_dist = distances[atom]
+			elif (distances[atom] < closest_dist):
+				if (atom in unvisited):
+					closest = atom
+					closest_dist = distances[atom]
+		unvisited.remove(closest)						# remove the newly visted atom
+		neighbors = atom_table[closest]
+
 
 
 def countNitrogens(mol):
@@ -218,4 +252,4 @@ def countDoubleBonds(mol):
 	return doubleBonds
 
 
-#main()
+main()
