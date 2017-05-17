@@ -6,6 +6,7 @@ from sklearn import preprocessing
 from sklearn.decomposition import PCA
 import os, sys
 import matplotlib
+import time
 from scipy.spatial import distance
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -104,7 +105,10 @@ def computeFeatures(mol):
 	mol_weight = rdMolDescriptors.CalcExactMolWt(mol)
 	tpsa = rdMolDescriptors.CalcTPSA(mol)
 	dist_hs = recurseMolHCount(mol)
-	return [numRings, nitrogenCount, oxygenCount, carbonCount, boronCount, phosCount, sulfurCount, fluorCount, iodCount, doubleBonds, surf_area, mol_weight, tpsa]
+	output = [numRings, nitrogenCount, oxygenCount, carbonCount, boronCount, phosCount, sulfurCount, fluorCount, iodCount, doubleBonds, surf_area, mol_weight, tpsa]
+	for d in dist_hs:
+		output.append(d)
+	return output
 
 def recurseMolHCount(mol):
 	# Add H atoms to molecule
@@ -125,19 +129,12 @@ def recurseMolHCount(mol):
 	# atom_table is now a list of lists:  eg ([atom_index: [neighbor_atom_index_1, neighbor_atom_index_2,...]])
 	
 	dists = getDists(numAtoms, hbond_table, atom_table)
+	return dists
 
 def getDists(numAtoms, hbond_table, atom_table):
 	dists = {}
-	dists[1] = 0
-	dists[2] = 0
-	dists[3] = 0
-	dists[4] = 0
-	dists[5] = 0
-	dists[6] = 0
-	dists[7] = 0
-	dists[8] = 0
-	dists[9] = 0
-	dists[10] = 0
+	for i in range(21):
+		dists[i] = 0
 
 	for index1 in range(len(hbond_table)):
 		for index2 in range(len(hbond_table)):
@@ -147,7 +144,7 @@ def getDists(numAtoms, hbond_table, atom_table):
 					dists[dist] += 1
 	return dists
 
-# Use Dijkstra's to find shortest path from atom at index1 to atom at index2
+# Use Dijkstra's SP algorithm to find shortest path from atom at index1 to atom at index2
 def getDist(index1, index2, atom_table):
 	start = index1 	# index of one of terminal atoms
 	goal = index2 	# index of one of terminal atoms
@@ -165,19 +162,30 @@ def getDist(index1, index2, atom_table):
 
 	closest = None			# closest unvisited atom to starting point
 	closest_dist = None		# distance of closest unvisited atom
-	while (!goal_found):	# goal_found is false until the shortest path from start to goal is found
-		for atom in unvisited:							# loop through unvisited atoms, find nearest unvisited
+	visited_index = 0
+	while (goal_found is not True):			# goal_found is false until the shortest path from start to goal is found
+		for atom in unvisited:								# loop through unvisited atoms, find nearest unvisited
 			if (closest == None):
 				closest = atom
 				closest_dist = distances[atom]
-			elif (distances[atom] < closest_dist):
-				if (atom in unvisited):
-					closest = atom
-					closest_dist = distances[atom]
-		unvisited.remove(closest)						# remove the newly visted atom
+				visited_index = unvisited.index(atom)
+			elif (atom in distances): 
+				if (distances[atom] < closest_dist):
+					if (atom in unvisited):
+						closest = atom
+						closest_dist = distances[atom]
+						visited_index = unvisited.index(atom)	
+		unvisited[visited_index] = -1
+
+		if (closest == goal):								# determine if the goal has been visited
+			goal_found = True
+			return distances[goal]
 		neighbors = atom_table[closest]
-
-
+		for n in neighbors:									# update shortest distance to current atom's neighbors
+			current_path_length = distances[n]
+			if (closest_dist + 1 < current_path_length):
+				distances[n] = closest_dist + 1
+		closest_dist = 99999								# visited atoms are removed from the unvisited list, so this value is reset
 
 def countNitrogens(mol):
 	smile = Chem.MolToSmiles(mol)
