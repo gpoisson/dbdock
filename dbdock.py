@@ -83,10 +83,13 @@ def compileFeaturesAndLabels():
 def getAllFeatures(ligands):
 	features = []
 	labels = []
+	count = 0
 	for ligand in ligands:
 		if (ligand[mol_index] != None):
+			print("Ligand No: {} / {}".format(count,len(ligands)))
 			features.append(computeFeatures(ligand[mol_index]))
 			labels.append(ligand[ki_index])
+		count += 1
 	return [np.asarray(features), np.asarray(labels)]
 
 def computeFeatures(mol):
@@ -127,8 +130,9 @@ def recurseMolHCount(mol):
 		if ((name == "N") | (name == "O") | (name == "F") | (name == "S")):
 			hbond_table.append(atom_index)
 	# atom_table is now a list of lists:  eg ([atom_index: [neighbor_atom_index_1, neighbor_atom_index_2,...]])
-	
+	print(" Getting distances between hba/ds... (Hbond table contains {} entries)".format(len(hbond_table)))
 	dists = getDists(numAtoms, hbond_table, atom_table)
+	print(" All distances computed.")
 	return dists
 
 def getDists(numAtoms, hbond_table, atom_table):
@@ -152,6 +156,7 @@ def getDist(index1, index2, atom_table):
 	unvisited = []	# list of indeces of unvisited atoms in atom_table
 	goal_found = False		# flag to make computation loop until complete
 
+	print("   Finding shortest path from [{}] to [{}]...".format(start,goal))
 	# populate the distance table
 	for atom in atom_table:
 		if (atom == start):
@@ -164,6 +169,7 @@ def getDist(index1, index2, atom_table):
 	closest_dist = None		# distance of closest unvisited atom
 	visited_index = 0
 	while (goal_found is not True):			# goal_found is false until the shortest path from start to goal is found
+		print("    Entering unvisited loop")
 		for atom in unvisited:								# loop through unvisited atoms, find nearest unvisited
 			if (closest == None):
 				closest = atom
@@ -176,8 +182,18 @@ def getDist(index1, index2, atom_table):
 						closest_dist = distances[atom]
 						visited_index = unvisited.index(atom)	
 		unvisited[visited_index] = -1
+		print("      Exiting unvisited loop: current closest: {}  closest_dist: {}   visited_index: {}    start: {}   goal: {}".format(closest,closest_dist,visited_index,start,goal))
+		outline = ""
+		d_outline = ""
+		for unv in unvisited:
+			outline += "{} ".format(unv)
+		for d in distances:
+			d_outline += "{} ".format(distances[d])
+		print(outline)
+		print(d_outline)
 
-		if (closest == goal):								# determine if the goal has been visited
+		if (closest == goal):			
+			print("   Shortest path computed: From [{}] to [{}] - path is length: {}".format(start,goal,distances[goal]))					# determine if the goal has been visited
 			goal_found = True
 			return distances[goal]
 		neighbors = atom_table[closest]
