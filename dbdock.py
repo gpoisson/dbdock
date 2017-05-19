@@ -168,8 +168,8 @@ def getDist(index1, index2, atom_table):
 	closest = None			# closest unvisited atom to starting point
 	closest_dist = None		# distance of closest unvisited atom
 	visited_index = 0
+	failsafe = 0			# on occasion, some molecules don't have correct bond data, resulting in partitioned graphs through which Dijkstra cannot find a path. This cuts off infinite loops
 	while (goal_found is not True):			# goal_found is false until the shortest path from start to goal is found
-		print("    Entering unvisited loop")
 		for atom in unvisited:								# loop through unvisited atoms, find nearest unvisited
 			if (closest == None):
 				closest = atom
@@ -180,17 +180,20 @@ def getDist(index1, index2, atom_table):
 					if (atom in unvisited):
 						closest = atom
 						closest_dist = distances[atom]
-						visited_index = unvisited.index(atom)	
+						visited_index = unvisited.index(atom)
+				elif (failsafe > 10000):
+					for d in distances:
+						if distances[d] == 99999:
+							distances[d] = closest_dist + 1
+					return distances[goal]
+
 		unvisited[visited_index] = -1
-		print("      Exiting unvisited loop: current closest: {}  closest_dist: {}   visited_index: {}    start: {}   goal: {}".format(closest,closest_dist,visited_index,start,goal))
 		outline = ""
 		d_outline = ""
 		for unv in unvisited:
 			outline += "{} ".format(unv)
 		for d in distances:
 			d_outline += "{} ".format(distances[d])
-		print(outline)
-		print(d_outline)
 
 		if (closest == goal):			
 			print("   Shortest path computed: From [{}] to [{}] - path is length: {}".format(start,goal,distances[goal]))					# determine if the goal has been visited
@@ -202,6 +205,7 @@ def getDist(index1, index2, atom_table):
 			if (closest_dist + 1 < current_path_length):
 				distances[n] = closest_dist + 1
 		closest_dist = 99999								# visited atoms are removed from the unvisited list, so this value is reset
+		failsafe += 1
 
 def countNitrogens(mol):
 	smile = Chem.MolToSmiles(mol)
