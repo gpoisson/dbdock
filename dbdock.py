@@ -17,26 +17,33 @@ ki_index = 2
 
 C = 10.0
 epsilon = 0.1
-train_size = 0.005
+train_size = 0.01
 test_size = 1 - train_size
 batches = 5
 
 def main():
-	compileFeaturesAndLabels()
-	X = np.load("features.npy")
-	y = np.load("labels.npy")
+	#compileFeaturesAndLabels()
+	X = np.load("features_all.npy")
+	y = np.load("labels_all.npy")
 
 	models = []
 	X_val = X[0:10000]
 	y_val = y[0:10000]
-	X = X[10001:]
-	y = y[10001:]
+	X_ = X[10001:]
+	y_ = y[10001:]
+	'''
+	print("X contains: {} samples".format(len(X_)))
+	print("Y contains: {} samples".format(len(y_)))
+	print("X_val contains: {} samples".format(len(X_val)))
+	print("Y_val contains: {} samples".format(len(y_val)))
+	'''
 	for batch in range(batches):
-		X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=batch)
-		#X_test = X_test[0:4000]
-		#y_test = y_test[0:4000]
+		X_train, X_test, y_train, y_test = train_test_split(X_, y_, test_size=test_size, random_state=batch)
+		X_test = X_test[0:4000]
+		y_test = y_test[0:4000]
 		print("X_train contains {} samples; y_train contains {} labels.".format(len(X_train),len(y_train)))
 		print("X_test contains {} samples; y_test contains {} labels.".format(len(X_test),len(y_test)))
+		
 		clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
 		clf.fit(X_train,y_train)
 		models.append(clf)
@@ -80,16 +87,55 @@ def compileFeaturesAndLabels():
 	np.save("features.npy",features)
 	np.save("labels.npy",labels)
 
+def compileFeaturesAndLabels_smallData():
+	ligs_part_0 = np.load("small_unsorted_ligs.npy")
+
+	ligands = []
+
+	for lig in ligs_part_0:
+		ligands.append(lig)
+
+	[features, labels] = getAllFeatures(ligands)
+	np.save("features.npy",features)
+	np.save("labels.npy",labels)
+	#print("Final saved files: {} features, {} labels".format(len(features),len(labels)))
+
 def getAllFeatures(ligands):
 	features = []
 	labels = []
 	count = 0
+	#print("Starting with library of {} ligands".format(len(ligands)))
 	for ligand in ligands:
 		if (ligand[mol_index] != None):
-			print("Ligand No: {} / {}".format(count,len(ligands)))
-			features.append(computeFeatures(ligand[mol_index]))
-			labels.append(ligand[ki_index])
-		count += 1
+			if (count % 10000 == 0):
+				print("Ligand No: {} / {}".format(count,len(ligands)))
+			f_data = computeFeatures(ligand[mol_index])
+			#print("{} features computed; f_data[2] = {}".format(len(f_data),f_data[2]))
+			#d_hist = f_data[13:33]					# UNCOMMENT
+			'''
+			dout = ""
+			for d in dout:
+				dout += "{} ".format(d)
+			print(dout)
+			'''
+			all_zero = True
+			keep = True
+			for d in d_hist:
+				if d != 0:
+					all_zero = False
+				elif d == 99999:
+					keep = False
+					#print("DONT KEEP")
+					break
+			if all_zero:
+				keep = False
+				#print("DON'T KEEP")
+			if keep:
+				features.append(f_data)
+				labels.append(ligand[ki_index])
+				#print("KEEP RECORD")
+			count += 1
+	print("{} labels".format(len(labels)))
 	return [np.asarray(features), np.asarray(labels)]
 
 def computeFeatures(mol):
@@ -110,7 +156,7 @@ def computeFeatures(mol):
 	dist_hs = recurseMolHCount(mol)
 	output = [numRings, nitrogenCount, oxygenCount, carbonCount, boronCount, phosCount, sulfurCount, fluorCount, iodCount, doubleBonds, surf_area, mol_weight, tpsa]
 	for d in dist_hs:
-		output.append(d)
+		output.append(dist_hs[d])
 	return output
 
 def recurseMolHCount(mol):
@@ -130,9 +176,7 @@ def recurseMolHCount(mol):
 		if ((name == "N") | (name == "O") | (name == "F") | (name == "S")):
 			hbond_table.append(atom_index)
 	# atom_table is now a list of lists:  eg ([atom_index: [neighbor_atom_index_1, neighbor_atom_index_2,...]])
-	print(" Getting distances between hba/ds... (Hbond table contains {} entries)".format(len(hbond_table)))
 	dists = getDists(numAtoms, hbond_table, atom_table)
-	print(" All distances computed.")
 	return dists
 
 def getDists(numAtoms, hbond_table, atom_table):
@@ -156,7 +200,6 @@ def getDist(index1, index2, atom_table):
 	unvisited = []	# list of indeces of unvisited atoms in atom_table
 	goal_found = False		# flag to make computation loop until complete
 
-	print("   Finding shortest path from [{}] to [{}]...".format(start,goal))
 	# populate the distance table
 	for atom in atom_table:
 		if (atom == start):
@@ -181,10 +224,7 @@ def getDist(index1, index2, atom_table):
 						closest = atom
 						closest_dist = distances[atom]
 						visited_index = unvisited.index(atom)
-				elif (failsafe > 10000):
-					for d in distances:
-						if distances[d] == 99999:
-							distances[d] = closest_dist + 1
+				elif (failsafe > 500):
 					return distances[goal]
 
 		unvisited[visited_index] = -1
@@ -195,8 +235,7 @@ def getDist(index1, index2, atom_table):
 		for d in distances:
 			d_outline += "{} ".format(distances[d])
 
-		if (closest == goal):			
-			print("   Shortest path computed: From [{}] to [{}] - path is length: {}".format(start,goal,distances[goal]))					# determine if the goal has been visited
+		if (closest == goal):								# determine if the goal has been visited
 			goal_found = True
 			return distances[goal]
 		neighbors = atom_table[closest]
