@@ -8,14 +8,14 @@ import matplotlib.pyplot as plt
 import sys
 
 input_size = 34						# size of input features
-hidden_layers = [500]				# list of hidden layer dimensions
+hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2]))]				# list of hidden layer dimensions
 output_size = 1						# size of output features
 batch_size = 4						# number of samples per batch
 
 training_set_size = 10				# number of samples in training set
 test_set_size = 4000				# number of samples in test set
 
-NumEpoches = 60
+NumEpoches = 2
 
 
 def get_data():
@@ -79,20 +79,20 @@ class Net(nn.Module):
 		super(Net, self).__init__()
 
 		self.fc1 = nn.Linear(input_size, hidden_layers[0]) # 2 Input noses, 50 in middle layers
-		self.fc2 = nn.Linear(hidden_layers[0], output_size)
-		#self.fc3 = nn.Linear(hidden_layers[1], hidden_layers[2])
+		self.fc2 = nn.Linear(hidden_layers[0], hidden_layers[1])
+		self.fc3 = nn.Linear(hidden_layers[1], output_size)
 		#self.fc2 = nn.Linear(hidden_layers[0], output_size)
 		#self.fc4 = nn.Linear(hidden_layers[2], output_size) # 50 middle layer, 1 output nodes
 		self.rl1 = nn.ReLU()
-		#self.rl2 = nn.ReLU()
+		self.rl2 = nn.ReLU()
 		#self.rl3 = nn.ReLU()
 	
 	def forward(self, x):
 		x = self.fc1(x)
 		x = self.rl1(x)
 		x = self.fc2(x)
-		#x = self.rl2(x)
-		#x = self.fc3(x)
+		x = self.rl2(x)
+		x = self.fc3(x)
 		#x = self.rl3(x)
 		#x = self.fc4(x)
 		return x
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 			if ((i > 10) & (i % 20 == 0)):
 				avg_running_loss = running_loss / NumEpoches
 				losses.append(avg_running_loss)
-				#print ("prediction: {}   actual: {}   loss: {}    avg loss per sample: {}".format(outputs.data.numpy(), labels, running_loss, avg_running_loss))
+				print ("prediction: {}   actual: {}   loss: {}    avg loss per sample: {}".format(outputs.data.numpy(), labels, running_loss, avg_running_loss))
 				running_loss = 0.0
 			'''
 			print(inputs)
@@ -144,30 +144,23 @@ if __name__ == "__main__":
 			print(loss)
 			print()
 			'''
-	#print ("Finished training...")
+	print ("Finished training...")
 
 	predictions = []
-	actual = []
 	losses = []
 	for sample in range(len(testdataX)):
 		batch_prediction = net(Variable(torch.FloatTensor(testdataX[sample])))
 		batch_prediction = batch_prediction.data.numpy()
 		for p in range(len(batch_prediction)):
 			predictions.append(batch_prediction[p])
-			actual.append(testdataY[sample][p])
 			losses.append(abs(predictions[-1] - testdataY[sample][p]))
-
-	from scipy import stats
-	#slope, intercept, r_value, p_value, std_err = stats.linregress(predictions, actual)
-	#print("Mean test error: {}".format(np.mean(losses)))
+	print("Mean test error: {}".format(np.mean(losses)))
 	sq_errors = (np.asarray(losses) ** 2)
 	sum_sq_errors = np.sum(sq_errors)
 	res_errors = abs(trainingdataY - np.mean(trainingdataY)) ** 2
 	sum_res_sq = np.sum(res_errors)
 	r2 = 1 / (sum_sq_errors - sum_res_sq)
-	#print("r2: {}".format(r2))
-
-	print("Hidden Layers: {}   Mean Error on Test Data: {}    r2: {}".format(hidden_layers,np.mean(losses),r2))
+	print("r2: {}".format(r2))
 	'''
 	predictions = []
 	losses = []

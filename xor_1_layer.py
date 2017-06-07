@@ -8,14 +8,14 @@ import matplotlib.pyplot as plt
 import sys
 
 input_size = 34						# size of input features
-hidden_layers = [500]				# list of hidden layer dimensions
+hidden_layers = [((int)(sys.argv[1]))]				# list of hidden layer dimensions
 output_size = 1						# size of output features
 batch_size = 4						# number of samples per batch
 
 training_set_size = 10				# number of samples in training set
 test_set_size = 4000				# number of samples in test set
 
-NumEpoches = 60
+NumEpoches = 2
 
 
 def get_data():
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 	#criterion = nn.NLLLoss()
 	#criterion = nn.BCELoss()
 	#optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.1)
-	optimizer = optim.Adam(net.parameters(), lr=0.01)
+	optimizer = optim.Adam(net.parameters(), lr=0.001)
 
 	trainingdataX, trainingdataY, testdataX, testdataY = get_data()
 
@@ -135,7 +135,7 @@ if __name__ == "__main__":
 			if ((i > 10) & (i % 20 == 0)):
 				avg_running_loss = running_loss / NumEpoches
 				losses.append(avg_running_loss)
-				#print ("prediction: {}   actual: {}   loss: {}    avg loss per sample: {}".format(outputs.data.numpy(), labels, running_loss, avg_running_loss))
+				print ("prediction: {}   actual: {}   loss: {}    avg loss per sample: {}".format(outputs.data.numpy(), labels, running_loss, avg_running_loss))
 				running_loss = 0.0
 			'''
 			print(inputs)
@@ -147,18 +147,13 @@ if __name__ == "__main__":
 	#print ("Finished training...")
 
 	predictions = []
-	actual = []
 	losses = []
 	for sample in range(len(testdataX)):
 		batch_prediction = net(Variable(torch.FloatTensor(testdataX[sample])))
 		batch_prediction = batch_prediction.data.numpy()
 		for p in range(len(batch_prediction)):
 			predictions.append(batch_prediction[p])
-			actual.append(testdataY[sample][p])
 			losses.append(abs(predictions[-1] - testdataY[sample][p]))
-
-	from scipy import stats
-	#slope, intercept, r_value, p_value, std_err = stats.linregress(predictions, actual)
 	#print("Mean test error: {}".format(np.mean(losses)))
 	sq_errors = (np.asarray(losses) ** 2)
 	sum_sq_errors = np.sum(sq_errors)
@@ -166,7 +161,6 @@ if __name__ == "__main__":
 	sum_res_sq = np.sum(res_errors)
 	r2 = 1 / (sum_sq_errors - sum_res_sq)
 	#print("r2: {}".format(r2))
-
 	print("Hidden Layers: {}   Mean Error on Test Data: {}    r2: {}".format(hidden_layers,np.mean(losses),r2))
 	'''
 	predictions = []
@@ -200,7 +194,7 @@ if __name__ == "__main__":
 	sum_res_sq = np.sum(res_errors)
 	r2 = 1 / (sum_sq_errors - sum_res_sq)
 	print("r2: {}".format(r2))
-	'''
+	
 	plt.figure()
 	plt.plot(range(len(losses)),losses,'x',ms=2,mew=3)
 	plt.grid(True)
@@ -212,4 +206,4 @@ if __name__ == "__main__":
 	plt.xlabel("Test Batches")
 	plt.ylabel("Mean Test Error (kcal/mol)")
 	plt.show()
-	
+	'''
