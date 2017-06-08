@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import sys
 
 input_size = 34						# size of input features
-hidden_layers = [500]				# list of hidden layer dimensions
+hidden_layers = [15,((int)(sys.argv[1]))]				# list of hidden layer dimensions
 output_size = 1						# size of output features
 batch_size = 4						# number of samples per batch
 
@@ -23,7 +23,7 @@ def get_data():
 	labels = np.load("labels_all.npy")
 
 	if (test_set_size + training_set_size > len(ligands)):
-		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\NTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
+		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\nTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
 	
 	train_ligands = ligands[:training_set_size]
 	train_labels = labels[:training_set_size]
@@ -79,25 +79,25 @@ class Net(nn.Module):
 		super(Net, self).__init__()
 
 		self.fc1 = nn.Linear(input_size, hidden_layers[0]) # 2 Input noses, 50 in middle layers
-		self.fc2 = nn.Linear(hidden_layers[0], output_size)
-		#self.fc3 = nn.Linear(hidden_layers[1], hidden_layers[2])
+		self.fc2 = nn.Linear(hidden_layers[0], hidden_layers[1])
+		self.fc3 = nn.Linear(hidden_layers[1], output_size)
 		#self.fc2 = nn.Linear(hidden_layers[0], output_size)
 		#self.fc4 = nn.Linear(hidden_layers[2], output_size) # 50 middle layer, 1 output nodes
 		self.rl1 = nn.ReLU()
-		#self.rl2 = nn.ReLU()
+		self.rl2 = nn.ReLU()
 		#self.rl3 = nn.ReLU()
 	
 	def forward(self, x):
 		x = self.fc1(x)
 		x = self.rl1(x)
 		x = self.fc2(x)
-		#x = self.rl2(x)
-		#x = self.fc3(x)
+		x = self.rl2(x)
+		x = self.fc3(x)
 		#x = self.rl3(x)
 		#x = self.fc4(x)
 		return x
 
-if __name__ == "__main__":
+def main():
 	## Create Network
 
 	net = Net()
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 	#print("Mean test error: {}".format(np.mean(losses)))
 	sq_errors = (np.asarray(losses) ** 2)
 	sum_sq_errors = np.sum(sq_errors)
-	res_errors = abs(trainingdataY - np.mean(trainingdataY)) ** 2
+	res_errors = abs(testdataY - np.mean(testdataY)) ** 2
 	sum_res_sq = np.sum(res_errors)
 	r2 = 1 / (sum_sq_errors - sum_res_sq)
 	#print("r2: {}".format(r2))
@@ -207,9 +207,10 @@ if __name__ == "__main__":
 	h_lays = ""
 	for i in hidden_layers:
 		h_lays += "{}-".format(i)
-	plt.suptitle("Neural Network {}-{}{}  Mean Error: {}\nBatch Size: {}  Epochs: {}  Train Set: {}".format(input_size,h_lays,output_size,np.mean(losses),batch_size,NumEpoches,training_set_size))
+	plt.suptitle("Neural Network {}-{}{}  Median Error: {}\nBatch Size: {}  Epochs: {}  Train Set: {}   St. Dev.: {}".format(input_size,h_lays,output_size,np.median(losses),batch_size,NumEpoches,training_set_size,np.std(losses)))
 	plt.ylim([0,10])
 	plt.xlabel("Test Batches")
 	plt.ylabel("Mean Test Error (kcal/mol)")
 	plt.show()
 	
+main()
