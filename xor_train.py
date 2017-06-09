@@ -9,34 +9,20 @@ import sys
 
 input_size = 34						# size of input features
 
-
-if (len(sys.argv) == 2):
-	hidden_layers = [(int)(sys.argv[1])]
-elif (len(sys.argv) == 3):
-	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2]))]				# list of hidden layer dimensions
-elif (len(sys.argv) == 4):
-	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2])),((int)(sys.argv[3]))]				# list of hidden layer dimensions
-
-'''
-hidden_layers = []
-for layer in range((int)(sys.argv[1])):
-	hidden_layers.append((int)(sys.argv[layer+1]))
-'''
+hidden_layers = [15]
 
 output_size = 1						# size of output features
 batch_size = 5						# number of samples per batch
 
-training_set_size = 5000				# number of samples in training set
+training_set_size = (int)(sys.argv[1])				# number of samples in training set
 test_set_size = 4000				# number of samples in test set
 
-NumEpoches = 5
+NumEpoches = 3
 
 
 def get_data():
 	ligands = np.load("features_all_norm.npy")
 	labels = np.load("labels_all.npy")
-
-	#ligands = ligands[:,:13]
 
 	if (test_set_size + training_set_size > len(ligands)):
 		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\nTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
@@ -45,11 +31,6 @@ def get_data():
 	train_labels = labels[:training_set_size]
 	test_ligands = ligands[-test_set_size:]
 	test_labels = labels[-test_set_size]
-
-	train_ligands = np.random.shuffle(train_ligands)
-	train_labels = np.random.shuffle(train_labels)
-	test_ligands = np.random.shuffle(test_ligands)
-	test_labels = np.random.shuffle(test_labels)
 
 	trainingdataX = [[]]
 	trainingdataY = [[]]
@@ -217,9 +198,41 @@ def main():
 	for hid in hidden_layers:
 		h += "{}-".format(hid)
 	h += "{}".format(output_size)
-	ex = 150
-	print("hid_layers: {} r2: {} pred[ex]: {} actl[ex]: {} train_size: {} test_size: {} epochs: {} batch_size: {}".format(h,r2,predictions[ex],actual[ex],training_set_size,test_set_size,NumEpoches,batch_size))
+	print("hid_layers: {} r2: {} pred[10]: {} actl[10]: {} train_size: {} test_size: {} epochs: {} batch_size: {}".format(h,r2,predictions[10],actual[10],training_set_size,test_set_size,NumEpoches,batch_size))
 
+	'''
+	predictions = []
+	losses = []
+	for i in range(len(trainingdataX)):
+		test_sample = np.asarray(trainingdataX[i])
+		test_label = np.asarray(trainingdataY[i])
+
+		pred = (net(Variable(torch.FloatTensor(test_sample))))
+		for z in range(len(pred)):
+			p = pred[z].data.numpy()
+			predictions.append(p)
+		err = 0.0
+		for p in range(len(pred)):
+			err += pred[p] - (Variable(torch.FloatTensor(test_label[p])))
+		err /= len(pred)
+		e = err.data.numpy()
+		losses.append(e)
+
+	print((losses[0]))
+	print(trainingdataY[0])
+
+	
+	print("predictions[0]: {}".format(predictions[0]))
+	print("trainingdataY[0]: {}".format(trainingdataY[0]))
+	errors = abs(predictions - trainingdataY)
+	print("errors[0]: {}".format(errors[0]))
+	sq_errors = errors ** 2
+	sum_sq_errors = np.sum(sq_errors)
+	res_errors = abs(trainingdataY - np.mean(trainingdataY)) ** 2
+	sum_res_sq = np.sum(res_errors)
+	r2 = 1 / (sum_sq_errors - sum_res_sq)
+	print("r2: {}".format(r2))
+	'''
 	plt.figure()
 	plt.plot(actual,predictions,'x',ms=2,mew=3)
 	plt.grid(True)
@@ -231,7 +244,7 @@ def main():
 	plt.xlim([0,-10])
 	plt.xlabel("Actual Values")
 	plt.ylabel("Predicted Values (kcal/mol)")
-	plt.show()
+	#plt.show()
 	'''
 	plt.figure()
 	plt.plot(range(len(losses)),losses,'x',ms=2,mew=3)
