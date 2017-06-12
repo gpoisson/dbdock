@@ -6,10 +6,9 @@ import torch.optim as optim
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import sys
+from sklearn.svm import SVR
 
 input_size = 34						# size of input features
-
-
 if (len(sys.argv) == 2):
 	hidden_layers = [(int)(sys.argv[1])]
 elif (len(sys.argv) == 3):
@@ -17,26 +16,21 @@ elif (len(sys.argv) == 3):
 elif (len(sys.argv) == 4):
 	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2])),((int)(sys.argv[3]))]				# list of hidden layer dimensions
 
-'''
-hidden_layers = []
-for layer in range((int)(sys.argv[1])):
-	hidden_layers.append((int)(sys.argv[layer+1]))
-'''
+hidden_layers = [50]
 
 output_size = 1						# size of output features
-batch_size = 5						# number of samples per batch
+batch_size = 4						# number of samples per batch
+training_set_size = (int)(sys.argv[1])				# number of samples in training set
+test_set_size = 10000				# number of samples in test set
+NumEpoches = 60
 
-training_set_size = 5000				# number of samples in training set
-test_set_size = 4000				# number of samples in test set
-
-NumEpoches = 5
+C = 1000.0
+epsilon = 0.1
 
 
 def get_data():
 	ligands = np.load("features_all_norm.npy")
 	labels = np.load("labels_all.npy")
-
-	#ligands = ligands[:,:13]
 
 	if (test_set_size + training_set_size > len(ligands)):
 		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\nTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
@@ -44,12 +38,7 @@ def get_data():
 	train_ligands = ligands[:training_set_size]
 	train_labels = labels[:training_set_size]
 	test_ligands = ligands[-test_set_size:]
-	test_labels = labels[-test_set_size]
-
-	train_ligands = np.random.shuffle(train_ligands)
-	train_labels = np.random.shuffle(train_labels)
-	test_ligands = np.random.shuffle(test_ligands)
-	test_labels = np.random.shuffle(test_labels)
+	test_labels = labels[-test_set_size:]
 
 	trainingdataX = [[]]
 	trainingdataY = [[]]
@@ -77,7 +66,7 @@ def get_data():
 
 	for sample in range(len(test_ligands)):
 		testdataX[-1].append(test_ligands[sample])
-		testdataY[-1].append([(float)(labels[sample])])
+		testdataY[-1].append([(float)(test_labels[sample])])
 		if ((len(testdataX[-1])) >= batch_size):
 			testdataX.append([])
 			testdataY.append([])
@@ -94,6 +83,51 @@ def get_data():
 	testdataY = temp_y
 
 	return trainingdataX, trainingdataY, testdataX, testdataY
+
+def permute_data(X,y):
+	samples = []
+	labels = []
+
+	# unpack the batches
+	for batch in range(len(X)):
+		for s in range(len(X[batch])):
+			samples.append(X[batch][s])
+			labels.append(y[batch][s])
+
+	# define a fixed permutation
+	permutation = np.random.permutation(len(samples))
+
+	# shuffle the data
+	shuff_samples = []
+	shuff_labels = []
+
+	for s in range(len(samples)):
+		shuff_samples.append(samples[permutation[s]])
+		shuff_labels.append(labels[permutation[s]])
+
+	# repack the batches
+	new_X = [[]]
+	new_y = [[]]
+
+	for b in range(len(shuff_samples)):
+		new_X[-1].append(shuff_samples[b])
+		new_y[-1].append(shuff_labels[b])
+		if (len(new_X[-1]) >= batch_size):
+			new_X.append([])
+			new_y.append([])
+
+	# trim out batches which are too small
+	temp_X = []
+	temp_y = []
+	for batch in range(len(new_X)):
+		if (len(new_X[batch]) == batch_size):
+			temp_X.append(new_X[batch])
+			temp_y.append(new_y[batch])
+	new_X = temp_X
+	new_y = temp_y
+
+	return new_X, new_y
+
 
 class Net(nn.Module):
 	def __init__(self):
@@ -116,7 +150,17 @@ class Net(nn.Module):
 			self.fc4 = nn.Linear(hidden_layers[2], output_size) # 50 middle layer, 1 output nodes
 			self.rl1 = nn.ReLU()
 			self.rl2 = nn.ReLU()
+			self.rl3 = nn.ReLU()			
+		elif (len(hidden_layers) == 4):
+			self.fc1 = nn.Linear(input_size, hidden_layers[0]) # 2 Input noses, 50 in middle layers
+			self.fc2 = nn.Linear(hidden_layers[0], hidden_layers[1])
+			self.fc3 = nn.Linear(hidden_layers[1], hidden_layers[2])
+			self.fc4 = nn.Linear(hidden_layers[2], hidden_layers[3])
+			self.fc5 = nn.Linear(hidden_layers[3], output_size)
+			self.rl1 = nn.ReLU()
+			self.rl2 = nn.ReLU()
 			self.rl3 = nn.ReLU()
+			self.rl4 = nn.ReLU()
 		
 	def forward(self, x):
 		if (len(hidden_layers) == 1):
@@ -137,6 +181,16 @@ class Net(nn.Module):
 			x = self.fc3(x)
 			x = self.rl3(x)
 			x = self.fc4(x)
+		elif (len(hidden_layers) == 4):
+			x = self.fc1(x)
+			x = self.rl1(x)
+			x = self.fc2(x)
+			x = self.rl2(x)
+			x = self.fc3(x)
+			x = self.rl3(x)
+			x = self.fc4(x)
+			x = self.rl4(x)
+			x = self.fc5(x)
 
 		return x
 
@@ -169,6 +223,9 @@ def main():
 	avg_running_loss = 0
 	#import time
 	for epoch in range(NumEpoches):
+
+		trainingdataX,trainingdataY = permute_data(trainingdataX,trainingdataY)
+
 		running_loss = 0.0
 		for i, data in enumerate(trainingdataX, 0):
 			#time.sleep(3.0)
@@ -217,9 +274,41 @@ def main():
 	for hid in hidden_layers:
 		h += "{}-".format(hid)
 	h += "{}".format(output_size)
-	ex = 150
-	print("hid_layers: {} r2: {} pred[ex]: {} actl[ex]: {} train_size: {} test_size: {} epochs: {} batch_size: {}".format(h,r2,predictions[ex],actual[ex],training_set_size,test_set_size,NumEpoches,batch_size))
+	print("NN: hid_layers: {} r2: {} pred[10]: {} actl[10]: {} train_size: {} test_size: {} epochs: {} batch_size: {}".format(h,r2,predictions[10],actual[10],training_set_size,test_set_size,NumEpoches,batch_size))
 
+	'''
+	predictions = []
+	losses = []
+	for i in range(len(trainingdataX)):
+		test_sample = np.asarray(trainingdataX[i])
+		test_label = np.asarray(trainingdataY[i])
+
+		pred = (net(Variable(torch.FloatTensor(test_sample))))
+		for z in range(len(pred)):
+			p = pred[z].data.numpy()
+			predictions.append(p)
+		err = 0.0
+		for p in range(len(pred)):
+			err += pred[p] - (Variable(torch.FloatTensor(test_label[p])))
+		err /= len(pred)
+		e = err.data.numpy()
+		losses.append(e)
+
+	print((losses[0]))
+	print(trainingdataY[0])
+
+	
+	print("predictions[0]: {}".format(predictions[0]))
+	print("trainingdataY[0]: {}".format(trainingdataY[0]))
+	errors = abs(predictions - trainingdataY)
+	print("errors[0]: {}".format(errors[0]))
+	sq_errors = errors ** 2
+	sum_sq_errors = np.sum(sq_errors)
+	res_errors = abs(trainingdataY - np.mean(trainingdataY)) ** 2
+	sum_res_sq = np.sum(res_errors)
+	r2 = 1 / (sum_sq_errors - sum_res_sq)
+	print("r2: {}".format(r2))
+	'''
 	plt.figure()
 	plt.plot(actual,predictions,'x',ms=2,mew=3)
 	plt.grid(True)
@@ -231,7 +320,7 @@ def main():
 	plt.xlim([0,-10])
 	plt.xlabel("Actual Values")
 	plt.ylabel("Predicted Values (kcal/mol)")
-	plt.show()
+	#plt.show()
 	'''
 	plt.figure()
 	plt.plot(range(len(losses)),losses,'x',ms=2,mew=3)
@@ -244,6 +333,51 @@ def main():
 	plt.xlabel("Test Batches")
 	plt.ylabel("Mean Test Error (kcal/mol)")
 	plt.show()
+	'''
+
+	'''
+	print("X contains: {} samples".format(len(X_)))
+	print("Y contains: {} samples".format(len(y_)))
+	print("X_val contains: {} samples".format(len(X_val)))
+	print("Y_val contains: {} samples".format(len(y_val)))
+	'''
+	X = np.load("features_all_norm.npy")
+	y = np.load("labels_all.npy")
+
+	models = []
+	X_ = X[:training_set_size]
+	y_ = y[:training_set_size]
+	X_val = X[-test_set_size:]
+	y_val = y[-test_set_size:]
+
+
+	'''clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
+	#samples = []
+	#labels = []
+	#for batch in range(len(trainingdataX)):
+	#	for sample in range(len(trainingdataX[batch])):
+	#		samples.append(trainingdataX[batch][sample])
+	#		labels.append(trainingdataY[batch][sample][0])
+	clf.fit(X_,y_)
+		#print("X_train contains {} samples; y_train contains {} labels.".format(len(trainingdataX[batch]),len(trainingdataY[batch])))
+		#print("X_test contains {} samples; y_test contains {} labels.".format(len(testdataX),len(testdataY)))
+		#clf.fit(trainingdataX[batch],trainingdataY[batch])
+		#predicted = clf.predict(testdataX[0])
+		#errors = abs(predicted - testdataY[0])
+		#print(clf.score(testdataX[0],testdataY[0]))
+		#print("E: {}".format(np.mean(errors)))
+
+	samples = []
+	labels = []
+	pred = []
+	for sample in range(len(X_val)):
+		#print(testdataX[batch][sample])
+		samples.append(X_val[sample])
+		labels.append(y_val[sample])
+	pred = clf.predict(samples)
+	errs = pred - labels
+
+	print("SVM: R^2: {} C: {} eps: {}\n".format(clf.score(samples,labels),C,epsilon))
 	'''
 	
 main()
