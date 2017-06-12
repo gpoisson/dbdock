@@ -8,32 +8,40 @@ import matplotlib.pyplot as plt
 import sys
 from sklearn.svm import SVR
 
-input_size = 20						# size of input features
-if (len(sys.argv) == 2):
-	hidden_layers = [(int)(sys.argv[1])]
-elif (len(sys.argv) == 3):
-	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2]))]				# list of hidden layer dimensions
-elif (len(sys.argv) == 4):
-	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2])),((int)(sys.argv[3]))]				# list of hidden layer dimensions
+############################################################
+### NEURAL NETWORK PARAMETERS
+############################################################
+input_size = 34						# size of input features
 
-#hidden_layers = [100]
+if (len(sys.argv) == 2):
+	hidden_layers = [(int)(sys.argv[1])]															# one hidden layer
+elif (len(sys.argv) == 3):
+	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2]))]										# two hidden layers
+elif (len(sys.argv) == 4):
+	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2])),((int)(sys.argv[3]))]				# three hidden layers
 
 output_size = 1						# size of output features
 batch_size = 5						# number of samples per batch
-training_set_size = 2000				# number of samples in training set
-test_set_size = 10000				# number of samples in test set
-NumEpoches = 60
-learning_rate = 0.012
+training_set_size = 1000				# number of samples in training set
+test_set_size = 2000				# number of samples in test set
+NumEpoches = 60						# number of times the network is repeatedly trained on the training get_data
+learning_rate = 0.012				# speed at which the SGD algorithm proceeds in the opposite direction of the gradient
 
+#############################################################
+### SVM PARAMETERS
+#############################################################
 C = 100000.0
 epsilon = 0.01
 
 
-def get_data():
+def get_data(batch=True,subset="all_features"):
 	ligands = np.load("features_all_norm.npy")
 	labels = np.load("labels_all.npy")
 
-	ligands = ligands[:,14:34]
+	if (subset == "first_order_only"):				# subset=1 --> only first 13 features (1st order features)	
+		ligands = ligands[:,:13]
+	elif (subset == "second_order_only"):				# subset=2 --> only last 20 features (2nd order)
+		ligands = ligands[:,14:34]
 
 	if (test_set_size + training_set_size > len(ligands)):
 		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\nTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
@@ -42,6 +50,9 @@ def get_data():
 	train_labels = labels[:training_set_size]
 	test_ligands = ligands[-test_set_size:]
 	test_labels = labels[-test_set_size:]
+
+	if (batch == False):
+		return train_ligands,train_labels,test_ligands,test_labels
 
 	trainingdataX = [[]]
 	trainingdataY = [[]]
@@ -131,7 +142,6 @@ def permute_data(X,y):
 
 	return new_X, new_y
 
-
 class Net(nn.Module):
 	def __init__(self):
 		super(Net, self).__init__()
@@ -139,7 +149,6 @@ class Net(nn.Module):
 		if (len(hidden_layers) == 1):
 			self.fc1 = nn.Linear(input_size, hidden_layers[0]) # 2 Input noses, 50 in middle layers
 			self.fc2 = nn.Linear(hidden_layers[0], output_size)
-			#self.fc2 = nn.Conv1d(hidden_layers[0],output_size,3,stride=2)
 			self.rl1 = nn.ReLU()
 		elif (len(hidden_layers) == 2):
 			self.fc1 = nn.Linear(input_size, hidden_layers[0]) # 2 Input noses, 50 in middle layers
@@ -198,37 +207,35 @@ class Net(nn.Module):
 
 		return x
 
-def main():
-	## Create Network
+def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
+	clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
+	clf.fit(trainingdataX,trainingdataY)
 
+	samples = []
+	labels = []
+	pred = []
+	for sample in range(len(testdataX)):
+		samples.append(testdataX[sample])
+		labels.append(testdataY[sample])
+	pred = clf.predict(samples)
+	errs = pred - labels
+
+	print("SVM: R^2: {} C: {} eps: {}".format(clf.score(samples,labels),C,epsilon))
+	return clf
+
+def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
+	## Create Network
 	net = Net()
 
 	## Optimization and Loss
-
-	#criterion = nn.CrossEntropyLoss() # use a Classification Cross-Entropy loss
 	criterion = nn.MSELoss()
-	#criterion = nn.L1Loss()
-	#criterion = nn.NLLLoss()
-	#criterion = nn.BCELoss()
 	#optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.1)
 	optimizer = optim.Adam(net.parameters(), lr=learning_rate)
 
-	trainingdataX, trainingdataY, testdataX, testdataY = get_data()
-
-	'''
-	trainingdataX = trainingdataX.cuda()
-	trainingdataY = trainingdataY.cuda()
-	testdataX = testdataX.cuda()
-	testdataY = testdataY.cuda()
-	'''
-
 	losses = []
-
 	avg_running_loss = 0
 	for epoch in range(NumEpoches):
-
 		trainingdataX,trainingdataY = permute_data(trainingdataX,trainingdataY)
-
 		running_loss = 0.0
 		for i, data in enumerate(trainingdataX, 0):
 			inputs = data
@@ -246,8 +253,6 @@ def main():
 				losses.append(avg_running_loss)
 				running_loss = 0.0
 			
-	#print ("Finished training...")
-
 	predictions = []
 	actual = []
 	losses = []
@@ -266,110 +271,38 @@ def main():
 		h += "{}-".format(hid)
 	h += "{}".format(output_size)
 	print("NN: hid_layers: {} r2: {} pred[10]: {} actl[10]: {} train_size: {} test_size: {} epochs: {} batch_size: {} learn_rate: {}".format(h,r2,predictions[10],actual[10],training_set_size,test_set_size,NumEpoches,batch_size,learning_rate))
+	return net
 
-	'''
-	predictions = []
+def main():
+	#svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="first_order_only")
+	#nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="first_order_only")
+	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="all_features")
+	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="all_features")
+	svm_model = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
+	nn_model = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
+	svm_pred = svm_model.predict(svm_ts_X)
+	nn_pred = []
+	actual = []
 	losses = []
-	for i in range(len(trainingdataX)):
-		test_sample = np.asarray(trainingdataX[i])
-		test_label = np.asarray(trainingdataY[i])
+	for batch in range(len(nn_ts_X)):
+		batch_prediction = nn_model(Variable(torch.FloatTensor(nn_ts_X[batch])))
+		batch_prediction = batch_prediction.data.numpy()
+		for p in range(len(batch_prediction)):
+			nn_pred.append(batch_prediction[p])
+			actual.append(nn_ts_y[batch][p])
+			losses.append(abs(nn_pred[-1] - nn_ts_y[batch][p]))
+	#print(svm_pred[0],nn_pred[0][0],actual[0][0])
 
-		pred = (net(Variable(torch.FloatTensor(test_sample))))
-		for z in range(len(pred)):
-			p = pred[z].data.numpy()
-			predictions.append(p)
-		err = 0.0
-		for p in range(len(pred)):
-			err += pred[p] - (Variable(torch.FloatTensor(test_label[p])))
-		err /= len(pred)
-		e = err.data.numpy()
-		losses.append(e)
-
-	print((losses[0]))
-	print(trainingdataY[0])
-
-	
-	print("predictions[0]: {}".format(predictions[0]))
-	print("trainingdataY[0]: {}".format(trainingdataY[0]))
-	errors = abs(predictions - trainingdataY)
-	print("errors[0]: {}".format(errors[0]))
-	sq_errors = errors ** 2
-	sum_sq_errors = np.sum(sq_errors)
-	res_errors = abs(trainingdataY - np.mean(trainingdataY)) ** 2
-	sum_res_sq = np.sum(res_errors)
-	r2 = 1 / (sum_sq_errors - sum_res_sq)
-	print("r2: {}".format(r2))
-	'''
 	plt.figure()
-	plt.plot(actual,predictions,'x',ms=2,mew=3)
+	plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
+	#plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
+	plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+	plt.suptitle("SVM Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+	#plt.suptitle("SVM vs NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+	plt.ylabel("Predicted Binding Affinity")
+	plt.xlabel("Known Binding Affinity")
 	plt.grid(True)
-	h_lays = ""
-	for i in hidden_layers:
-		h_lays += "{}-".format(i)
-	plt.suptitle("Neural Network {}-{}{}  Median Error: {}\nBatch Size: {}  Epochs: {}  Train Set: {}   r2: {}".format(input_size,h_lays,output_size,np.median(losses),batch_size,NumEpoches,training_set_size,r2))
-	plt.ylim([0,-10])
-	plt.xlim([0,-10])
-	plt.xlabel("Actual Values")
-	plt.ylabel("Predicted Values (kcal/mol)")
-	#plt.show()
-	'''
-	plt.figure()
-	plt.plot(range(len(losses)),losses,'x',ms=2,mew=3)
-	plt.grid(True)
-	h_lays = ""
-	for i in hidden_layers:
-		h_lays += "{}-".format(i)
-	plt.suptitle("Neural Network {}-{}{}  Median Error: {}\nBatch Size: {}  Epochs: {}  Train Set: {}   St. Dev.: {}".format(input_size,h_lays,output_size,np.median(losses),batch_size,NumEpoches,training_set_size,np.std(losses)))
-	plt.ylim([0,10])
-	plt.xlabel("Test Batches")
-	plt.ylabel("Mean Test Error (kcal/mol)")
 	plt.show()
-	'''
 
-	'''
-	print("X contains: {} samples".format(len(X_)))
-	print("Y contains: {} samples".format(len(y_)))
-	print("X_val contains: {} samples".format(len(X_val)))
-	print("Y_val contains: {} samples".format(len(y_val)))
-	'''
-	X = np.load("features_all_norm.npy")
-	y = np.load("labels_all.npy")
-
-	X = X[:,:13]
-
-	X_ = X[:training_set_size]
-	y_ = y[:training_set_size]
-	X_val = X[-test_set_size:]
-	y_val = y[-test_set_size:]
-
-
-	clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
-	#samples = []
-	#labels = []
-	#for batch in range(len(trainingdataX)):
-	#	for sample in range(len(trainingdataX[batch])):
-	#		samples.append(trainingdataX[batch][sample])
-	#		labels.append(trainingdataY[batch][sample][0])
-	clf.fit(X_,y_)
-		#print("X_train contains {} samples; y_train contains {} labels.".format(len(trainingdataX[batch]),len(trainingdataY[batch])))
-		#print("X_test contains {} samples; y_test contains {} labels.".format(len(testdataX),len(testdataY)))
-		#clf.fit(trainingdataX[batch],trainingdataY[batch])
-		#predicted = clf.predict(testdataX[0])
-		#errors = abs(predicted - testdataY[0])
-		#print(clf.score(testdataX[0],testdataY[0]))
-		#print("E: {}".format(np.mean(errors)))
-
-	samples = []
-	labels = []
-	pred = []
-	for sample in range(len(X_val)):
-		#print(testdataX[batch][sample])
-		samples.append(X_val[sample])
-		labels.append(y_val[sample])
-	pred = clf.predict(samples)
-	errs = pred - labels
-
-	print("SVM: R^2: {} C: {} eps: {}\n".format(clf.score(samples,labels),C,epsilon))
-	
 	
 main()
