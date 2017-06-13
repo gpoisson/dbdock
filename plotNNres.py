@@ -1,19 +1,30 @@
 res = open("res.dat",'r')
-rs = []
+smv_rs = []
+nn_rs = []
+avg_rs = []
 sizes = []
 
 for line in res:
 	split = line.split(" ")
-	r2 = (float)(split[4])
-	size_1 = (int)(split[1][1:-1])
-	size_2 = (int)(split[2][:-1])
-	rs.append(r2)
-	sizes.append([size_2])
+	if (split[0] == "SVM:"):
+		r2 = (float)(split[2])
+		smv_rs.append(r2)
+	elif (split[0] == "NN:"):
+		r2 = (float)(split[4])
+		size = (int)(split[6])
+		sizes.append(size)
+		nn_rs.append(r2)
+	else:
+		r2 = (float)(split[1])
+		avg_rs.append(r2)
 
 import matplotlib.pyplot as plt 
 plt.figure()
-plt.plot(sizes,rs,'x',ms=2,mew=3)
-plt.suptitle("R^2 for 4000 test samples with 1 hidden layer")
-plt.xlabel("Size of hidden layer")
+plt.plot(sizes,avg_rs,color='r',ms=2,mew=3)
+plt.plot(sizes,smv_rs,color='b',ms=2,mew=3)
+plt.plot(sizes,nn_rs,color='g',ms=2,mew=3)
+plt.suptitle("R^2 for 2000 test samples\nSVM vs Neural Network")
+plt.xlabel("Size of training set")
 plt.ylabel("R^2 value")
+plt.grid(True)
 plt.show()

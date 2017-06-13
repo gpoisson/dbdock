@@ -21,7 +21,7 @@ elif (len(sys.argv) == 4):
 output_size = 1						# size of output features
 batch_size = 5						# number of samples per batch
 training_set_size = 2000				# number of samples in training set
-test_set_size = 10000				# number of samples in test set
+test_set_size = 1000				# number of samples in test set
 NumEpoches = 60
 learning_rate = 0.012
 

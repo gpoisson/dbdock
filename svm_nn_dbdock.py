@@ -6,7 +6,9 @@ import torch.optim as optim
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
 import sys
+from sklearn.metrics import r2_score
 from sklearn.svm import SVR
+
 
 ############################################################
 ### NEURAL NETWORK PARAMETERS
@@ -20,9 +22,11 @@ elif (len(sys.argv) == 3):
 elif (len(sys.argv) == 4):
 	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2])),((int)(sys.argv[3]))]				# three hidden layers
 
+hidden_layers = [50]
+
 output_size = 1						# size of output features
 batch_size = 5						# number of samples per batch
-training_set_size = 1000				# number of samples in training set
+training_set_size = (int)(sys.argv[1])				# number of samples in training set
 test_set_size = 2000				# number of samples in test set
 NumEpoches = 60						# number of times the network is repeatedly trained on the training get_data
 learning_rate = 0.012				# speed at which the SGD algorithm proceeds in the opposite direction of the gradient
@@ -33,6 +37,21 @@ learning_rate = 0.012				# speed at which the SGD algorithm proceeds in the oppo
 C = 100000.0
 epsilon = 0.01
 
+#############################################################
+### GLOBAL VARIABLES
+#############################################################
+instance_permutation_order = []
+
+
+def print_max(ligs,labels):
+	val = 0.0
+	val_i = 0
+	for index in range(len(labels)):
+		if (labels[index] < val):
+			val = labels[index]
+			val_i = index
+	print(ligs[val_i])
+	print(labels[val_i])
 
 def get_data(batch=True,subset="all_features"):
 	ligands = np.load("features_all_norm.npy")
@@ -45,6 +64,8 @@ def get_data(batch=True,subset="all_features"):
 
 	if (test_set_size + training_set_size > len(ligands)):
 		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\nTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
+
+	ligands, labels = permute_data(ligands, labels, batched=False)
 	
 	train_ligands = ligands[:training_set_size]
 	train_labels = labels[:training_set_size]
@@ -98,26 +119,44 @@ def get_data(batch=True,subset="all_features"):
 
 	return trainingdataX, trainingdataY, testdataX, testdataY
 
-def permute_data(X,y):
+def permute_data(X,y,batched=True):
+	global instance_permutation_order
+
 	samples = []
 	labels = []
 
-	# unpack the batches
-	for batch in range(len(X)):
-		for s in range(len(X[batch])):
-			samples.append(X[batch][s])
-			labels.append(y[batch][s])
-
-	# define a fixed permutation
-	permutation = np.random.permutation(len(samples))
-
-	# shuffle the data
 	shuff_samples = []
 	shuff_labels = []
 
-	for s in range(len(samples)):
-		shuff_samples.append(samples[permutation[s]])
-		shuff_labels.append(labels[permutation[s]])
+	if (batched):
+		# unpack the batches
+		for batch in range(len(X)):
+			for s in range(len(X[batch])):
+				samples.append(X[batch][s])
+				labels.append(y[batch][s])
+	else:
+		samples = X
+		labels = y
+
+	# define a fixed permutation
+	if (len(instance_permutation_order) == 0):
+		instance_permutation_order = np.random.permutation(len(samples))	# This gets populated with a list of values between [0 - (# samples)] and
+																			#   is used to shuffle two sets of values cohesively (ligands and labels)
+	if (len(instance_permutation_order) == len(samples)):					# If permuting all samples, enter here
+		# shuffle the data
+		for s in range(len(samples)):
+			shuff_samples.append(samples[instance_permutation_order[s]])
+			shuff_labels.append(labels[instance_permutation_order[s]])
+	else:																	# If permuting a single batch, (neural network training epochs), enter here
+		epoch_permutation_order = np.random.permutation(len(samples))
+		for s in range(len(samples)):
+			shuff_samples.append(samples[epoch_permutation_order[s]])
+			shuff_labels.append(labels[epoch_permutation_order[s]])
+
+	if (batched == False):
+		return shuff_samples, shuff_labels
+
+	
 
 	# repack the batches
 	new_X = [[]]
@@ -220,8 +259,9 @@ def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
 	pred = clf.predict(samples)
 	errs = pred - labels
 
-	print("SVM: R^2: {} C: {} eps: {}".format(clf.score(samples,labels),C,epsilon))
-	return clf
+	r2 = clf.score(samples,labels)
+	print("SVM: R^2: {} C: {} eps: {}".format(r2,C,epsilon))
+	return clf, r2
 
 def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 	## Create Network
@@ -264,22 +304,21 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 			actual.append(testdataY[sample][p])
 			losses.append(abs(predictions[-1] - testdataY[sample][p]))
 
-	from sklearn.metrics import r2_score
 	r2 = r2_score(actual,predictions)
 	h = "{}-".format(input_size)
 	for hid in hidden_layers:
 		h += "{}-".format(hid)
 	h += "{}".format(output_size)
-	print("NN: hid_layers: {} r2: {} pred[10]: {} actl[10]: {} train_size: {} test_size: {} epochs: {} batch_size: {} learn_rate: {}".format(h,r2,predictions[10],actual[10],training_set_size,test_set_size,NumEpoches,batch_size,learning_rate))
-	return net
+	print("NN: hid_layers: {} r2: {} train_size: {} test_size: {} epochs: {} batch_size: {} learn_rate: {}".format(h,r2,training_set_size,test_set_size,NumEpoches,batch_size,learning_rate))
+	return net, r2
 
 def main():
 	#svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="first_order_only")
 	#nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="first_order_only")
 	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="all_features")
 	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="all_features")
-	svm_model = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
-	nn_model = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
+	svm_model, r2_svm = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
+	nn_model, r2_nn = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
 	svm_pred = svm_model.predict(svm_ts_X)
 	nn_pred = []
 	actual = []
@@ -291,18 +330,49 @@ def main():
 			nn_pred.append(batch_prediction[p])
 			actual.append(nn_ts_y[batch][p])
 			losses.append(abs(nn_pred[-1] - nn_ts_y[batch][p]))
-	#print(svm_pred[0],nn_pred[0][0],actual[0][0])
 
-	plt.figure()
-	plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
-	#plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
-	plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
-	plt.suptitle("SVM Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
-	#plt.suptitle("SVM vs NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
-	plt.ylabel("Predicted Binding Affinity")
-	plt.xlabel("Known Binding Affinity")
-	plt.grid(True)
-	plt.show()
+	prediction_avgs = []
+	for p in range(len(nn_pred)):
+		prediction_avgs.append(np.mean([nn_pred[p],svm_pred[p]]))
+	r2_p_avg = r2_score(actual,prediction_avgs)
+	print("SVM/NN_Avg_R^2: {}".format(r2_p_avg))
 
+	if ((r2_svm > 0.7) | (r2_nn > 0.7)):
+		plt.figure()
+		plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
+		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+		plt.suptitle("SVM Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+		plt.ylabel("Predicted Binding Affinity")
+		plt.xlabel("Known Binding Affinity")
+		plt.grid(True)
+		plt.show()
+
+		plt.figure()
+		plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
+		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+		plt.suptitle("NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+		plt.ylabel("Predicted Binding Affinity")
+		plt.xlabel("Known Binding Affinity")
+		plt.grid(True)
+		plt.show()
+
+		plt.figure()
+		plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
+		plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
+		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+		plt.suptitle("SVM vs NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+		plt.ylabel("Predicted Binding Affinity")
+		plt.xlabel("Known Binding Affinity")
+		plt.grid(True)
+		plt.show()
+
+		plt.figure()
+		plt.plot(actual,prediction_avgs,'x',color='k',ms=2,mew=3)
+		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+		plt.suptitle("SVM vs NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+		plt.ylabel("Predicted Binding Affinity")
+		plt.xlabel("Known Binding Affinity")
+		plt.grid(True)
+		plt.show()	
 	
 main()
