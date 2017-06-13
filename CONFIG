@@ -1,0 +1,15 @@
+# dbdock Config File
+#	Edit these values to configure dbdock prior to executing.
+
+input_ligands_path = /mnt/sda/drug_binding_data/autodock_input_ligands_coord
+rigid_output_ligands_path = /mnt/sda/drug_binding_data/autodock_output_ligands_coord
+protein_path = /home/greg/Documents/dbdock/protein/
+svm_param_path = /home/greg/Documents/dbdock/svm_params/
+nn_param_path = /home/greg/Documents/dbdock/nn_params/
+autodock_path = /mnt/sda/autodock_vina_1_1_2_linux_x86/
+
+# Number of ligands to run in autodock before building a model with the data
+initial_ligand_count = 1000
+
+
+# END

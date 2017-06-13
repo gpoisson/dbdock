@@ -15,6 +15,8 @@ from sklearn.svm import SVR
 ############################################################
 input_size = 34						# size of input features
 
+hidden_layers = [50]
+
 if (len(sys.argv) == 2):
 	hidden_layers = [(int)(sys.argv[1])]															# one hidden layer
 elif (len(sys.argv) == 3):
@@ -23,33 +25,24 @@ elif (len(sys.argv) == 4):
 	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2])),((int)(sys.argv[3]))]				# three hidden layers
 
 output_size = 1						# size of output features
-batch_size = 5						# number of samples per batch
-training_set_size = 1000				# number of samples in training set
+batch_size = 4						# number of samples per batch
+training_set_size = 1000			# number of samples in training set
 test_set_size = 2000				# number of samples in test set
-NumEpoches = 60						# number of times the network is repeatedly trained on the training get_data
+NumEpoches = 60					# number of times the network is repeatedly trained on the training get_data
 learning_rate = 0.012				# speed at which the SGD algorithm proceeds in the opposite direction of the gradient
 
 #############################################################
 ### SVM PARAMETERS
 #############################################################
 C = 100000.0
-epsilon = 0.01
+epsilon = 0.001
 
 #############################################################
 ### GLOBAL VARIABLES
 #############################################################
 instance_permutation_order = []
+permutation_noise = 0.00
 
-
-def print_max(ligs,labels):
-	val = 0.0
-	val_i = 0
-	for index in range(len(labels)):
-		if (labels[index] < val):
-			val = labels[index]
-			val_i = index
-	print(ligs[val_i])
-	print(labels[val_i])
 
 def get_data(batch=True,subset="all_features"):
 	ligands = np.load("features_all_norm.npy")
@@ -150,6 +143,15 @@ def permute_data(X,y,batched=True):
 		for s in range(len(samples)):
 			shuff_samples.append(samples[epoch_permutation_order[s]])
 			shuff_labels.append(labels[epoch_permutation_order[s]])
+
+	# add random noise to help prevent overfitting
+	for samp in range(len(shuff_samples)):
+		noise = np.random.rand() * permutation_noise
+		sign = np.random.rand()
+		if (sign < 0.5):
+			noise *= -1
+		for f in range(len(shuff_samples[samp])):
+			shuff_samples[samp][f] += (shuff_samples[samp][f] * noise)
 
 	if (batched == False):
 		return shuff_samples, shuff_labels
@@ -310,7 +312,7 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 	print("NN: hid_layers: {} r2: {} train_size: {} test_size: {} epochs: {} batch_size: {} learn_rate: {}".format(h,r2,training_set_size,test_set_size,NumEpoches,batch_size,learning_rate))
 	return net, r2
 
-def main():
+def train_and_test_svm_and_nn():
 	#svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="first_order_only")
 	#nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="first_order_only")
 	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="all_features")
@@ -357,4 +359,3 @@ def main():
 	plt.grid(True)
 	plt.show()	
 	
-main()

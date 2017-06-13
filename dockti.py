@@ -13,7 +13,7 @@ from split_mol2_convert_receptor import split_mol2
 
 configFile = ""
 flexDockingCriteria = []
-thermIntegCriteria = []
+thermoIntegCriteria = []
 results = [[],[],[]]
 inProtein = []
 bindingPocket = []
@@ -96,7 +96,7 @@ def flexibleDocking(flexDockingCriteria):
 	print("Flexible Docking applied.")
 
 # Execute thermodynamic integration sequence
-def thermoIntegration(thermIntegCriteria):
+def thermoIntegration(thermoIntegCriteria):
 	print("Thermodynamic Integration...")
 	# Apply thermodynamic integration
 	print("Thermodynamic Integration appied.")
@@ -106,6 +106,6 @@ def main():
 	if (getConfigData()):
 		rigidDocking()
 		flexibleDocking(flexDockingCriteria)
-		thermoIntegration(thermIntegCriteria)
+		thermoIntegration(thermoIntegCriteria)
 
 main()
