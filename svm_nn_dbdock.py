@@ -22,11 +22,9 @@ elif (len(sys.argv) == 3):
 elif (len(sys.argv) == 4):
 	hidden_layers = [((int)(sys.argv[1])),((int)(sys.argv[2])),((int)(sys.argv[3]))]				# three hidden layers
 
-hidden_layers = [50]
-
 output_size = 1						# size of output features
 batch_size = 5						# number of samples per batch
-training_set_size = (int)(sys.argv[1])				# number of samples in training set
+training_set_size = 1000				# number of samples in training set
 test_set_size = 2000				# number of samples in test set
 NumEpoches = 60						# number of times the network is repeatedly trained on the training get_data
 learning_rate = 0.012				# speed at which the SGD algorithm proceeds in the opposite direction of the gradient
@@ -331,48 +329,32 @@ def main():
 			actual.append(nn_ts_y[batch][p])
 			losses.append(abs(nn_pred[-1] - nn_ts_y[batch][p]))
 
-	prediction_avgs = []
-	for p in range(len(nn_pred)):
-		prediction_avgs.append(np.mean([nn_pred[p],svm_pred[p]]))
-	r2_p_avg = r2_score(actual,prediction_avgs)
-	print("SVM/NN_Avg_R^2: {}".format(r2_p_avg))
+	plt.figure()
+	plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
+	plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+	plt.suptitle("SVM Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+	plt.ylabel("Predicted Binding Affinity")
+	plt.xlabel("Known Binding Affinity")
+	plt.grid(True)
+	plt.show()
 
-	if ((r2_svm > 0.7) | (r2_nn > 0.7)):
-		plt.figure()
-		plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
-		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
-		plt.suptitle("SVM Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
-		plt.ylabel("Predicted Binding Affinity")
-		plt.xlabel("Known Binding Affinity")
-		plt.grid(True)
-		plt.show()
+	plt.figure()
+	plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
+	plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+	plt.suptitle("NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+	plt.ylabel("Predicted Binding Affinity")
+	plt.xlabel("Known Binding Affinity")
+	plt.grid(True)
+	plt.show()
 
-		plt.figure()
-		plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
-		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
-		plt.suptitle("NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
-		plt.ylabel("Predicted Binding Affinity")
-		plt.xlabel("Known Binding Affinity")
-		plt.grid(True)
-		plt.show()
-
-		plt.figure()
-		plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
-		plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
-		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
-		plt.suptitle("SVM vs NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
-		plt.ylabel("Predicted Binding Affinity")
-		plt.xlabel("Known Binding Affinity")
-		plt.grid(True)
-		plt.show()
-
-		plt.figure()
-		plt.plot(actual,prediction_avgs,'x',color='k',ms=2,mew=3)
-		plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
-		plt.suptitle("SVM vs NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
-		plt.ylabel("Predicted Binding Affinity")
-		plt.xlabel("Known Binding Affinity")
-		plt.grid(True)
-		plt.show()	
+	plt.figure()
+	plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
+	plt.plot(actual,nn_pred,'x',color='g',ms=2,mew=3)
+	plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
+	plt.suptitle("SVM vs NN Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))
+	plt.ylabel("Predicted Binding Affinity")
+	plt.xlabel("Known Binding Affinity")
+	plt.grid(True)
+	plt.show()	
 	
 main()
