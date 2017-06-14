@@ -1,15 +1,33 @@
 # dbdock Config File
 #	Edit these values to configure dbdock prior to executing.
 
-input_ligands_path = /mnt/sda/drug_binding_data/autodock_input_ligands_coord
-rigid_output_ligands_path = /mnt/sda/drug_binding_data/autodock_output_ligands_coord
-protein_path = /home/greg/Documents/dbdock/protein/
+# If rigid docking has been performed for this dataset already (and binaries are saved in the data_binaries directory), set to "No"
+perform_rigid_docking = No
+
+# If flexible docking has been performed for this dataset already (and binaries are saved in the data_binaries directory), set to "No"
+perform_flexible_docking = No
+
+# Directory where ligand PDBQT files are stored
+input_ligands_path = /mnt/sda/drug_binding_data/ligands_before_rigid_docking/
+
+# Rigid docking output directory
+rigid_output_ligands_path = /mnt/sda/drug_binding_data/ligands_after_rigid_docking_10_modes/
+
+# Receptor PDBQT file
+protein_path = /home/greg/Documents/dbdock/receptor/
+
+# Output directory for trained support vector machine parameters
 svm_param_path = /home/greg/Documents/dbdock/svm_params/
+
+# Output directory for trained neural network parameters
 nn_param_path = /home/greg/Documents/dbdock/nn_params/
+
+# Program directory for autodock
 autodock_path = /mnt/sda/autodock_vina_1_1_2_linux_x86/
 
 # Number of ligands to run in autodock before building a model with the data
-initial_ligand_count = 1000
+rigid_ligand_count = 1000
+flexible_ligand_count = 200
 
 
 # END

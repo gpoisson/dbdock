@@ -44,9 +44,9 @@ instance_permutation_order = []
 permutation_noise = 0.00
 
 
-def get_data(batch=True,subset="all_features"):
-	ligands = np.load("features_all_norm.npy")
-	labels = np.load("labels_all.npy")
+def get_data(lig_file,label_file,batch=True,subset="all_features"):
+	ligands = np.load(lig_file)
+	labels = np.load(label_file)
 
 	if (subset == "first_order_only"):				# subset=1 --> only first 13 features (1st order features)	
 		ligands = ligands[:,:13]
@@ -312,11 +312,11 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 	print("NN: hid_layers: {} r2: {} train_size: {} test_size: {} epochs: {} batch_size: {} learn_rate: {}".format(h,r2,training_set_size,test_set_size,NumEpoches,batch_size,learning_rate))
 	return net, r2
 
-def train_and_test_svm_and_nn():
+def train_and_test_svm_and_nn(ligand_file, label_file):
 	#svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="first_order_only")
 	#nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="first_order_only")
-	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(batch=False,subset="all_features")
-	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="all_features")
+	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(ligand_file, label_file, batch=False,subset="all_features")
+	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(ligand_file, label_file, batch=True,subset="all_features")
 	svm_model, r2_svm = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
 	nn_model, r2_nn = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
 	svm_pred = svm_model.predict(svm_ts_X)
@@ -358,4 +358,6 @@ def train_and_test_svm_and_nn():
 	plt.xlabel("Known Binding Affinity")
 	plt.grid(True)
 	plt.show()	
+
+	return svm_model, r2_svm, nn_model, r2_nn
 	

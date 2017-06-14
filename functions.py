@@ -235,10 +235,23 @@ def getRigidDockingEnergies(autodock_output_directory):
 		for line in file:
 			split = line.split(" ")
 			if (len(split) > 1):
-				if ((split[1]) == "VINA"):
-					ki = (float)(split[8])
-					energies.append([ligand_name,ki])
+				if ((split[1]) == "VINA"):															# autodock vina prints the computed binding affinity in a specifically-formatted line
+					try:
+						ki = (float)(split[8])
+						energies.append([ligand_name,ki])
+					except:
+						try:
+							ki = (float)(split[7])
+							energies.append([ligand_name,ki])
+						except:
+							print("FILE NOT WELL-FORMED: {}\n{}".format(filename,split))
 	return energies
+
+def getNamesMols(input_ligands_path):
+	ligands = os.listdir(input_ligands_path)
+	for filename in ligands:
+		#try:
+		mol = Chem.MolFromMolFile("{}{}".format(input_ligands_path,filename))
 
 def getAllFeatures(ligands):
 	features = []
