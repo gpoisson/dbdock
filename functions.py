@@ -306,8 +306,9 @@ def computeFeatures(mol):
 	surf_area = rdMolDescriptors.CalcLabuteASA(mol)
 	mol_weight = rdMolDescriptors.CalcExactMolWt(mol)
 	tpsa = rdMolDescriptors.CalcTPSA(mol)
+	s_logp = rdMolDescriptors.SlogP_VSA_(mol)
 	dist_hs = recurseMolHCount(mol)
-	output = [numRings, nitrogenCount, oxygenCount, carbonCount, boronCount, phosCount, sulfurCount, fluorCount, iodCount, doubleBonds, surf_area, mol_weight, tpsa]
+	output = [numRings, nitrogenCount, oxygenCount, carbonCount, boronCount, phosCount, sulfurCount, fluorCount, iodCount, doubleBonds, surf_area, mol_weight, tpsa, s_logp]
 	for d in dist_hs:
 		output.append(dist_hs[d])
 	return output
