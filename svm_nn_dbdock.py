@@ -15,8 +15,9 @@ from sklearn.svm import SVR
 ############################################################
 input_size = 34						# size of input features
 
-hidden_layers = [50]
+hidden_layers = [50]				# default hidden layer configuration
 
+# user defined hidden layers
 if (len(sys.argv) == 2):
 	hidden_layers = [(int)(sys.argv[1])]															# one hidden layer
 elif (len(sys.argv) == 3):
@@ -28,7 +29,7 @@ output_size = 1						# size of output features
 batch_size = 4						# number of samples per batch
 training_set_size = 1000			# number of samples in training set
 test_set_size = 2000				# number of samples in test set
-NumEpoches = 60					# number of times the network is repeatedly trained on the training get_data
+epochs_count = 60					# number of times the network is repeatedly trained on the training data
 learning_rate = 0.012				# speed at which the SGD algorithm proceeds in the opposite direction of the gradient
 
 #############################################################
@@ -38,10 +39,17 @@ C = 100000.0
 epsilon = 0.001
 
 #############################################################
-### GLOBAL VARIABLES
+### OTHER PARAMETERS
 #############################################################
-instance_permutation_order = []
-permutation_noise = 0.00
+permutation_noise = 0.00				# each time data is permuted, the data which is returned has some amount of
+										#  noise added, proportionate to the 
+
+#############################################################
+### GLOBAL DATA PLACEHOLDERS -- DO NOT CHANGE
+#############################################################
+instance_permutation_order = []			# this is used to keep track of the order in which
+										#  data is permuted, so that feature and label data
+										#  can be permuted cohesively
 
 
 def get_data(lig_file,label_file,batch=True,subset="all_features"):
@@ -151,7 +159,7 @@ def permute_data(X,y,batched=True):
 		if (sign < 0.5):
 			noise *= -1
 		for f in range(len(shuff_samples[samp])):
-			shuff_samples[samp][f] += (shuff_samples[samp][f] * noise)
+			shuff_samples[samp][f] += (np.median(shuff_samples[:,f]) * noise)
 
 	if (batched == False):
 		return shuff_samples, shuff_labels
@@ -274,7 +282,7 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 
 	losses = []
 	avg_running_loss = 0
-	for epoch in range(NumEpoches):
+	for epoch in range(epochs_count):
 		trainingdataX,trainingdataY = permute_data(trainingdataX,trainingdataY)
 		running_loss = 0.0
 		for i, data in enumerate(trainingdataX, 0):
@@ -289,7 +297,7 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 			optimizer.step()
 			running_loss += loss.data[0]
 			if ((i > 10) & (i % 20 == 0)):
-				avg_running_loss = running_loss / NumEpoches
+				avg_running_loss = running_loss / epochs_count
 				losses.append(avg_running_loss)
 				running_loss = 0.0
 			
@@ -309,7 +317,7 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 	for hid in hidden_layers:
 		h += "{}-".format(hid)
 	h += "{}".format(output_size)
-	print("NN: hid_layers: {} r2: {} train_size: {} test_size: {} epochs: {} batch_size: {} learn_rate: {}".format(h,r2,training_set_size,test_set_size,NumEpoches,batch_size,learning_rate))
+	print("NN: hid_layers: {} r2: {} train_size: {} test_size: {} epochs: {} batch_size: {} learn_rate: {}".format(h,r2,training_set_size,test_set_size,epochs_count,batch_size,learning_rate))
 	return net, r2
 
 def train_and_test_svm_and_nn(ligand_file, label_file):

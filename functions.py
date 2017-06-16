@@ -37,33 +37,24 @@ def compileFeaturesAndLabels():
 	np.save("labels.npy",labels)
 
 # Compile all ligand name, coordinate, and energy data into one comprehensive binary file for faster accessing
-def makeUnsortedBinary(coords_dir):
+def makeUnsortedBinary(coords_dir,out_dir):
 	allValidMols = []
 	ligand_list = os.listdir(coords_dir)
 	fails = 0
 	for ligand_file in ligand_list:
-		ligand_name = ligand_file[:-4]
-		try:
-				mol = Chem.MolFromMolFile("{}{}".format(coords_dir,ligand_file))
+		if ligand_file[-4:] == "mol2":
+			ligand_name = ligand_file[:-4]
+			print(ligand_file,ligand_name)
+			try:
+				mol = Chem.MolFromMol2File("{}{}".format(coords_dir,ligand_file))
 				allValidMols.append([ligand_name,mol])
-		except IOError:
-			fails += 1
-			continue
+			except IOError:
+				fails += 1
+				continue
 	if v:
 		print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
-	deltaGs = readInputEnergies()
-	data = []
-	for mol in allValidMols:
-		try:
-			dg = deltaGs[mol[0]]
-			data.append([mol[0],mol[1],dg])
-		except KeyError:
-			continue
-	data = np.asarray(data)
-	np.save("unsorted_ligs.npy",data)
-	if v:
-		print " Read in {} mols, {} names, {} feature sets, {} dgs.".format(len(allValidMols),len(data[:][0]),len(data[:][1]),len(data[:][2]))
-	return data
+	
+	np.save("{}ligand_name_rdkit_mol.npy".format(out_dir),allValidMols)
 
 # Splits the unsorted binary into multiple smaller binaries.
 # Binaries are <100 MB for GitHub purposes.
@@ -278,15 +269,12 @@ def getAllFeatures(ligands):
 					all_zero = False
 				elif d == 99999:
 					keep = False
-					#print("DONT KEEP")
 					break
 			if all_zero:
 				keep = False
-				#print("DON'T KEEP")
 			if keep:
 				features.append(f_data)
 				labels.append(ligand[ki_index])
-				#print("KEEP RECORD")
 			count += 1
 	print("{} labels".format(len(labels)))
 	return [np.asarray(features), np.asarray(labels)]
@@ -305,10 +293,11 @@ def computeFeatures(mol):
 	doubleBonds = countDoubleBonds(mol)
 	surf_area = rdMolDescriptors.CalcLabuteASA(mol)
 	mol_weight = rdMolDescriptors.CalcExactMolWt(mol)
-	tpsa = rdMolDescriptors.CalcTPSA(mol)
 	s_logp = rdMolDescriptors.SlogP_VSA_(mol)
 	dist_hs = recurseMolHCount(mol)
-	output = [numRings, nitrogenCount, oxygenCount, carbonCount, boronCount, phosCount, sulfurCount, fluorCount, iodCount, doubleBonds, surf_area, mol_weight, tpsa, s_logp]
+	output = [numRings, nitrogenCount, oxygenCount, carbonCount, boronCount, phosCount, sulfurCount, fluorCount, iodCount, doubleBonds, surf_area, mol_weight]
+	for s in s_logp:
+		output.append(s)
 	for d in dist_hs:
 		output.append(dist_hs[d])
 	return output
