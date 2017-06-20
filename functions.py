@@ -238,11 +238,34 @@ def getRigidDockingEnergies(autodock_output_directory):
 							print("FILE NOT WELL-FORMED: {}\n{}".format(filename,split))
 	return energies
 
+def convert_PDBQT_to_PDB(filename):
+	pdbName = filename[:-2]
+	os.system("cut -c-66 {} > {}".format(filename,pdbName))
+
+# Get name and RDKit Mol representation for each ligand
 def getNamesMols(input_ligands_path):
-	ligands = os.listdir(input_ligands_path)
-	for filename in ligands:
-		#try:
-		mol = Chem.MolFromMolFile("{}{}".format(input_ligands_path,filename))
+	try:
+		allValidMols = np.load("ligand_name_rdkit_mol.npy")
+	except:
+		allValidMols = []
+		ligand_list = os.listdir(input_ligands_path)
+		fails = 0
+		for ligand_file in ligand_list:
+			if ligand_file[-5:] == "pdbqt":
+				ligand_name = ligand_file[:-6]
+				try:
+					convert_PDBQT_to_PDB("{}{}".format(input_ligands_path,ligand_file))
+					ligand_file = ligand_file[:-2]														# trim the "qt" off of the file type extension
+					mol = Chem.MolFromPDBFile("{}{}".format(input_ligands_path,ligand_file))
+					allValidMols.append([ligand_name,mol])
+				except IOError:
+					fails += 1
+					continue
+		if v:
+			print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
+		
+		np.save("ligand_name_rdkit_mol.npy",allValidMols)
+	return allValidMols[:][0], allValidMols[:][1]
 
 def getAllFeatures(ligands):
 	features = []

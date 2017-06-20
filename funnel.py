@@ -2,6 +2,7 @@ import sys, os
 import numpy as np 
 from functions import getRigidDockingEnergies
 from functions import getNamesMols
+from functions import getFeaturesFromNamesMols
 from svm_nn_dbdock import train_and_test_svm_and_nn
 
 #############################################################
@@ -74,8 +75,6 @@ def flexibleDocking():
 
 
 
-
-
 #############################################################
 ### MAIN PROGRAM
 #############################################################
@@ -83,12 +82,12 @@ if __name__ == "__main__":
 	checkInput("CONFIG")
 
 
-	# MACHINE LEARNING FEATURE DATA COMPILATION
+	# FEATURE DATA COMPILATION
 	try:
 		features = np.load(feature_binary_dir)
 	except:
-		names_mols = getNamesMols(input_ligands_path)
-	
+		names, mols = getNamesMols(input_ligands_path)
+		features = getAllFeatures(mols)
 
 	# RIGID DOCKING
 	if (perform_rigid_docking):
