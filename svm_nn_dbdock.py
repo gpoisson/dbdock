@@ -56,7 +56,7 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 	ligands = np.load(lig_file)
 	labels = np.load(label_file)
 
-	if (subset == "first_order_only"):				# subset=1 --> only first 13 features (1st order features)	
+	if (subset == "first_order_only"):					# subset=1 --> only first 13 features (1st order features)	
 		ligands = ligands[:,:13]
 	elif (subset == "second_order_only"):				# subset=2 --> only last 20 features (2nd order)
 		ligands = ligands[:,14:34]
@@ -65,6 +65,12 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\nTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
 
 	ligands, labels = permute_data(ligands, labels, batched=False)
+
+	#ligands = np.ndarray.tolist(ligands)
+	#labels = np.ndarray.tolist(labels)
+
+	ligands = np.asarray(ligands)
+	labels = np.asarray(labels)
 	
 	train_ligands = ligands[:training_set_size]
 	train_labels = labels[:training_set_size]
@@ -79,7 +85,7 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 
 	for sample in range(len(train_ligands)):
 		trainingdataX[-1].append(train_ligands[sample])
-		trainingdataY[-1].append([(float)(labels[sample])])
+		trainingdataY[-1].append([(float)(labels[sample][1])])
 		if ((len(trainingdataX[-1])) >= batch_size):
 			trainingdataX.append([])
 			trainingdataY.append([])
@@ -100,7 +106,7 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 
 	for sample in range(len(test_ligands)):
 		testdataX[-1].append(test_ligands[sample])
-		testdataY[-1].append([(float)(test_labels[sample])])
+		testdataY[-1].append([(float)(test_labels[sample][1])])
 		if ((len(testdataX[-1])) >= batch_size):
 			testdataX.append([])
 			testdataY.append([])
@@ -153,13 +159,14 @@ def permute_data(X,y,batched=True):
 			shuff_labels.append(labels[epoch_permutation_order[s]])
 
 	# add random noise to help prevent overfitting
+	shuff_samples = np.asarray(shuff_samples)
 	for samp in range(len(shuff_samples)):
 		noise = np.random.rand() * permutation_noise
 		sign = np.random.rand()
-		if (sign < 0.5):
+		if (sign < 0.5):													# Noise has 50% chance of being negative
 			noise *= -1
-		for f in range(len(shuff_samples[samp])):
-			shuff_samples[samp][f] += (np.median(shuff_samples[:,f]) * noise)
+		for feature in range(len(shuff_samples[samp])):
+			shuff_samples[samp,feature] += (np.median(shuff_samples[:,feature]) * noise)
 
 	if (batched == False):
 		return shuff_samples, shuff_labels
@@ -256,7 +263,8 @@ class Net(nn.Module):
 
 def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
 	clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
-	clf.fit(trainingdataX,trainingdataY)
+	#print(trainingdataX[0],trainingdataY[0][1])
+	clf.fit(trainingdataX[0],trainingdataY[0][1])
 
 	samples = []
 	labels = []

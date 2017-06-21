@@ -243,7 +243,7 @@ def convert_PDBQT_to_PDB(filename):
 	os.system("cut -c-66 {} > {}".format(filename,pdbName))
 
 # Get name and RDKit Mol representation for each ligand
-def getNamesMols(input_ligands_path):
+def getNamesMols(input_ligands_path,data_binaries_dir):
 	try:
 		allValidMols = np.load("ligand_name_rdkit_mol.npy")
 	except:
@@ -251,55 +251,57 @@ def getNamesMols(input_ligands_path):
 		ligand_list = os.listdir(input_ligands_path)
 		fails = 0
 		for ligand_file in ligand_list:
-			if ligand_file[-5:] == "pdbqt":
-				ligand_name = ligand_file[:-6]
+			if ligand_file[-6:] == ".pdbqt":
 				try:
 					convert_PDBQT_to_PDB("{}{}".format(input_ligands_path,ligand_file))
-					ligand_file = ligand_file[:-2]														# trim the "qt" off of the file type extension
-					mol = Chem.MolFromPDBFile("{}{}".format(input_ligands_path,ligand_file))
-					allValidMols.append([ligand_name,mol])
 				except IOError:
 					fails += 1
 					continue
+		ligand_list = os.listdir(input_ligands_path)
+		for ligand_file in ligand_list:
+			if ligand_file[-4:] == ".pdb":
+				ligand_name = ligand_file[:-6]
+				#print(ligand_file)
+				mol = Chem.MolFromPDBFile("{}{}".format(input_ligands_path,ligand_file))
+				#print("{}\n".format(mol))
+				if (mol != None):
+					allValidMols.append([ligand_name,mol])
 		if v:
 			print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
-		
-		np.save("ligand_name_rdkit_mol.npy",allValidMols)
-	return allValidMols[:][0], allValidMols[:][1]
+	
+	allValidMols = np.asarray(allValidMols)
+	np.save("{}ligand_name_rdkit_mol.npy".format(data_binaries_dir),allValidMols)
+	return allValidMols[:,0],allValidMols[:,1]
+	
 
-def getAllFeatures(ligands):
+def getAllFeatures(names,ligands,features_bin_dir):
 	features = []
 	labels = []
 	count = 0
 	#print("Starting with library of {} ligands".format(len(ligands)))
-	for ligand in ligands:
-		if (ligand[mol_index] != None):
-			if (count % 10000 == 0):
-				print("Ligand No: {} / {}".format(count,len(ligands)))
-			f_data = computeFeatures(ligand[mol_index])
-			#print("{} features computed; f_data[2] = {}".format(len(f_data),f_data[2]))
-			#d_hist = f_data[13:33]					# UNCOMMENT
-			'''
-			dout = ""
-			for d in dout:
-				dout += "{} ".format(d)
-			print(dout)
-			'''
-			all_zero = True
-			keep = True
-			for d in d_hist:
-				if d != 0:
-					all_zero = False
-				elif d == 99999:
-					keep = False
-					break
-			if all_zero:
+	for lig in range(len(ligands)):
+		if (count % 10000 == 0):
+			print("Ligand No: {} / {}".format(count,len(ligands)))
+		f_data = computeFeatures(ligands[lig])
+		for entry in names[lig]:
+			f_data.append(entry)
+		d_hist = f_data[13:33]															# Checking for ligands where distribution of path distance
+		all_zero = True																	#   from hba/hbd pairs failed to compute and marking their
+		keep = True																		#   samples for removal from the dataset
+		for d in d_hist:
+			if d != 0:
+				all_zero = False
+			elif d == 99999:		
 				keep = False
-			if keep:
-				features.append(f_data)
-				labels.append(ligand[ki_index])
-			count += 1
-	print("{} labels".format(len(labels)))
+				break
+		if all_zero:
+			keep = False
+		if keep:
+			features.append(f_data)
+			#labels.append(ligand[ki_index])
+		count += 1
+	np.save("{}".format(features_bin_dir),features)
+	#np.save("{}".format(labels_bin_dir),labels)
 	return [np.asarray(features), np.asarray(labels)]
 
 def computeFeatures(mol):
