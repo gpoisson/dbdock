@@ -8,8 +8,6 @@ from svm_nn_dbdock import train_and_test_svm_and_nn
 #############################################################
 ### GLOBAL VARIABLES
 #############################################################
-perform_rigid_docking = True
-perform_flexible_docking = True
 input_ligands_path = None
 rigid_output_ligands_path = None
 flexible_output_ligands_path = None
@@ -30,7 +28,8 @@ flexible_energies_dir = "{}flexible_energy_data.npy".format(data_binaries_dir)
 
 # Read through config file and set global parameters
 def checkInput(configure):
-	global input_ligands_path, rigid_output_ligands_path, flexible_output_ligands_path, protein_path, svm_param_path, nn_param_path, autodock_path, rigid_ligand_count, flexible_ligand_count, perform_rigid_docking, perform_flexible_docking
+	global input_ligands_path, rigid_output_ligands_path, flexible_output_ligands_path, protein_path, svm_param_path, nn_param_path, autodock_path, rigid_ligand_count, flexible_ligand_count
+	print("\n####################################################\n###  DBDOCK - MACHINE LEARNING-AIDED LIGAND SCREENING\n####################################################\n")
 	config = open(configure,'r')
 	for line in config:
 		if line[0] == '#':
@@ -55,12 +54,7 @@ def checkInput(configure):
 				rigid_ligand_count = (int)(split[2][:-1])
 			elif (split[0] == "flexible_ligand_count"):
 				flexible_ligand_count = (int)(split[2][:-1])
-			elif (split[0] == "perform_rigid_docking"):
-				if (split[2][:-1] == "No"):
-					perform_rigid_docking = False
-			elif (split[0] == "perform_flexible_docking"):
-				if (split[2][:-1] == "No"):
-					perform_flexible_docking = False
+	print("User config loaded")
 
 # Execute rigid docking on <rigid_ligand_count> ligands
 def rigidDocking():
@@ -92,13 +86,11 @@ if __name__ == "__main__":
 		features = np.load(feature_binary_dir)
 	except:
 		names, mols = getNamesMols(input_ligands_path,data_binaries_dir)
+		print(names)
 		features = getAllFeatures(names,mols,feature_binary_dir)
 
 	# RIGID DOCKING
-	if (perform_rigid_docking):
-		rigidDocking()
-	else:
-		print("Skipping rigid docking...")
+	rigidDocking()
 	try:
 		rigid_energies = np.load(rigid_energies_dir)
 	except:

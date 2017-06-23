@@ -51,10 +51,10 @@ instance_permutation_order = []			# this is used to keep track of the order in w
 										#  data is permuted, so that feature and label data
 										#  can be permuted cohesively
 
-
+# Returns a set of data for training and for testing, including feature and label data for each set
 def get_data(lig_file,label_file,batch=True,subset="all_features"):
-	ligands = np.load(lig_file)
-	labels = np.load(label_file)
+	ligands = np.load(lig_file)							# Reads the binary file containing ligand mol objects
+	labels = np.load(label_file)						# Reads the binary file containing docking energy measurements
 
 	if (subset == "first_order_only"):					# subset=1 --> only first 13 features (1st order features)	
 		ligands = ligands[:,:13]
@@ -62,24 +62,33 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 		ligands = ligands[:,14:34]
 
 	if (test_set_size + training_set_size > len(ligands)):
-		print("TEST SET SIZE + TRAINING SET SIZE: {} SAMPLES\nTOTAL SAMPLES AVAILABLE: {}".format((test_set_size + training_set_size),len(ligands)))
+		print("Warning: Requested test set size ({}) and requested training set size ({}) requires {} samples.".format(len(test_set_size,training_set_size,(test_set_size+training_set_size))))
+		print("         There are {} samples available. They will all be used, divided using the requested proportions.".format(len(ligands)))
+		train_ratio = training_set_size / (float)(training_set_size + test_set_size)
+		training_set_size = (int)(train_ratio * len(ligands))
+		test_set_size = len(ligands) - training_set_size
+		print("   New training set size:  {} samples".format(training_set_size))
+		print("   New test set size:      {} samples".format(test_set_size))
 
-	ligands, labels = permute_data(ligands, labels, batched=False)
-
-	#ligands = np.ndarray.tolist(ligands)
-	#labels = np.ndarray.tolist(labels)
+	## Shuffle step
+	ligands, labels = permute_data(ligands, labels, batched=False)				# Randmly shuffle dataset prior to sampling
 
 	ligands = np.asarray(ligands)
 	labels = np.asarray(labels)
 	
-	train_ligands = ligands[:training_set_size]
+	train_ligands = ligands[:training_set_size]									# Divide data up into training and testing sets
 	train_labels = labels[:training_set_size]
 	test_ligands = ligands[-test_set_size:]
 	test_labels = labels[-test_set_size:]
 
-	if (batch == False):
+	if (batch == False):														# If batching is not needed (SVM) then return unbatched data
+		#print("TDX: {}".format(train_ligands))
+		#print(len(train_ligands),len(train_ligands[0]))
+		#print("TDY: {}".format(train_labels))
+		#print(len(train_labels))
 		return train_ligands,train_labels,test_ligands,test_labels
 
+	##	Batching step
 	trainingdataX = [[]]
 	trainingdataY = [[]]
 
@@ -92,8 +101,8 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 
 	temp_x = []
 	temp_y = []
-	# trim out incomplete batches
-	for batch in range(len(trainingdataX)):
+	
+	for batch in range(len(trainingdataX)):										# trim out incomplete batches
 		if (len(trainingdataX[batch]) == batch_size):
 			temp_x.append(trainingdataX[batch])
 			temp_y.append(trainingdataY[batch])
@@ -263,8 +272,8 @@ class Net(nn.Module):
 
 def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
 	clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
-	#print(trainingdataX[0],trainingdataY[0][1])
-	clf.fit(trainingdataX[0],trainingdataY[0][1])
+	print(trainingdataX[0],trainingdataY[0])
+	clf.fit(trainingdataX[0],trainingdataY[0])
 
 	samples = []
 	labels = []
@@ -273,6 +282,8 @@ def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
 		samples.append(testdataX[sample])
 		labels.append(testdataY[sample])
 	pred = clf.predict(samples)
+	print(pred)
+	print(labels)
 	errs = pred - labels
 
 	r2 = clf.score(samples,labels)

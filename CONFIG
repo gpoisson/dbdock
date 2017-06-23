@@ -1,17 +1,10 @@
 # dbdock Config File
 #	Edit these values to configure dbdock prior to executing.
 
-# If rigid docking has been performed for this dataset already (and binaries are saved in the data_binaries directory), set to "No"
-perform_rigid_docking = No
-
-# If flexible docking has been performed for this dataset already (and binaries are saved in the data_binaries directory), set to "No"
-perform_flexible_docking = No
-
-
 
 # Directory where ligand PDBQT files are stored
 # input_ligands_path = /mnt/sda/drug_binding_data/ligands_before_rigid_docking/
-input_ligands_path = /mnt/sda/drug_binding_data/sample/
+input_ligands_path = sample/
 
 # Receptor PDBQT file
 protein_path = /home/greg/Documents/dbdock/receptor/
@@ -19,7 +12,8 @@ protein_path = /home/greg/Documents/dbdock/receptor/
 
 
 # Rigid docking output directory
-rigid_output_ligands_path = /mnt/sda/drug_binding_data/ligands_after_rigid_docking_10_modes/
+# rigid_output_ligands_path = /mnt/sda/drug_binding_data/ligands_after_rigid_docking_10_modes/
+rigid_output_ligands_path = sample_rigid/
 
 
 

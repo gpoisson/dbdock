@@ -271,7 +271,8 @@ def getNamesMols(input_ligands_path,data_binaries_dir):
 	
 	allValidMols = np.asarray(allValidMols)
 	np.save("{}ligand_name_rdkit_mol.npy".format(data_binaries_dir),allValidMols)
-	return allValidMols[:,0],allValidMols[:,1]
+	names,mols = allValidMols[:,0],allValidMols[:,1]
+	return names,mols
 	
 
 def getAllFeatures(names,ligands,features_bin_dir):
@@ -302,7 +303,7 @@ def getAllFeatures(names,ligands,features_bin_dir):
 		count += 1
 	np.save("{}".format(features_bin_dir),features)
 	#np.save("{}".format(labels_bin_dir),labels)
-	return [np.asarray(features), np.asarray(labels)]
+	return np.asarray(features)
 
 def computeFeatures(mol):
 	numRings = rdMolDescriptors.CalcNumRings(mol)
