@@ -11,213 +11,10 @@ import os, sys
 v = True
 energies_file = "energies_sorted.dat"
 
-def makeSinglePlot(x_data,y_data,title='Plot',x_label='x',y_label='y',axes_on=True,marker_type='x',add_lobf=True,x_min=None,x_max=None,y_min=None,y_max=None,axis_equal=False):
-	plt.figure()																	# make a plot figure
-	plt.plot(x_data,y_data,marker_type)												# add the data to the plot
-	if add_lobf:																	# add a line of best fit
-		plt.plot(x_data, np.poly1d(np.polyfit(x_data, y_data, 1))(x_data))
-	plt.suptitle(title)																# add plot title, labels
-	plt.xlabel(x_label)
-	plt.ylabel(y_label)
-	if (x_min != None):																# fix boundaries of the plot
-		plt.xlim([x_min,x_max])
-	if (y_min != None):
-		plt.ylim([y_min,y_max])
-	if axes_on:																		# enable grid axes
-		plt.grid(True)
-	if axis_equal:
-		plt.axis('equal')
-	plt.show()
 
-def compileFeaturesAndLabels():
-	ligands = np.load("unsorted_ligs.npy")
-	
-	[features, labels] = getAllFeatures(ligands)
-	np.save("features.npy",features)
-	np.save("labels.npy",labels)
-
-# Compile all ligand name, coordinate, and energy data into one comprehensive binary file for faster accessing
-def makeUnsortedBinary(coords_dir,out_dir):
-	allValidMols = []
-	ligand_list = os.listdir(coords_dir)
-	fails = 0
-	for ligand_file in ligand_list:
-		if ligand_file[-4:] == "mol2":
-			ligand_name = ligand_file[:-4]
-			print(ligand_file,ligand_name)
-			try:
-				mol = Chem.MolFromMol2File("{}{}".format(coords_dir,ligand_file))
-				allValidMols.append([ligand_name,mol])
-			except IOError:
-				fails += 1
-				continue
-	if v:
-		print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
-	
-	np.save("{}ligand_name_rdkit_mol.npy".format(out_dir),allValidMols)
-
-# Splits the unsorted binary into multiple smaller binaries.
-# Binaries are <100 MB for GitHub purposes.
-def makeSplitUnsortedBinary():
-	mols_per_bin = 100000				# number of ligands to store in each binary file (to regulate file size)
-	binary = loadUnsortedBinary()
-	bin_count = 0
-	binr = []
-	for mol in binary:
-		binr.append(mol)				# add ligands to binr array
-		if (len(binr) >= mols_per_bin):										# if max no. of mols is reached,
-			print ("Binr size: {} mols".format(len(binr)))					# save out the binary and start a
-			binr = np.asarray(binr)											# new one.
-			np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)
-			bin_count += 1
-			binr = []
-	if (len(binr) >= 0):													# once all mols have been read through,
-		binr = np.asarray(binr)												# save out whatever mols are left in 
-		np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)			# memory
-
-# Assembles split binaries into one single ligand db binary
-def combineSplitBinaries():
-	files = os.listdir("./")
-	bins = []
-	master_bin = []
-	for f in files:
-		if (f[:-5] == "unsorted_ligs_part_"):			# find any partial ligand binaries in the directory
-			bins.append(f)
-	for b in bins:
-		t = np.load(b)
-		for mol in t:
-			master_bin.append(mol)
-	master_bin = np.asarray(master_bin)
-	np.save("unsorted_ligs.npy",master_bin)
-
-# Reads in energy valus for each ligand
-def readInputEnergies():
-	deltaGs = {}
-	engs = open(energies_file,'r')
-	for line in engs:
-		line = line.split()
-		if (len(line) >= 2):
-			name = line[0]
-			if (name[-1] == '.'):		# trim off trailing periods
-				name = name[:-1]
-			dg = float(line[1])
-			try:
-				deltaGs[name] = dg
-			except KeyError:
-				continue
-	return deltaGs
-
-# Sort input data into training and testing datasets
-# Picks n evenly-indexed mols for training, rest go to testing
-def sortInputData(mols,deltaGs):
-	train = []
-	test = []
-	trainIndeces = []		# Keep track of molecules used for training; use the rest for testing
-	c = 0
-	p = 0
-	count = 0
-
-	if v:
-		print "Assemble training and testing data..."
-	while (count < int(dataSize)):
-		if (count == 0):									# If no molecules have been sorted, take the first one
-			try:	
-				if (mols[0][1] == None):
-					continue
-				else:
-					ligand_name = mols[0][0]
-					features = extractFeatureData(mols[0][1])
-					dg = deltaGs[ligand_name]
-					train.append([ligand_name,features,dg])
-					trainIndeces.append(0)
-			except KeyError:
-				continue
-		else:												# If more than two molecules have been sorted, evenly distribute the rest
-			c += 1
-			index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1				# Apply a logarithmic distribution to evenly choose training/testing samples
-			if (index >= len(mols)):
-				p += 1
-				c = 0
-				index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1
-			try:	
-				if (mols[index][1] == None):
-					continue
-				else:
-					ligand_name = mols[index][0]
-					features = extractFeatureData(mols[index][1])
-					dg = deltaGs[ligand_name]
-					train.append([ligand_name,features,dg])
-					trainIndeces.append(index)
-			except KeyError:
-				continue
-		count = len(train)
-
-	count = 0
-	for mol in mols:										# Use record of training molecule indeces to add non-training molecules to test
-		if count in trainIndeces:
-			continue
-		else:
-			try:
-				if (mol[1] == None):
-					continue
-				else:
-					ligand_name = mols[count][0]
-					features = extractFeatureData(mols[count][1])
-					dg = deltaGs[ligand_name]
-					test.append([ligand_name,features,dg])
-			except KeyError:
-				continue
-		count += 1
-	if v:
-		print "Sorted {} molecules into {} training points and {} test points.".format(len(mols),len(train),len(test))
-	return train, test
-
-
-# Sort input data into training and testing datasets
-# Places every nth mol into train, rest into test
-def sortInputStep(mols,deltaGs):
-	train = []
-	test = []
-	count = 0
-	test_frac = int(len(mols)/int(dataSize))
-
-	if v:
-		print "Assemble training and testing data..."
-	for mol in mols:
-		if (mol[1] == None):
-			continue
-		else:
-			ligand = mol[0]									# ligand name (string)
-			features = extractFeatureData(mol[1])			# mol[1] = mol object (rdkit)
-			try:
-				dg = deltaGs[ligand]							# deltaG for this ligand
-				if (count % test_frac != 0):
-					test.append([ligand,features,dg])
-				else:
-					train.append([ligand,features,dg])
-				count += 1
-			except KeyError:
-				continue
-	return train, test
-
-# Save the compiled data as a binary file for faster loading
-def saveAsBin(train,test):
-	binary_outfile = "sorted_ligs_{}.npz".format(dataSize)
-	np.savez(binary_outfile,train,test)
-
-def loadUnsortedBinary():
-	t = np.load("unsorted_ligs.npy")
-	return t
-
-# Takes an entry from unsorted_ligs.npy and draws it to a PNG file
-def drawMolToPng(mol):
-	m2 = Chem.AddHs(mol[1])
-	AllChem.EmbedMolecule(m2)
-	AllChem.Compute2DCoords(m2)
-	Draw.MolToFile(m2,"{}.png".format(mol[0]))
 
 # Iterate through autodock outputs and obtain list of energies
-def getRigidDockingEnergies(autodock_output_directory):
+def getRigidDockingEnergies(autodock_output_directory,rigid_energies_dir):
 	ligand_files = os.listdir(autodock_output_directory)
 	energies = []
 	for filename in ligand_files:
@@ -236,8 +33,10 @@ def getRigidDockingEnergies(autodock_output_directory):
 							energies.append([ligand_name,ki])
 						except:
 							print("FILE NOT WELL-FORMED: {}\n{}".format(filename,split))
+	np.save(rigid_energies_dir,energies)
 	return energies
 
+# Executes a Linux command to create a new file which is an existing PDBQT file converted to a PDB format
 def convert_PDBQT_to_PDB(filename):
 	pdbName = filename[:-2]
 	os.system("cut -c-66 {} > {}".format(filename,pdbName))
@@ -245,8 +44,11 @@ def convert_PDBQT_to_PDB(filename):
 # Get name and RDKit Mol representation for each ligand
 def getNamesMols(input_ligands_path,data_binaries_dir):
 	try:
+		print(" Attempting to load RDKit mol objects.")
 		allValidMols = np.load("ligand_name_rdkit_mol.npy")
+		print(" {} RDKit mol objects loaded.".format(len(allValidMols)))
 	except:
+		print(" No RDKit mol object binary found. Using ligand PDB / PDBQT files to generate new features...")
 		allValidMols = []
 		ligand_list = os.listdir(input_ligands_path)
 		fails = 0
@@ -267,14 +69,14 @@ def getNamesMols(input_ligands_path,data_binaries_dir):
 				if (mol != None):
 					allValidMols.append([ligand_name,mol])
 		if v:
-			print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
+			print " Read in {} ligand files, encountered {} failures.".format(len(ligand_list),fails)
 	
 	allValidMols = np.asarray(allValidMols)
 	np.save("{}ligand_name_rdkit_mol.npy".format(data_binaries_dir),allValidMols)
 	names,mols = allValidMols[:,0],allValidMols[:,1]
 	return names,mols
 	
-
+# Returns a numpy array containing the ligand feature data for all ligands
 def getAllFeatures(names,ligands,features_bin_dir):
 	features = []
 	labels = []
@@ -284,8 +86,8 @@ def getAllFeatures(names,ligands,features_bin_dir):
 		if (count % 10000 == 0):
 			print("Ligand No: {} / {}".format(count,len(ligands)))
 		f_data = computeFeatures(ligands[lig])
-		for entry in names[lig]:
-			f_data.append(entry)
+		#for entry in names[lig]:
+		#	f_data.append(entry)
 		d_hist = f_data[13:33]															# Checking for ligands where distribution of path distance
 		all_zero = True																	#   from hba/hbd pairs failed to compute and marking their
 		keep = True																		#   samples for removal from the dataset
@@ -301,9 +103,11 @@ def getAllFeatures(names,ligands,features_bin_dir):
 			features.append(f_data)
 			#labels.append(ligand[ki_index])
 		count += 1
+	features = np.asarray(features)
+	print("Collected  {}  features per sample".format(len(features[0])))
 	np.save("{}".format(features_bin_dir),features)
 	#np.save("{}".format(labels_bin_dir),labels)
-	return np.asarray(features)
+	return features
 
 def computeFeatures(mol):
 	numRings = rdMolDescriptors.CalcNumRings(mol)
@@ -361,7 +165,7 @@ def getDists(numAtoms, hbond_table, atom_table):
 					dists[dist] += 1
 	return dists
 
-# Use Dijkstra's SP algorithm to find shortest path from atom at index1 to atom at index2
+# Use Dijkstra's shortest path algorithm to find shortest path from atom at index1 to atom at index2
 def getDist(index1, index2, atom_table):
 	start = index1 	# index of one of terminal atoms
 	goal = index2 	# index of one of terminal atoms
@@ -488,3 +292,216 @@ def countDoubleBonds(mol):
 	return doubleBonds
 
 # combineSplitBinaries()
+
+
+'''
+
+# Reads in energy valus for each ligand
+def readInputEnergies():
+	deltaGs = {}
+	engs = open(energies_file,'r')
+	for line in engs:
+		line = line.split()
+		if (len(line) >= 2):
+			name = line[0]
+			if (name[-1] == '.'):		# trim off trailing periods
+				name = name[:-1]
+			dg = float(line[1])
+			try:
+				deltaGs[name] = dg
+			except KeyError:
+				continue
+	return deltaGs
+
+def makeSinglePlot(x_data,y_data,title='Plot',x_label='x',y_label='y',axes_on=True,marker_type='x',add_lobf=True,x_min=None,x_max=None,y_min=None,y_max=None,axis_equal=False):
+	plt.figure()																	# make a plot figure
+	plt.plot(x_data,y_data,marker_type)												# add the data to the plot
+	if add_lobf:																	# add a line of best fit
+		plt.plot(x_data, np.poly1d(np.polyfit(x_data, y_data, 1))(x_data))
+	plt.suptitle(title)																# add plot title, labels
+	plt.xlabel(x_label)
+	plt.ylabel(y_label)
+	if (x_min != None):																# fix boundaries of the plot
+		plt.xlim([x_min,x_max])
+	if (y_min != None):
+		plt.ylim([y_min,y_max])
+	if axes_on:																		# enable grid axes
+		plt.grid(True)
+	if axis_equal:
+		plt.axis('equal')
+	plt.show()
+
+# Compile all ligand name, coordinate, and energy data into one comprehensive binary file for faster accessing
+def makeUnsortedBinary(coords_dir,out_dir):
+	allValidMols = []
+	ligand_list = os.listdir(coords_dir)
+	fails = 0
+	for ligand_file in ligand_list:
+		if ligand_file[-4:] == "mol2":
+			ligand_name = ligand_file[:-4]
+			print(ligand_file,ligand_name)
+			try:
+				mol = Chem.MolFromMol2File("{}{}".format(coords_dir,ligand_file))
+				allValidMols.append([ligand_name,mol])
+			except IOError:
+				fails += 1
+				continue
+	if v:
+		print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
+	
+	np.save("{}ligand_name_rdkit_mol.npy".format(out_dir),allValidMols)
+
+# Splits the unsorted binary into multiple smaller binaries.
+# Binaries are <100 MB for GitHub purposes.
+
+def makeSplitUnsortedBinary():
+	mols_per_bin = 100000				# number of ligands to store in each binary file (to regulate file size)
+	binary = loadUnsortedBinary()
+	bin_count = 0
+	binr = []
+	for mol in binary:
+		binr.append(mol)				# add ligands to binr array
+		if (len(binr) >= mols_per_bin):										# if max no. of mols is reached,
+			print ("Binr size: {} mols".format(len(binr)))					# save out the binary and start a
+			binr = np.asarray(binr)											# new one.
+			np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)
+			bin_count += 1
+			binr = []
+	if (len(binr) >= 0):													# once all mols have been read through,
+		binr = np.asarray(binr)												# save out whatever mols are left in 
+		np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)			# memory
+
+# Assembles split binaries into one single ligand db binary
+def combineSplitBinaries():
+	files = os.listdir("./")
+	bins = []
+	master_bin = []
+	for f in files:
+		if (f[:-5] == "unsorted_ligs_part_"):			# find any partial ligand binaries in the directory
+			bins.append(f)
+	for b in bins:
+		t = np.load(b)
+		for mol in t:
+			master_bin.append(mol)
+	master_bin = np.asarray(master_bin)
+	np.save("unsorted_ligs.npy",master_bin)
+
+
+# Sort input data into training and testing datasets
+# Picks n evenly-indexed mols for training, rest go to testing
+def sortInputData(mols,deltaGs):
+	train = []
+	test = []
+	trainIndeces = []		# Keep track of molecules used for training; use the rest for testing
+	c = 0
+	p = 0
+	count = 0
+
+	if v:
+		print "Assemble training and testing data..."
+	while (count < int(dataSize)):
+		if (count == 0):									# If no molecules have been sorted, take the first one
+			try:	
+				if (mols[0][1] == None):
+					continue
+				else:
+					ligand_name = mols[0][0]
+					features = extractFeatureData(mols[0][1])
+					dg = deltaGs[ligand_name]
+					train.append([ligand_name,features,dg])
+					trainIndeces.append(0)
+			except KeyError:
+				continue
+		else:												# If more than two molecules have been sorted, evenly distribute the rest
+			c += 1
+			index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1				# Apply a logarithmic distribution to evenly choose training/testing samples
+			if (index >= len(mols)):
+				p += 1
+				c = 0
+				index = int(len(mols)/2**p) + int(len(mols)*c/2**(p-1)) - 1
+			try:	
+				if (mols[index][1] == None):
+					continue
+				else:
+					ligand_name = mols[index][0]
+					features = extractFeatureData(mols[index][1])
+					dg = deltaGs[ligand_name]
+					train.append([ligand_name,features,dg])
+					trainIndeces.append(index)
+			except KeyError:
+				continue
+		count = len(train)
+
+	count = 0
+	for mol in mols:										# Use record of training molecule indeces to add non-training molecules to test
+		if count in trainIndeces:
+			continue
+		else:
+			try:
+				if (mol[1] == None):
+					continue
+				else:
+					ligand_name = mols[count][0]
+					features = extractFeatureData(mols[count][1])
+					dg = deltaGs[ligand_name]
+					test.append([ligand_name,features,dg])
+			except KeyError:
+				continue
+		count += 1
+	if v:
+		print "Sorted {} molecules into {} training points and {} test points.".format(len(mols),len(train),len(test))
+	return train, test
+
+
+# Sort input data into training and testing datasets
+# Places every nth mol into train, rest into test
+def sortInputStep(mols,deltaGs):
+	train = []
+	test = []
+	count = 0
+	test_frac = int(len(mols)/int(dataSize))
+
+	if v:
+		print "Assemble training and testing data..."
+	for mol in mols:
+		if (mol[1] == None):
+			continue
+		else:
+			ligand = mol[0]									# ligand name (string)
+			features = extractFeatureData(mol[1])			# mol[1] = mol object (rdkit)
+			try:
+				dg = deltaGs[ligand]							# deltaG for this ligand
+				if (count % test_frac != 0):
+					test.append([ligand,features,dg])
+				else:
+					train.append([ligand,features,dg])
+				count += 1
+			except KeyError:
+				continue
+	return train, test
+
+# Save the compiled data as a binary file for faster loading
+def saveAsBin(train,test):
+	binary_outfile = "sorted_ligs_{}.npz".format(dataSize)
+	np.savez(binary_outfile,train,test)
+
+def loadUnsortedBinary():
+	t = np.load("unsorted_ligs.npy")
+	return t
+
+# Takes an entry from unsorted_ligs.npy and draws it to a PNG file
+def drawMolToPng(mol):
+	m2 = Chem.AddHs(mol[1])
+	AllChem.EmbedMolecule(m2)
+	AllChem.Compute2DCoords(m2)
+	Draw.MolToFile(m2,"{}.png".format(mol[0]))
+
+
+def compileFeaturesAndLabels():
+	ligands = np.load("unsorted_ligs.npy")
+	
+	[features, labels] = getAllFeatures(ligands)
+	np.save("features.npy",features)
+	np.save("labels.npy",labels)
+
+'''

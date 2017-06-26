@@ -2,7 +2,10 @@
 #	Edit these values to configure dbdock prior to executing.
 
 
-# Directory where ligand PDBQT files are stored
+# Directory where ligand PDBQT / PDB files are stored
+#  NOTE:  This directory may contain either PDBQT or PDB files, representing input ligands. If PDBQT files are supplied,
+#         they will be converted to (not replaced with) PDB files. This is because RDKit is able to quickly convert a PDB
+#         to a "mol" object, from which features may be computed.
 # input_ligands_path = /mnt/sda/drug_binding_data/ligands_before_rigid_docking/
 input_ligands_path = sample/
 
@@ -34,5 +37,8 @@ autodock_path = /mnt/sda/autodock_vina_1_1_2_linux_x86/
 rigid_ligand_count = 1000
 flexible_ligand_count = 200
 
+
+# Initial noise to add to data when initially loaded (helps prevent overfitting)
+data_noise = 0.01
 
 # END

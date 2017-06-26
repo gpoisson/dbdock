@@ -13,7 +13,7 @@ from sklearn.svm import SVR
 ############################################################
 ### NEURAL NETWORK PARAMETERS
 ############################################################
-input_size = 34						# size of input features
+input_size = 45						# size of input features
 
 hidden_layers = [50]				# default hidden layer configuration
 
@@ -53,6 +53,7 @@ instance_permutation_order = []			# this is used to keep track of the order in w
 
 # Returns a set of data for training and for testing, including feature and label data for each set
 def get_data(lig_file,label_file,batch=True,subset="all_features"):
+	global training_set_size, test_set_size
 	ligands = np.load(lig_file)							# Reads the binary file containing ligand mol objects
 	labels = np.load(label_file)						# Reads the binary file containing docking energy measurements
 
@@ -62,7 +63,7 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 		ligands = ligands[:,14:34]
 
 	if (test_set_size + training_set_size > len(ligands)):
-		print("Warning: Requested test set size ({}) and requested training set size ({}) requires {} samples.".format(len(test_set_size,training_set_size,(test_set_size+training_set_size))))
+		print("Warning: Requested test set size ({}) and requested training set size ({}) requires {} samples.".format(test_set_size,training_set_size,(test_set_size+training_set_size)))
 		print("         There are {} samples available. They will all be used, divided using the requested proportions.".format(len(ligands)))
 		train_ratio = training_set_size / (float)(training_set_size + test_set_size)
 		training_set_size = (int)(train_ratio * len(ligands))
@@ -71,7 +72,7 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 		print("   New test set size:      {} samples".format(test_set_size))
 
 	## Shuffle step
-	ligands, labels = permute_data(ligands, labels, batched=False)				# Randmly shuffle dataset prior to sampling
+	ligands, labels = permute_data(ligands, labels, batched=False, add_noise=True)				# Randomly shuffle dataset prior to sampling
 
 	ligands = np.asarray(ligands)
 	labels = np.asarray(labels)
@@ -80,13 +81,6 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 	train_labels = labels[:training_set_size]
 	test_ligands = ligands[-test_set_size:]
 	test_labels = labels[-test_set_size:]
-
-	if (batch == False):														# If batching is not needed (SVM) then return unbatched data
-		#print("TDX: {}".format(train_ligands))
-		#print(len(train_ligands),len(train_ligands[0]))
-		#print("TDY: {}".format(train_labels))
-		#print(len(train_labels))
-		return train_ligands,train_labels,test_ligands,test_labels
 
 	##	Batching step
 	trainingdataX = [[]]
@@ -131,9 +125,37 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 	testdataX = temp_x
 	testdataY = temp_y
 
+
+	if (batch == False):														# If batching is not needed (SVM) then return unbatched data
+		#print("TDX: {}".format(train_ligands))
+		#print(len(train_ligands),len(train_ligands[0]))
+		#print("TDY: {}".format(train_labels))
+		#print(len(train_labels))
+		temp_train_ligs = []
+		temp_train_labs = []
+		temp_test_ligs = []
+		temp_test_labs = []
+		for batch in trainingdataX:
+			for entry in batch:
+				temp_train_ligs.append(entry)
+		trainingdataX = temp_train_ligs
+		for batch in trainingdataY:
+			for entry in batch:
+				temp_train_labs.append(entry)
+		trainingdataY = temp_train_labs
+		for batch in testdataX:
+			for entry in batch:
+				temp_test_ligs.append(entry)
+		testdataX = temp_test_ligs
+		for batch in testdataY:
+			for entry in batch:
+				temp_test_labs.append(entry)
+		testdataY = temp_test_labs
+		return trainingdataX,trainingdataY,test_ligands,test_labels
+
 	return trainingdataX, trainingdataY, testdataX, testdataY
 
-def permute_data(X,y,batched=True):
+def permute_data(X,y,batched=True,add_noise=False):
 	global instance_permutation_order
 
 	samples = []
@@ -167,15 +189,18 @@ def permute_data(X,y,batched=True):
 			shuff_samples.append(samples[epoch_permutation_order[s]])
 			shuff_labels.append(labels[epoch_permutation_order[s]])
 
-	# add random noise to help prevent overfitting
-	shuff_samples = np.asarray(shuff_samples)
-	for samp in range(len(shuff_samples)):
-		noise = np.random.rand() * permutation_noise
-		sign = np.random.rand()
-		if (sign < 0.5):													# Noise has 50% chance of being negative
-			noise *= -1
-		for feature in range(len(shuff_samples[samp])):
-			shuff_samples[samp,feature] += (np.median(shuff_samples[:,feature]) * noise)
+	if (add_noise):
+		# add random noise when first loading data to help prevent overfitting
+		shuff_samples = np.asarray(shuff_samples)
+		for samp in range(len(shuff_samples)):
+			noise = np.random.rand() * permutation_noise
+			sign = np.random.rand()
+			if (sign < 0.5):													# Noise has 50% chance of being negative
+				noise *= -1
+			for feature in range(len(shuff_samples[samp])):
+				feature_set = (shuff_samples[:,feature])
+				median = np.median(feature_set)
+				shuff_samples[samp,feature] += (median * noise)
 
 	if (batched == False):
 		return shuff_samples, shuff_labels
@@ -272,18 +297,15 @@ class Net(nn.Module):
 
 def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
 	clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
-	print(trainingdataX[0],trainingdataY[0])
-	clf.fit(trainingdataX[0],trainingdataY[0])
+	clf.fit(trainingdataX,(trainingdataY[:,1]))
 
 	samples = []
 	labels = []
 	pred = []
 	for sample in range(len(testdataX)):
 		samples.append(testdataX[sample])
-		labels.append(testdataY[sample])
+		labels.append((float)(testdataY[sample][1]))
 	pred = clf.predict(samples)
-	print(pred)
-	print(labels)
 	errs = pred - labels
 
 	r2 = clf.score(samples,labels)
@@ -302,7 +324,7 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 	losses = []
 	avg_running_loss = 0
 	for epoch in range(epochs_count):
-		trainingdataX,trainingdataY = permute_data(trainingdataX,trainingdataY)
+		trainingdataX,trainingdataY = permute_data(trainingdataX,trainingdataY,add_noise=False)
 		running_loss = 0.0
 		for i, data in enumerate(trainingdataX, 0):
 			inputs = data
@@ -344,6 +366,10 @@ def train_and_test_svm_and_nn(ligand_file, label_file):
 	#nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="first_order_only")
 	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(ligand_file, label_file, batch=False,subset="all_features")
 	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(ligand_file, label_file, batch=True,subset="all_features")
+	print(len(svm_ts_y))
+	print(len(nn_ts_y))
+	print(len(nn_ts_y[0]))
+	print(len(nn_ts_y[-1]))
 	svm_model, r2_svm = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
 	nn_model, r2_nn = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
 	svm_pred = svm_model.predict(svm_ts_X)
@@ -359,6 +385,7 @@ def train_and_test_svm_and_nn(ligand_file, label_file):
 			losses.append(abs(nn_pred[-1] - nn_ts_y[batch][p]))
 
 	plt.figure()
+	print("\n{}\n{}\n".format(len(actual),len(svm_pred)))
 	plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
 	plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
 	plt.suptitle("SVM Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))

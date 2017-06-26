@@ -60,11 +60,21 @@ def checkInput(configure):
 def rigidDocking():
 	input_lig_list = os.listdir(input_ligands_path)
 	print("Performing rigid docking on {} of {} ligands...".format(rigid_ligand_count,len(input_lig_list)))
+
+	###################
+	#### Insert rigid docking scripts here:
+	# os.system("rigid_docking_script.sh")			# Executes bash script to run rigid docking on input ligands
+
 	print("...Rigid docking complete")
 
 # Execute flexible docking on <rigid_ligand_count> ligands
 def flexibleDocking():
 	print("Performing flexible docking on {} of {} ligands...".format(flexible_ligand_count,rigid_ligand_count))
+
+	###################
+	#### Insert flexible docking scripts here:
+	# os.system("flexible_docking_script.sh")			# Executes bash script to run rigid docking on input ligands
+
 	print("...Flexible docking complete")
 
 
@@ -82,20 +92,28 @@ if __name__ == "__main__":
 	#   Attempts to find the feature data in a binary file
 	#   If that file does not yet exist, it generates it by reading through
 	#     the library of ligand .pdbqt files specified in the config file.
+	#   Note: The "features" variable is defined for code legibility purposes but 
+	#         the train_and_test_svm_and_nn() method just loads the features binary from disk.
+
 	try:
+		print("Attempting to load feature data from a binary...")
 		features = np.load(feature_binary_dir)
 	except:
+		print(" No feature binary available. Checking for existance of binaries containing RDKit mol objects from which to compute features...")
 		names, mols = getNamesMols(input_ligands_path,data_binaries_dir)
-		print(names)
 		features = getAllFeatures(names,mols,feature_binary_dir)
+
+	print("Loaded total of {} samples, {} features each.".format(len(features),len(features[0])))
 
 	# RIGID DOCKING
 	rigidDocking()
 	try:
+		print(" Attempting to load rigid energy data from a binary...")
 		rigid_energies = np.load(rigid_energies_dir)
 	except:
-		rigid_energies = getRigidDockingEnergies(rigid_output_ligands_path)	
-	print("Rigid energies data loaded...")
+		print(" Parsing new rigid docking results for energy values.")
+		rigid_energies = getRigidDockingEnergies(rigid_output_ligands_path,rigid_energies_dir)	
+	print("Rigid energies data loaded ({} samples)...".format(len(rigid_energies)))
 
 
 	# MACHINE LEARNING MODEL TRAINING ON RIGID DOCKING RESULTS
