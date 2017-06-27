@@ -1,0 +1,43 @@
+REMARK  4 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_6  and  N_7 
+REMARK       I    between atoms: N_7  and  C_8 
+REMARK    2  A    between atoms: C_8  and  C_10 
+REMARK    3  A    between atoms: C_10  and  C_11 
+REMARK    4  A    between atoms: C_10  and  C_15 
+ROOT
+ATOM      1  N   LIG d   1      -1.200  -0.722   0.010  0.00  0.00
+ATOM      2  C   LIG d   1      -1.184  -2.065  -0.099  0.00  0.00
+ATOM      3  O   LIG d   1      -0.127  -2.660  -0.113  0.00  0.00
+ATOM      4  H   LIG d   1      -2.045  -0.251   0.087  0.00  0.00
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       0.003  -0.005   0.012  0.00  0.00
+ATOM      6  C   LIG d   1       0.066   1.248  -0.584  0.00  0.00
+ATOM      7  C   LIG d   1       1.254   1.953  -0.581  0.00  0.00
+ATOM      8  H   LIG d   1      -0.813   1.672  -1.046  0.00  0.00
+ATOM      9  C   LIG d   1       2.380   1.412   0.015  0.00  0.00
+ATOM     10  H   LIG d   1       1.304   2.928  -1.044  0.00  0.00
+ATOM     11  C   LIG d   1       2.319   0.163   0.610  0.00  0.00
+ATOM     12  F   LIG d   1       3.541   2.103   0.017  0.00  0.00
+ATOM     13  C   LIG d   1       1.133  -0.546   0.609  0.00  0.00
+ATOM     14  H   LIG d   1       3.199  -0.258   1.074  0.00  0.00
+ATOM     15  H   LIG d   1       1.086  -1.520   1.072  0.00  0.00
+ENDBRANCH   1   5
+BRANCH   2  16
+ATOM     16  C   LIG d   1      -2.480  -2.828  -0.204  0.00  0.00
+ATOM     17 BR   LIG d   1      -3.463  -2.233  -1.799  0.00  0.00
+BRANCH  16  18
+ATOM     18  C   LIG d   1      -2.182  -4.324  -0.316  0.00  0.00
+ATOM     19  F   LIG d   1      -1.482  -4.747   0.819  0.00  0.00
+ATOM     20  F   LIG d   1      -3.385  -5.033  -0.413  0.00  0.00
+ATOM     21  F   LIG d   1      -1.408  -4.562  -1.457  0.00  0.00
+ENDBRANCH  16  18
+BRANCH  16  22
+ATOM     22  C   LIG d   1      -3.327  -2.568   1.044  0.00  0.00
+ATOM     23  F   LIG d   1      -3.599  -1.200   1.147  0.00  0.00
+ATOM     24  F   LIG d   1      -4.529  -3.277   0.946  0.00  0.00
+ATOM     25  F   LIG d   1      -2.627  -2.991   2.179  0.00  0.00
+ENDBRANCH  16  22
+ENDBRANCH   2  16
+TORSDOF 4

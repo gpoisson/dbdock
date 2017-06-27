@@ -52,8 +52,9 @@ instance_permutation_order = []			# this is used to keep track of the order in w
 										#  can be permuted cohesively
 
 # Returns a set of data for training and for testing, including feature and label data for each set
-def get_data(lig_file,label_file,batch=True,subset="all_features"):
+def get_data(lig_file,label_file,batch,subset="all_features"):
 	global training_set_size, test_set_size
+
 	ligands = np.load(lig_file)							# Reads the binary file containing ligand mol objects
 	labels = np.load(label_file)						# Reads the binary file containing docking energy measurements
 
@@ -61,6 +62,11 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 		ligands = ligands[:,:13]
 	elif (subset == "second_order_only"):				# subset=2 --> only last 20 features (2nd order)
 		ligands = ligands[:,14:34]
+
+	if (batch):
+		print("Obtaining batched data for neural network training")
+	else:
+		print("Obtaining unbatched data for support vector machine training")
 
 	if (test_set_size + training_set_size > len(ligands)):
 		print("Warning: Requested test set size ({}) and requested training set size ({}) requires {} samples.".format(test_set_size,training_set_size,(test_set_size+training_set_size)))
@@ -96,10 +102,10 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 	temp_x = []
 	temp_y = []
 	
-	for batch in range(len(trainingdataX)):										# trim out incomplete batches
-		if (len(trainingdataX[batch]) == batch_size):
-			temp_x.append(trainingdataX[batch])
-			temp_y.append(trainingdataY[batch])
+	for b in range(len(trainingdataX)):										# trim out incomplete batches
+		if (len(trainingdataX[b]) == batch_size):
+			temp_x.append(trainingdataX[b])
+			temp_y.append(trainingdataY[b])
 	
 	trainingdataX = temp_x
 	trainingdataY = temp_y
@@ -117,45 +123,55 @@ def get_data(lig_file,label_file,batch=True,subset="all_features"):
 	temp_x = []
 	temp_y = []
 	# trim out incomplete batches
-	for batch in range(len(testdataX)):
-		if (len(testdataX[batch]) == batch_size):
-			temp_x.append(testdataX[batch])
-			temp_y.append(testdataY[batch])
+	for b in range(len(trainingdataX)):
+		if (len(trainingdataX[b]) == batch_size):
+			temp_x.append(trainingdataX[b])
+			temp_y.append(trainingdataY[b])
+
+	trainingdataX = temp_x
+	trainingdataY = temp_y
+	temp_x = []
+	temp_y = []
+
+	for b in range(len(testdataX)):
+		if (len(testdataX[b]) == batch_size):
+			temp_x.append(testdataX[b])
+			temp_y.append(testdataY[b])
 	
 	testdataX = temp_x
 	testdataY = temp_y
 
-
 	if (batch == False):														# If batching is not needed (SVM) then return unbatched data
-		#print("TDX: {}".format(train_ligands))
-		#print(len(train_ligands),len(train_ligands[0]))
-		#print("TDY: {}".format(train_labels))
-		#print(len(train_labels))
 		temp_train_ligs = []
 		temp_train_labs = []
 		temp_test_ligs = []
 		temp_test_labs = []
-		for batch in trainingdataX:
-			for entry in batch:
-				temp_train_ligs.append(entry)
+		for lig_batch in trainingdataX:
+			if (len(lig_batch) == batch_size):
+				for entry in lig_batch:
+					temp_train_ligs.append(entry)
 		trainingdataX = temp_train_ligs
-		for batch in trainingdataY:
-			for entry in batch:
-				temp_train_labs.append(entry)
+		for lig_batch in trainingdataY:
+			if (len(lig_batch) == batch_size):
+				for entry in lig_batch:
+					temp_train_labs.append(entry)
 		trainingdataY = temp_train_labs
-		for batch in testdataX:
-			for entry in batch:
-				temp_test_ligs.append(entry)
+		for lig_batch in testdataX:
+			if (len(lig_batch) == batch_size):
+				for entry in lig_batch:
+					temp_test_ligs.append(entry)
 		testdataX = temp_test_ligs
-		for batch in testdataY:
-			for entry in batch:
-				temp_test_labs.append(entry)
+		for lig_batch in testdataY:
+			if (len(lig_batch) == batch_size):
+				for entry in lig_batch:
+					temp_test_labs.append(entry)
 		testdataY = temp_test_labs
-		return trainingdataX,trainingdataY,test_ligands,test_labels
+
+		return trainingdataX,trainingdataY,testdataX,testdataY
 
 	return trainingdataX, trainingdataY, testdataX, testdataY
 
-def permute_data(X,y,batched=True,add_noise=False):
+def permute_data(X,y,batched,add_noise=False):
 	global instance_permutation_order
 
 	samples = []
@@ -297,14 +313,14 @@ class Net(nn.Module):
 
 def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
 	clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
-	clf.fit(trainingdataX,(trainingdataY[:,1]))
+	clf.fit(trainingdataX,(trainingdataY))
 
 	samples = []
 	labels = []
 	pred = []
 	for sample in range(len(testdataX)):
 		samples.append(testdataX[sample])
-		labels.append((float)(testdataY[sample][1]))
+		labels.append((float)(testdataY[sample][0]))
 	pred = clf.predict(samples)
 	errs = pred - labels
 
@@ -324,7 +340,7 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 	losses = []
 	avg_running_loss = 0
 	for epoch in range(epochs_count):
-		trainingdataX,trainingdataY = permute_data(trainingdataX,trainingdataY,add_noise=False)
+		trainingdataX,trainingdataY = permute_data(trainingdataX,trainingdataY,batched=True,add_noise=False)
 		running_loss = 0.0
 		for i, data in enumerate(trainingdataX, 0):
 			inputs = data
@@ -366,10 +382,7 @@ def train_and_test_svm_and_nn(ligand_file, label_file):
 	#nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(batch=True,subset="first_order_only")
 	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(ligand_file, label_file, batch=False,subset="all_features")
 	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(ligand_file, label_file, batch=True,subset="all_features")
-	print(len(svm_ts_y))
-	print(len(nn_ts_y))
-	print(len(nn_ts_y[0]))
-	print(len(nn_ts_y[-1]))
+
 	svm_model, r2_svm = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
 	nn_model, r2_nn = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
 	svm_pred = svm_model.predict(svm_ts_X)
@@ -385,7 +398,6 @@ def train_and_test_svm_and_nn(ligand_file, label_file):
 			losses.append(abs(nn_pred[-1] - nn_ts_y[batch][p]))
 
 	plt.figure()
-	print("\n{}\n{}\n".format(len(actual),len(svm_pred)))
 	plt.plot(actual,svm_pred,'x',color='b',ms=2,mew=3)
 	plt.plot(actual,actual,'x',color='r',ms=2,mew=3)
 	plt.suptitle("SVM Prediction Performance\nTraining Set: {}  Test Set: {}".format(training_set_size,test_set_size))

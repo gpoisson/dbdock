@@ -1,0 +1,81 @@
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_5  and  C_13 
+REMARK    4  A    between atoms: C_7  and  O_11 
+REMARK    5  A    between atoms: C_8  and  O_9 
+REMARK    6  A    between atoms: O_9  and  C_10 
+REMARK    7  A    between atoms: O_11  and  C_12 
+REMARK       I    between atoms: C_13  and  N_15 
+REMARK       I    between atoms: N_15  and  CA_16 
+REMARK    8  A    between atoms: CA_16  and  CB_18 
+REMARK       I    between atoms: CA_16  and  C_25 
+REMARK    9  A    between atoms: CB_18  and  CG_19 
+ROOT
+ATOM      1  C   UNK d   0       0.002  -0.004   0.002  0.00  0.00
+ATOM      2  C   UNK d   0      -0.017   1.378   0.010  0.00  0.00
+ATOM      3  C   UNK d   0       1.184   2.092   0.002  0.00  0.00
+ATOM      4  C   UNK d   0       2.401   1.406  -0.013  0.00  0.00
+ATOM      5  C   UNK d   0       2.415   0.024  -0.021  0.00  0.00
+ATOM      6  C   UNK d   0       1.216  -0.685  -0.014  0.00  0.00
+ATOM      7  H   UNK d   0      -0.959   1.906   0.017  0.00  0.00
+ATOM      8  H   UNK d   0       3.331   1.956  -0.019  0.00  0.00
+ENDROOT
+BRANCH   3   9
+ATOM      9  C   UNK d   0       1.167   3.568   0.010  0.00  0.00
+ATOM     10  O   UNK d   0       0.107   4.163   0.022  0.00  0.00
+ATOM     11  N   PHE d   1       2.326   4.255   0.002  0.00  0.00
+ATOM     12  CA  PHE d   1       2.309   5.720   0.010  0.00  0.00
+ATOM     13  H   PHE d   1       3.172   3.780  -0.008  0.00  0.00
+ATOM     14  HA  PHE d   1       1.469   6.071   0.609  0.00  0.00
+ATOM     15  C   PHE d   1       2.167   6.228  -1.402  0.00  0.00
+ATOM     16  O   PHE d   1       2.087   5.447  -2.320  0.00  0.00
+ATOM     17  OXT PHE d   1       2.128   7.549  -1.639  0.00  0.00
+BRANCH  12  18
+ATOM     18  CB  PHE d   1       3.616   6.242   0.610  0.00  0.00
+ATOM     19  HB1 PHE d   1       4.461   5.820   0.065  0.00  0.00
+ATOM     20  HB2 PHE d   1       3.642   7.329   0.534  0.00  0.00
+BRANCH  18  21
+ATOM     21  CG  PHE d   1       3.701   5.837   2.059  0.00  0.00
+ATOM     22  CD1 PHE d   1       4.290   4.636   2.408  0.00  0.00
+ATOM     23  CE1 PHE d   1       4.368   4.265   3.737  0.00  0.00
+ATOM     24  HD1 PHE d   1       4.690   3.988   1.641  0.00  0.00
+ATOM     25  CZ  PHE d   1       3.857   5.094   4.717  0.00  0.00
+ATOM     26  HE1 PHE d   1       4.829   3.327   4.009  0.00  0.00
+ATOM     27  CE2 PHE d   1       3.268   6.295   4.369  0.00  0.00
+ATOM     28  HZ  PHE d   1       3.918   4.804   5.756  0.00  0.00
+ATOM     29  CD2 PHE d   1       3.194   6.669   3.040  0.00  0.00
+ATOM     30  HE2 PHE d   1       2.869   6.943   5.135  0.00  0.00
+ATOM     31  HD2 PHE d   1       2.738   7.609   2.768  0.00  0.00
+ENDBRANCH  18  21
+ENDBRANCH  12  18
+ENDBRANCH   3   9
+BRANCH   1  32
+ATOM     32  O   UNK d   0      -1.167  -0.700   0.009  0.00  0.00
+BRANCH  32  33
+ATOM     33  C   UNK d   0      -2.375   0.063   0.025  0.00  0.00
+ATOM     34  H   UNK d   0      -3.231  -0.612   0.030  0.00  0.00
+ATOM     35  H   UNK d   0      -2.400   0.687   0.919  0.00  0.00
+ATOM     36  H   UNK d   0      -2.417   0.696  -0.861  0.00  0.00
+ENDBRANCH  32  33
+ENDBRANCH   1  32
+BRANCH   5  37
+ATOM     37  O   UNK d   0       3.599  -0.644  -0.036  0.00  0.00
+BRANCH  37  38
+ATOM     38  C   UNK d   0       4.790   0.146  -0.043  0.00  0.00
+ATOM     39  H   UNK d   0       5.661  -0.509  -0.055  0.00  0.00
+ATOM     40  H   UNK d   0       4.800   0.780  -0.930  0.00  0.00
+ATOM     41  H   UNK d   0       4.817   0.771   0.850  0.00  0.00
+ENDBRANCH  37  38
+ENDBRANCH   5  37
+BRANCH   6  42
+ATOM     42  O   UNK d   0       1.232  -2.044  -0.021  0.00  0.00
+BRANCH  42  43
+ATOM     43  C   UNK d   0       1.227  -2.686  -1.298  0.00  0.00
+ATOM     44  H   UNK d   0       0.328  -2.400  -1.844  0.00  0.00
+ATOM     45  H   UNK d   0       2.108  -2.379  -1.862  0.00  0.00
+ATOM     46  H   UNK d   0       1.241  -3.767  -1.161  0.00  0.00
+ENDBRANCH  42  43
+ENDBRANCH   6  42
+TORSDOF 11

@@ -1,0 +1,43 @@
+REMARK  3 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_7  and  N_11 
+REMARK       I    between atoms: N_11  and  CA_12 
+REMARK    2  A    between atoms: CA_12  and  CB_14 
+REMARK       I    between atoms: CA_12  and  C_16 
+REMARK    3  A    between atoms: CB_14  and  OG_15 
+ROOT
+ATOM      1  C   UNK d   0      -0.013   1.076   0.008  0.00  0.00
+ATOM      2  C   UNK d   0      -1.233   1.746   0.017  0.00  0.00
+ATOM      3  C   UNK d   0      -1.286   3.108   0.030  0.00  0.00
+ATOM      4  C   UNK d   0      -0.096   3.847   0.023  0.00  0.00
+ATOM      5  C   UNK d   0       1.145   3.164   0.008  0.00  0.00
+ATOM      6  C   UNK d   0       1.165   1.764   0.000  0.00  0.00
+ATOM      7  C   UNK d   0       2.333   3.934   0.001  0.00  0.00
+ATOM      8  N   UNK d   0       2.222   5.256   0.009  0.00  0.00
+ATOM      9  C   UNK d   0       1.040   5.851   0.023  0.00  0.00
+ATOM     10  N   UNK d   0      -0.092   5.188   0.030  0.00  0.00
+ATOM     11  H   UNK d   0       0.002  -0.004   0.002  0.00  0.00
+ATOM     12  H   UNK d   0      -2.151   1.178   0.019  0.00  0.00
+ATOM     13  H   UNK d   0      -2.240   3.614   0.042  0.00  0.00
+ATOM     14  H   UNK d   0       2.105   1.234  -0.011  0.00  0.00
+ATOM     15  H   UNK d   0       1.006   6.930   0.030  0.00  0.00
+ENDROOT
+BRANCH   7  16
+ATOM     16  N   SER d   1       3.570   3.327  -0.014  0.00  0.00
+ATOM     17  CA  SER d   1       4.787   4.143  -0.021  0.00  0.00
+ATOM     18  HA  SER d   1       4.614   5.048  -0.604  0.00  0.00
+ATOM     19  C   SER d   1       5.148   4.518   1.393  0.00  0.00
+ATOM     20  O   SER d   1       4.460   4.142   2.313  0.00  0.00
+ATOM     21  OXT SER d   1       6.234   5.270   1.632  0.00  0.00
+ATOM     22  H   SER d   1       3.636   2.359  -0.020  0.00  0.00
+BRANCH  17  23
+ATOM     23  CB  SER d   1       5.933   3.345  -0.646  0.00  0.00
+ATOM     24  HB1 SER d   1       5.637   2.999  -1.636  0.00  0.00
+ATOM     25  HB2 SER d   1       6.814   3.982  -0.732  0.00  0.00
+BRANCH  23  26
+ATOM     26  OG  SER d   1       6.237   2.221   0.181  0.00  0.00
+ATOM     27  H   SER d   1       6.956   1.668  -0.154  0.00  0.00
+ENDBRANCH  23  26
+ENDBRANCH  17  23
+ENDBRANCH   7  16
+TORSDOF 5

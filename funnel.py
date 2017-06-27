@@ -105,7 +105,10 @@ if __name__ == "__main__":
 
 	print("Loaded total of {} samples, {} features each.".format(len(features),len(features[0])))
 
-	# RIGID DOCKING
+
+
+	# RIGID DOCKING  --  TARGET DATA COMPILATION
+	#   Uses Autodock Vina to simulate rigid docking for generation of sample target data
 	rigidDocking()
 	try:
 		print(" Attempting to load rigid energy data from a binary...")
@@ -116,13 +119,16 @@ if __name__ == "__main__":
 	print("Rigid energies data loaded ({} samples)...".format(len(rigid_energies)))
 
 
+
 	# MACHINE LEARNING MODEL TRAINING ON RIGID DOCKING RESULTS
+	#   Results of rigid docking are used with generated feature data to train a Support Vector Machine and a Neural Network which
+	#   can try to predict rigid docking energies for future ligand samples. The parameters used in the models are user-specified.
+	#   
+	#   The r2 value is computed using new test data to measure predictive performance
 	svm_model, r2_svm, nn_model, r2_nn = train_and_test_svm_and_nn(feature_binary_dir,rigid_energies_dir)
 
 
-	# FLEXIBLE DOCKING
-	if (perform_flexible_docking):
-		flexibleDocking()
-	else:
-		print("Skipping flexible docking...")
+
+	# FLEXIBLE DOCKING  --  TARGET DATA COMPILATION
+	flexibleDocking()
 	

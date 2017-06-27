@@ -1,0 +1,81 @@
+REMARK  10 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  C_2 
+REMARK    2  A    between atoms: C_2  and  C_4 
+REMARK    3  A    between atoms: C_2  and  N_15 
+REMARK    4  A    between atoms: C_4  and  C_5 
+REMARK    5  A    between atoms: C_9  and  C_11 
+REMARK    6  A    between atoms: N_15  and  C_16 
+REMARK    7  A    between atoms: C_16  and  C_17 
+REMARK    8  A    between atoms: C_17  and  O_18 
+REMARK    9  A    between atoms: O_18  and  C_19 
+REMARK   10  A    between atoms: C_19  and  C_21 
+ROOT
+ATOM      1  C   LIG d   1       0.002  -0.004   0.002  0.00  0.00
+ATOM      2  H   LIG d   1      -1.020  -0.381   0.010  0.00  0.00
+ENDROOT
+BRANCH   1   3
+ATOM      3  C   LIG d   1      -0.019   1.526   0.010  0.00  0.00
+ATOM      4  H   LIG d   1       1.004   1.903   0.003  0.00  0.00
+ATOM      5  H   LIG d   1      -0.546   1.887  -0.873  0.00  0.00
+ATOM      6  H   LIG d   1      -0.529   1.877   0.907  0.00  0.00
+ENDBRANCH   1   3
+BRANCH   1   7
+ATOM      7  C   LIG d   1       0.718  -0.497  -1.257  0.00  0.00
+ATOM      8  H   LIG d   1       0.244  -0.064  -2.138  0.00  0.00
+ATOM      9  H   LIG d   1       1.765  -0.195  -1.222  0.00  0.00
+BRANCH   7  10
+ATOM     10  C   LIG d   1       0.632  -2.000  -1.327  0.00  0.00
+ATOM     11  C   LIG d   1      -0.430  -2.602  -1.976  0.00  0.00
+ATOM     12  C   LIG d   1      -0.508  -3.980  -2.045  0.00  0.00
+ATOM     13  H   LIG d   1      -1.198  -1.994  -2.432  0.00  0.00
+ATOM     14  C   LIG d   1       0.473  -4.757  -1.457  0.00  0.00
+ATOM     15  C   LIG d   1       1.532  -4.156  -0.804  0.00  0.00
+ATOM     16  H   LIG d   1       0.411  -5.834  -1.508  0.00  0.00
+ATOM     17  C   LIG d   1       1.612  -2.778  -0.739  0.00  0.00
+ATOM     18  H   LIG d   1       2.298  -4.763  -0.344  0.00  0.00
+ATOM     19  H   LIG d   1       2.440  -2.308  -0.229  0.00  0.00
+BRANCH  12  20
+ATOM     20  C   LIG d   1      -1.663  -4.636  -2.757  0.00  0.00
+ATOM     21  F   LIG d   1      -1.523  -6.026  -2.690  0.00  0.00
+ATOM     22  F   LIG d   1      -2.863  -4.257  -2.146  0.00  0.00
+ATOM     23  F   LIG d   1      -1.674  -4.232  -4.097  0.00  0.00
+ENDBRANCH  12  20
+ENDBRANCH   7  10
+ENDBRANCH   1   7
+BRANCH   1  24
+ATOM     24  N   LIG d   1       0.713  -0.491   1.192  0.00  0.00
+ATOM     25  H   LIG d   1       0.798  -1.495   1.145  0.00  0.00
+ATOM     26  H   LIG d   1       1.632  -0.076   1.228  0.00  0.00
+BRANCH  24  27
+ATOM     27  C   LIG d   1      -0.040  -0.119   2.398  0.00  0.00
+ATOM     28  H   LIG d   1      -0.132   0.966   2.448  0.00  0.00
+ATOM     29  H   LIG d   1      -1.033  -0.567   2.359  0.00  0.00
+BRANCH  27  30
+ATOM     30  C   LIG d   1       0.700  -0.626   3.637  0.00  0.00
+ATOM     31  H   LIG d   1       0.099  -0.428   4.525  0.00  0.00
+ATOM     32  H   LIG d   1       0.871  -1.698   3.545  0.00  0.00
+BRANCH  30  33
+ATOM     33  O   LIG d   1       1.955   0.049   3.752  0.00  0.00
+BRANCH  33  34
+ATOM     34  C   LIG d   1       2.735  -0.285   4.798  0.00  0.00
+ATOM     35  O   LIG d   1       2.361  -1.125   5.592  0.00  0.00
+BRANCH  34  36
+ATOM     36  C   LIG d   1       4.046   0.371   4.981  0.00  0.00
+ATOM     37  C   LIG d   1       4.857   0.028   6.064  0.00  0.00
+ATOM     38  C   LIG d   1       6.083   0.640   6.225  0.00  0.00
+ATOM     39  H   LIG d   1       4.528  -0.719   6.772  0.00  0.00
+ATOM     40  C   LIG d   1       6.504   1.601   5.323  0.00  0.00
+ATOM     41  H   LIG d   1       6.714   0.371   7.060  0.00  0.00
+ATOM     42  C   LIG d   1       5.702   1.950   4.250  0.00  0.00
+ATOM     43  H   LIG d   1       7.462   2.080   5.456  0.00  0.00
+ATOM     44  C   LIG d   1       4.477   1.341   4.074  0.00  0.00
+ATOM     45  H   LIG d   1       6.037   2.700   3.549  0.00  0.00
+ATOM     46  H   LIG d   1       3.853   1.614   3.236  0.00  0.00
+ENDBRANCH  34  36
+ENDBRANCH  33  34
+ENDBRANCH  30  33
+ENDBRANCH  27  30
+ENDBRANCH  24  27
+ENDBRANCH   1  24
+TORSDOF 10

@@ -1,0 +1,76 @@
+REMARK  7 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_4  and  C_7 
+REMARK    2  A    between atoms: C_7  and  N_8 
+REMARK       I    between atoms: N_8  and  C_9 
+REMARK    3  A    between atoms: C_9  and  C_11 
+REMARK    4  A    between atoms: C_11  and  C_12 
+REMARK    5  A    between atoms: C_17  and  C_19 
+REMARK    6  A    between atoms: C_19  and  C_20 
+REMARK    7  A    between atoms: C_22  and  C_25 
+ROOT
+ATOM      1  C   LIG d   1       4.687   1.789  -1.290  0.00  0.00
+ATOM      2  H   LIG d   1       4.706   0.715  -1.476  0.00  0.00
+ATOM      3  C   LIG d   1       5.386   2.519  -2.440  0.00  0.00
+ATOM      4  C   LIG d   1       5.303   4.029  -2.204  0.00  0.00
+ATOM      5  C   LIG d   1       3.215   3.784  -0.999  0.00  0.00
+ATOM      6  C   LIG d   1       3.235   2.267  -1.199  0.00  0.00
+ATOM      7  H   LIG d   1       2.710   2.014  -2.120  0.00  0.00
+ATOM      8  H   LIG d   1       6.431   2.214  -2.483  0.00  0.00
+ATOM      9  H   LIG d   1       4.894   2.271  -3.381  0.00  0.00
+ATOM     10  H   LIG d   1       5.806   4.279  -1.270  0.00  0.00
+ATOM     11  H   LIG d   1       5.787   4.553  -3.029  0.00  0.00
+ATOM     12  H   LIG d   1       2.182   4.130  -0.948  0.00  0.00
+ATOM     13  H   LIG d   1       3.728   4.035  -0.070  0.00  0.00
+ATOM     14  N   LIG d   1       3.889   4.445  -2.133  0.00  0.00
+ATOM     15  H   LIG d   1       3.415   4.184  -3.006  0.00  0.00
+ATOM     16  H   LIG d   1       3.842   5.463  -2.008  0.00  0.00
+ENDROOT
+BRANCH   1  17
+ATOM     17  C   LIG d   1       5.410   2.094   0.024  0.00  0.00
+ATOM     18  H   LIG d   1       5.470   3.174   0.162  0.00  0.00
+ATOM     19  H   LIG d   1       4.858   1.652   0.853  0.00  0.00
+BRANCH  17  20
+ATOM     20  C   LIG d   1       6.800   1.514  -0.021  0.00  0.00
+ATOM     21  N   LIG d   1       7.625   1.661   1.034  0.00  0.00
+ATOM     22  H   LIG d   1       7.325   2.140   1.822  0.00  0.00
+ATOM     23  O   LIG d   1       7.176   0.916  -1.007  0.00  0.00
+BRANCH  21  24
+ATOM     24  C   LIG d   1       8.977   1.098   0.990  0.00  0.00
+ATOM     25  H   LIG d   1       8.916   0.018   0.852  0.00  0.00
+ATOM     26  H   LIG d   1       9.529   1.540   0.161  0.00  0.00
+BRANCH  24  27
+ATOM     27  C   LIG d   1       9.689   1.399   2.284  0.00  0.00
+ATOM     28  C   LIG d   1       9.603   0.513   3.342  0.00  0.00
+ATOM     29  C   LIG d   1      10.256   0.789   4.529  0.00  0.00
+ATOM     30  H   LIG d   1       9.026  -0.394   3.241  0.00  0.00
+ATOM     31  C   LIG d   1      10.995   1.950   4.657  0.00  0.00
+ATOM     32  H   LIG d   1      10.189   0.097   5.356  0.00  0.00
+ATOM     33  C   LIG d   1      11.081   2.836   3.599  0.00  0.00
+ATOM     34  H   LIG d   1      11.505   2.166   5.585  0.00  0.00
+ATOM     35  C   LIG d   1      10.432   2.558   2.411  0.00  0.00
+ATOM     36  H   LIG d   1      11.658   3.743   3.700  0.00  0.00
+ATOM     37  H   LIG d   1      10.502   3.247   1.583  0.00  0.00
+ENDBRANCH  24  27
+ENDBRANCH  21  24
+ENDBRANCH  17  20
+ENDBRANCH   1  17
+BRANCH   6  38
+ATOM     38  C   LIG d   1       2.547   1.586  -0.014  0.00  0.00
+ATOM     39  H   LIG d   1       3.016   1.911   0.914  0.00  0.00
+ATOM     40  H   LIG d   1       2.642   0.505  -0.111  0.00  0.00
+BRANCH  38  41
+ATOM     41  C   LIG d   1       1.087   1.962   0.002  0.00  0.00
+ATOM     42  N   LIG d   1       0.595   3.166   0.013  0.00  0.00
+ATOM     43  O   LIG d   1      -0.614   3.161   0.025  0.00  0.00
+ATOM     44  C   LIG d   1      -1.101   1.905   0.017  0.00  0.00
+ATOM     45  C   LIG d   1      -0.013   1.076   0.008  0.00  0.00
+ATOM     46  H   LIG d   1       0.002  -0.004   0.002  0.00  0.00
+BRANCH  44  47
+ATOM     47  C   LIG d   1      -2.520   1.505   0.020  0.00  0.00
+ATOM     48  O   LIG d   1      -2.819   0.328   0.015  0.00  0.00
+ATOM     49  O   LIG d   1      -3.485   2.446   0.029  0.00  0.00
+ENDBRANCH  44  47
+ENDBRANCH  38  41
+ENDBRANCH   6  38
+TORSDOF 7

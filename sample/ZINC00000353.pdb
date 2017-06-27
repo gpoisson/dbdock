@@ -1,0 +1,57 @@
+REMARK  8 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_8  and  O_9 
+REMARK    4  A    between atoms: O_9  and  C_10 
+REMARK    5  A    between atoms: C_10  and  C_11 
+REMARK    6  A    between atoms: C_11  and  C_13 
+REMARK    7  A    between atoms: C_11  and  O_15 
+REMARK    8  A    between atoms: C_13  and  O_14 
+ROOT
+ATOM      1  C   LIG d   1       0.606  -0.608  -1.056  0.00  0.00
+ATOM      2  C   LIG d   1       1.173   0.159  -2.062  0.00  0.00
+ATOM      3  C   LIG d   1       1.787  -0.456  -3.137  0.00  0.00
+ATOM      4  C   LIG d   1       1.837  -1.836  -3.212  0.00  0.00
+ATOM      5  C   LIG d   1       1.273  -2.606  -2.212  0.00  0.00
+ATOM      6  C   LIG d   1       0.662  -1.996  -1.129  0.00  0.00
+ATOM      7  H   LIG d   1       1.134   1.237  -2.006  0.00  0.00
+ATOM      8  H   LIG d   1       2.228   0.142  -3.920  0.00  0.00
+ATOM      9  H   LIG d   1       2.317  -2.312  -4.054  0.00  0.00
+ATOM     10  H   LIG d   1       1.314  -3.684  -2.273  0.00  0.00
+ENDROOT
+BRANCH   6  11
+ATOM     11  O   LIG d   1       0.112  -2.753  -0.142  0.00  0.00
+BRANCH  11  12
+ATOM     12  C   LIG d   1       0.206  -4.171  -0.283  0.00  0.00
+ATOM     13  H   LIG d   1      -0.294  -4.479  -1.201  0.00  0.00
+ATOM     14  H   LIG d   1       1.256  -4.463  -0.325  0.00  0.00
+BRANCH  12  15
+ATOM     15  C   LIG d   1      -0.463  -4.849   0.915  0.00  0.00
+ATOM     16  H   LIG d   1      -1.487  -4.489   1.010  0.00  0.00
+BRANCH  15  17
+ATOM     17  C   LIG d   1      -0.472  -6.364   0.704  0.00  0.00
+ATOM     18  H   LIG d   1      -0.949  -6.596  -0.248  0.00  0.00
+ATOM     19  H   LIG d   1       0.552  -6.737   0.698  0.00  0.00
+BRANCH  17  20
+ATOM     20  O   LIG d   1      -1.200  -6.988   1.764  0.00  0.00
+ATOM     21  H   LIG d   1      -1.247  -7.951   1.696  0.00  0.00
+ENDBRANCH  17  20
+ENDBRANCH  15  17
+BRANCH  15  22
+ATOM     22  O   LIG d   1       0.264  -4.538   2.105  0.00  0.00
+ATOM     23  H   LIG d   1       1.185  -4.830   2.091  0.00  0.00
+ENDBRANCH  15  22
+ENDBRANCH  12  15
+ENDBRANCH  11  12
+ENDBRANCH   6  11
+BRANCH   1  24
+ATOM     24  O   LIG d   1       0.002  -0.004   0.002  0.00  0.00
+BRANCH  24  25
+ATOM     25  C   LIG d   1      -0.017   1.425   0.010  0.00  0.00
+ATOM     26  H   LIG d   1       1.005   1.802   0.002  0.00  0.00
+ATOM     27  H   LIG d   1      -0.544   1.786  -0.873  0.00  0.00
+ATOM     28  H   LIG d   1      -0.527   1.776   0.907  0.00  0.00
+ENDBRANCH  24  25
+ENDBRANCH   1  24
+TORSDOF 8

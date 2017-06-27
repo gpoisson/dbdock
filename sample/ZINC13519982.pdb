@@ -1,0 +1,42 @@
+REMARK  3 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: CB_1  and  CA_2 
+REMARK       I    between atoms: CA_2  and  C_4 
+REMARK       I    between atoms: CA_2  and  N_6 
+REMARK       I    between atoms: N_6  and  C_7 
+REMARK    2  A    between atoms: C_7  and  C_9 
+REMARK    3  A    between atoms: C_14  and  O_15 
+ROOT
+ATOM      1  CA  ALA d   1       0.002  -0.004   0.002  0.00  0.00
+ATOM      2  HA  ALA d   1       0.529  -0.365   0.885  0.00  0.00
+ATOM      3  C   ALA d   1       0.707  -0.490  -1.238  0.00  0.00
+ATOM      4  O   ALA d   1       0.122  -1.188  -2.031  0.00  0.00
+ATOM      5  N   ALA d   1      -1.372  -0.511   0.012  0.00  0.00
+ATOM      6  H   ALA d   1      -1.810  -0.743  -0.822  0.00  0.00
+ATOM      7  OXT ALA d   1       1.986  -0.147  -1.461  0.00  0.00
+ATOM      8  C   UNK d   0      -2.029  -0.655   1.181  0.00  0.00
+ATOM      9  O   UNK d   0      -1.480  -0.364   2.226  0.00  0.00
+ENDROOT
+BRANCH   8  10
+ATOM     10  C   UNK d   0      -3.413  -1.166   1.191  0.00  0.00
+ATOM     11  C   UNK d   0      -4.099  -1.317   2.404  0.00  0.00
+ATOM     12  C   UNK d   0      -5.400  -1.798   2.402  0.00  0.00
+ATOM     13  C   UNK d   0      -6.015  -2.126   1.210  0.00  0.00
+ATOM     14  H   UNK d   0      -5.933  -1.916   3.334  0.00  0.00
+ATOM     15  C   UNK d   0      -5.340  -1.977   0.009  0.00  0.00
+ATOM     16  H   UNK d   0      -7.028  -2.500   1.214  0.00  0.00
+ATOM     17  C   UNK d   0      -4.049  -1.496  -0.008  0.00  0.00
+ATOM     18  H   UNK d   0      -5.829  -2.236  -0.918  0.00  0.00
+ATOM     19  H   UNK d   0      -3.528  -1.377  -0.947  0.00  0.00
+BRANCH  11  20
+ATOM     20  O   UNK d   0      -3.494  -0.994   3.574  0.00  0.00
+ATOM     21  H   UNK d   0      -3.624  -0.075   3.844  0.00  0.00
+ENDBRANCH  11  20
+ENDBRANCH   8  10
+BRANCH   1  22
+ATOM     22  CB  ALA d   1      -0.019   1.526   0.010  0.00  0.00
+ATOM     23  HB1 ALA d   1       1.004   1.903   0.003  0.00  0.00
+ATOM     24  HB2 ALA d   1      -0.546   1.887  -0.873  0.00  0.00
+ATOM     25  HB3 ALA d   1      -0.529   1.877   0.907  0.00  0.00
+ENDBRANCH   1  22
+TORSDOF 5

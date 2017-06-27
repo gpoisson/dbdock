@@ -1,0 +1,55 @@
+REMARK  4 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: CE_1  and  SD_2 
+REMARK    2  A    between atoms: SD_2  and  CG_3 
+REMARK    3  A    between atoms: CG_3  and  CB_4 
+REMARK    4  A    between atoms: CB_4  and  CA_5 
+REMARK       I    between atoms: CA_5  and  C_7 
+REMARK       I    between atoms: CA_5  and  N_9 
+REMARK       I    between atoms: N_9  and  C_10 
+REMARK       I    between atoms: C_10  and  CA_12 
+ROOT
+ATOM      1  CA  PRO d   1      -1.413  -2.063   0.004  0.00  0.00
+ATOM      2  HA  PRO d   1      -0.810  -2.423   0.839  0.00  0.00
+ATOM      3  C   PRO d   1      -2.820  -2.586   0.139  0.00  0.00
+ATOM      4  O   PRO d   1      -3.291  -3.282  -0.729  0.00  0.00
+ATOM      5  N   PRO d   1      -0.834  -2.537  -1.256  0.00  0.00
+ATOM      6  C   PRO d   1      -0.252  -3.751  -1.315  0.00  0.00
+ATOM      7  O   PRO d   1      -0.206  -4.451  -0.326  0.00  0.00
+ATOM      8  CA  PRO d   1       0.343  -4.238  -2.611  0.00  0.00
+ATOM      9  HA  PRO d   1       0.861  -3.420  -3.112  0.00  0.00
+ATOM     10  CB  PRO d   1      -0.770  -4.795  -3.523  0.00  0.00
+ATOM     11  CG  PRO d   1      -0.096  -6.025  -4.187  0.00  0.00
+ATOM     12  CD  PRO d   1       0.792  -6.555  -3.033  0.00  0.00
+ATOM     13  H   PRO d   1      -0.871  -1.977  -2.047  0.00  0.00
+ATOM     14  HB1 PRO d   1      -1.634  -5.101  -2.934  0.00  0.00
+ATOM     15  HB2 PRO d   1      -1.056  -4.060  -4.276  0.00  0.00
+ATOM     16  HG1 PRO d   1       0.512  -5.724  -5.040  0.00  0.00
+ATOM     17  HG2 PRO d   1      -0.838  -6.767  -4.481  0.00  0.00
+ATOM     18  HD1 PRO d   1       1.627  -7.132  -3.431  0.00  0.00
+ATOM     19  HD2 PRO d   1       0.203  -7.165  -2.348  0.00  0.00
+ATOM     20  OXT PRO d   1      -3.549  -2.277   1.222  0.00  0.00
+ATOM     21  N   PRO d   1       1.280  -5.342  -2.351  0.00  0.00
+ATOM     22  H1  PRO d   1       1.336  -5.514  -1.341  0.00  0.00
+ATOM     23  H2  PRO d   1       2.210  -5.096  -2.709  0.00  0.00
+ENDROOT
+BRANCH   1  24
+ATOM     24  CB  PRO d   1      -1.433  -0.534   0.013  0.00  0.00
+ATOM     25  HB1 PRO d   1      -1.944  -0.182   0.910  0.00  0.00
+ATOM     26  HB2 PRO d   1      -1.960  -0.173  -0.870  0.00  0.00
+BRANCH  24  27
+ATOM     27  CG  PRO d   1       0.002  -0.004   0.002  0.00  0.00
+ATOM     28  HG1 PRO d   1       0.512  -0.356  -0.895  0.00  0.00
+ATOM     29  HG2 PRO d   1       0.529  -0.365   0.885  0.00  0.00
+BRANCH  27  30
+ATOM     30  SD  PRO d   1      -0.022   1.810   0.012  0.00  0.00
+BRANCH  30  31
+ATOM     31  CE  PRO d   1       1.731   2.272  -0.002  0.00  0.00
+ATOM     32  HE1 PRO d   1       2.222   1.864   0.881  0.00  0.00
+ATOM     33  HE2 PRO d   1       2.205   1.873  -0.899  0.00  0.00
+ATOM     34  HE3 PRO d   1       1.821   3.359   0.003  0.00  0.00
+ENDBRANCH  30  31
+ENDBRANCH  27  30
+ENDBRANCH  24  27
+ENDBRANCH   1  24
+TORSDOF 7

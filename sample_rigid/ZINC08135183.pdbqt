@@ -1,0 +1,850 @@
+MODEL 1
+REMARK VINA RESULT:      -7.1      0.000      0.000
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       4.757   0.158  -6.191  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       5.625  -0.866  -6.312  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       5.215  -1.987  -6.524  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       5.086   1.055  -6.022  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       3.317  -0.083  -6.317  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       3.131  -1.156  -6.358  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       2.808   0.563  -7.578  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       2.258  -0.105  -8.422  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       2.965   1.884  -7.766  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       3.604   2.303  -8.999  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       4.487   1.690  -9.179  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       2.906   2.186  -9.829  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       3.899   3.350  -8.919  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       2.593   0.514  -5.108  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       2.626   1.602  -5.166  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       1.555   0.182  -5.106  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       3.270   0.059  -3.842  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       3.872   0.984  -3.007  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       4.492   0.565  -1.846  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       3.856   2.032  -3.264  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       4.512  -0.778  -1.518  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       4.961   1.287  -1.194  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       3.911  -1.702  -2.351  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       4.997  -1.104  -0.609  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.286  -1.283  -3.511  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       3.926  -2.751  -2.094  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       2.812  -2.005  -4.159  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       7.106  -0.617  -6.184  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       7.483  -0.182  -7.109  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       7.617  -1.560  -5.992  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       7.363   0.347  -5.024  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       7.961  -0.153  -4.262  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       6.412   0.659  -4.593  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       8.106   1.556  -5.531  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       8.258   1.734  -6.812  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       8.913   2.808  -7.291  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       9.460   3.764  -6.414  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       9.062   2.981  -8.676  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       9.321   3.606  -5.050  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1      10.138   4.864  -6.930  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       8.659   2.527  -4.580  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       9.707   4.279  -4.419  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       8.521   2.362  -3.381  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1      10.270   5.010  -8.294  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1      10.561   5.601  -6.263  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       9.731   4.068  -9.159  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1      10.796   5.865  -8.692  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       9.843   4.195 -10.226  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       8.647   2.255  -9.359  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 2
+REMARK VINA RESULT:      -7.0      4.016      6.394
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       3.827  -1.680  -6.056  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       3.970  -0.468  -6.626  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       5.060   0.061  -6.663  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       2.955  -2.103  -6.027  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       4.991  -2.360  -5.480  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       5.887  -1.767  -5.667  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       5.145  -3.717  -6.114  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       6.166  -4.000  -6.696  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       4.148  -4.612  -6.034  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       3.740  -5.258  -7.269  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       3.793  -6.340  -7.148  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       2.716  -4.969  -7.510  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       4.403  -4.950  -8.077  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       4.792  -2.521  -3.971  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       3.886  -3.099  -3.784  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       5.649  -3.042  -3.545  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       4.659  -1.163  -3.334  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       5.766  -0.340  -3.220  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       5.642   0.906  -2.636  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       6.724  -0.672  -3.588  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       4.415   1.331  -2.165  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       6.507   1.549  -2.548  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       3.309   0.510  -2.279  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       4.319   2.306  -1.709  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.430  -0.735  -2.868  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       2.349   0.842  -1.911  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       2.565  -1.374  -2.961  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       2.773   0.231  -7.219  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       2.195   0.700  -6.423  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       2.150  -0.495  -7.741  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       3.244   1.301  -8.206  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       4.211   1.691  -7.885  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       2.518   2.113  -8.236  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       3.378   0.695  -9.579  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       2.433  -0.069 -10.046  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       2.526  -0.619 -11.271  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       3.657  -0.387 -12.076  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       1.493  -1.437 -11.756  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       4.681   0.415 -11.613  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1       3.736  -0.969 -13.338  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       4.575   0.965 -10.384  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       5.488   0.585 -12.178  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       5.463   1.676  -9.949  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1       2.707  -1.768 -13.790  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1       4.601  -0.797 -13.961  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       1.592  -1.997 -12.996  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1       2.770  -2.218 -14.769  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       0.794  -2.626 -13.362  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       0.621  -1.623 -11.147  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 3
+REMARK VINA RESULT:      -7.0      1.500      2.297
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       4.798   0.246  -6.263  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       5.706  -0.739  -6.414  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       5.338  -1.879  -6.600  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       5.093   1.158  -6.114  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       3.366  -0.062  -6.325  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       3.227  -1.142  -6.330  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       2.781   0.526  -7.582  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       2.215  -0.188  -8.377  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       2.888   1.843  -7.821  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       3.589   2.239  -9.029  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       4.193   3.124  -8.825  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       4.237   1.426  -9.358  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       2.866   2.466  -9.811  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       2.663   0.539  -5.106  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       2.743   1.625  -5.139  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       1.612   0.251  -5.114  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       3.315   0.026  -3.848  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       3.902   0.911  -2.962  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       4.499   0.440  -1.808  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       3.894   1.970  -3.172  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       4.510  -0.916  -1.539  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       4.957   1.131  -1.116  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       3.923  -1.801  -2.424  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       4.976  -1.284  -0.636  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.321  -1.329  -3.576  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       3.930  -2.861  -2.214  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       2.858  -2.021  -4.264  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       7.178  -0.423  -6.351  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       7.752  -1.337  -6.498  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       7.416   0.002  -5.376  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       7.531   0.584  -7.447  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       6.617   0.944  -7.919  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       8.159   0.101  -8.196  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       8.275   1.746  -6.842  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       8.379   1.848  -5.548  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       9.041   2.873  -4.982  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       9.633   3.871  -5.780  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       9.144   2.960  -3.585  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       9.540   3.799  -7.156  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1      10.309   4.926  -5.175  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       8.876   2.763  -7.713  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       9.957   4.503  -7.731  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       8.778   2.674  -8.923  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1      10.396   4.987  -3.801  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1      10.765   5.696  -5.781  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       9.812   4.003  -3.014  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1      10.921   5.806  -3.334  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       9.887   4.065  -1.938  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       8.694   2.201  -2.962  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 4
+REMARK VINA RESULT:      -6.9      2.512      5.118
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       3.373   0.981  -5.148  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       3.068   0.392  -3.975  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       2.608  -0.730  -3.961  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       3.741   1.878  -5.158  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       3.148   0.266  -6.407  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       2.330  -0.442  -6.281  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       4.401  -0.476  -6.792  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       4.366  -1.672  -6.966  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       5.557   0.190  -6.942  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       6.474  -0.300  -7.955  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       6.088  -1.228  -8.377  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       6.574   0.445  -8.746  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       7.449  -0.483  -7.505  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       2.792   1.269  -7.506  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       1.840   1.746  -7.268  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       3.571   2.028  -7.573  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       2.676   0.550  -8.824  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       1.748  -0.463  -8.981  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       1.642  -1.122 -10.191  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       1.106  -0.739  -8.158  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       2.464  -0.769 -11.245  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       0.917  -1.913 -10.314  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       3.392   0.243 -11.089  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       2.380  -1.285 -12.191  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.494   0.906  -9.880  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       4.034   0.520 -11.913  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       4.215   1.701  -9.760  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       3.299   1.126  -2.679  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       2.387   1.106  -2.083  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       3.571   2.160  -2.892  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       4.431   0.450  -1.904  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       4.112  -0.545  -1.591  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       4.676   1.046  -1.024  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       5.646   0.334  -2.787  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       6.273   1.408  -3.172  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       7.364   1.332  -3.957  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       7.849   0.083  -4.390  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       8.027   2.502  -4.357  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       7.208  -1.077  -4.005  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1       8.975   0.026  -5.205  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       6.116  -0.989  -3.213  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       7.544  -1.969  -4.308  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       5.530  -1.996  -2.858  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1       9.607   1.191  -5.583  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1       9.353  -0.928  -5.542  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       9.129   2.423  -5.157  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1      10.481   1.145  -6.216  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       9.634   3.328  -5.462  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       7.664   3.466  -4.032  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 5
+REMARK VINA RESULT:      -6.8      5.021      9.581
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1      11.066   4.134  -1.684  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1      10.359   3.917  -2.810  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1      10.108   4.838  -3.557  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1      11.266   3.397  -1.087  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1      11.534   5.486  -1.362  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1      11.201   6.178  -2.135  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1      13.038   5.493  -1.296  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1      13.687   5.018  -2.198  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1      13.660   6.029  -0.233  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1      14.653   7.054  -0.497  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1      14.911   7.048  -1.556  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1      14.248   8.031  -0.228  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1      15.546   6.857   0.095  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1      10.961   5.915  -0.010  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1      10.082   5.311   0.220  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1      11.713   5.772   0.765  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1      10.569   7.368  -0.069  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       9.563   7.780  -0.925  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       9.205   9.114  -0.978  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       9.059   7.060  -1.551  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       9.850  10.036  -0.176  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       8.419   9.435  -1.646  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1      10.855   9.624   0.680  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       9.568  11.078  -0.217  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1      11.211   8.290   0.737  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1      11.359  10.345   1.307  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1      11.992   7.969   1.409  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       9.878   2.527  -3.141  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       9.573   2.020  -2.225  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1      10.684   1.967  -3.614  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       8.687   2.613  -4.097  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       9.048   2.647  -5.125  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       8.114   3.516  -3.884  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       7.806   1.404  -3.913  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       6.767   1.471  -3.132  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       5.962   0.407  -2.954  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       6.232  -0.812  -3.605  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       4.844   0.503  -2.111  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       7.328  -0.922  -4.437  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1       5.390  -1.902  -3.403  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       8.127   0.154  -4.611  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       7.528  -1.784  -4.902  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       9.100   0.086  -5.339  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1       4.299  -1.780  -2.570  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1       5.592  -2.841  -3.897  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       4.033  -0.578  -1.928  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1       3.647  -2.626  -2.415  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       3.175  -0.498  -1.277  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       4.627   1.433  -1.606  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 6
+REMARK VINA RESULT:      -6.8      6.544      9.894
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       6.002  -4.826  -5.296  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       5.224  -5.912  -5.476  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       4.016  -5.804  -5.451  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       6.967  -4.914  -5.316  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       5.388  -3.515  -5.070  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       4.366  -3.648  -4.718  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       5.379  -2.737  -6.360  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       6.362  -2.718  -7.062  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       4.277  -2.065  -6.730  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       4.387  -0.620  -6.825  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       5.190  -0.273  -6.176  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       4.605  -0.339  -7.856  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       3.447  -0.163  -6.516  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       6.195  -2.749  -4.019  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       6.525  -3.438  -3.241  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       7.064  -2.291  -4.490  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       5.331  -1.678  -3.406  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       5.872  -0.442  -3.101  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       5.078   0.539  -2.539  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       6.914  -0.245  -3.302  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       3.744   0.287  -2.281  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       5.500   1.505  -2.301  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       3.203  -0.948  -2.586  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       3.123   1.055  -1.842  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.995  -1.929  -3.153  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       2.159  -1.146  -2.385  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       3.571  -2.892  -3.395  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       5.854  -7.261  -5.708  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       6.697  -7.390  -5.029  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       6.204  -7.325  -6.737  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       4.819  -8.359  -5.451  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       4.748  -9.002  -6.328  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       3.848  -7.904  -5.254  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       5.242  -9.179  -4.260  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       6.479  -9.147  -3.856  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       6.881  -9.867  -2.792  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       5.970 -10.681  -2.093  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       8.219  -9.815  -2.372  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       4.651 -10.743  -2.495  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1       6.407 -11.422  -0.999  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       4.258 -10.014  -3.562  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       3.997 -11.320  -2.005  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       3.101 -10.049  -3.939  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1       7.727 -11.352  -0.607  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1       5.715 -12.050  -0.458  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       8.625 -10.548  -1.296  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1       8.064 -11.926   0.243  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       9.657 -10.504  -0.978  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       8.927  -9.193  -2.900  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 7
+REMARK VINA RESULT:      -6.7      2.435      2.957
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       4.744   0.244  -6.173  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       5.675  -0.706  -6.392  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       5.337  -1.820  -6.730  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       5.015   1.135  -5.903  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       3.323  -0.071  -6.344  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       3.197  -1.150  -6.425  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       2.809   0.590  -7.596  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       3.022   1.764  -7.791  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       2.115  -0.125  -8.496  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       2.744  -1.327  -9.011  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       1.985  -1.980  -9.440  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       3.469  -1.058  -9.781  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       3.254  -1.847  -8.200  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       2.538   0.445  -5.136  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       2.487   1.534  -5.174  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       1.529   0.033  -5.154  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       3.232   0.020  -3.868  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       3.304  -1.320  -3.533  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       3.941  -1.707  -2.370  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       2.862  -2.061  -4.181  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       4.507  -0.757  -1.541  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       3.998  -2.754  -2.109  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       4.435   0.582  -1.875  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       5.005  -1.062  -0.632  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.802   0.971  -3.041  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       4.878   1.325  -1.228  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       3.751   2.016  -3.304  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       7.136  -0.382  -6.218  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       7.336   0.617  -6.603  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       7.737  -1.109  -6.764  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       7.497  -0.437  -4.732  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       7.681  -1.472  -4.441  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       6.673  -0.035  -4.142  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       8.738   0.382  -4.485  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       8.637   1.571  -3.964  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       9.730   2.321  -3.730  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1      11.013   1.838  -4.052  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       9.599   3.598  -3.163  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1      11.158   0.584  -4.610  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1      12.129   2.632  -3.807  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1      10.054  -0.162  -4.837  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1      12.064   0.233  -4.843  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1      10.152  -1.272  -5.328  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1      11.972   3.883  -3.249  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1      13.116   2.269  -4.053  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1      10.707   4.359  -2.931  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1      12.839   4.497  -3.059  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1      10.599   5.341  -2.496  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       8.620   3.980  -2.912  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 8
+REMARK VINA RESULT:      -6.7      5.547      9.178
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       4.599  -4.171  -4.863  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       4.335  -4.317  -6.177  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       4.488  -3.382  -6.934  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       4.476  -4.919  -4.259  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       5.071  -2.882  -4.350  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       4.841  -2.098  -5.070  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       6.560  -2.944  -4.132  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       7.087  -2.201  -3.338  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       7.303  -3.826  -4.821  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       8.403  -3.293  -5.603  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       9.325  -3.808  -5.334  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       8.201  -3.440  -6.664  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       8.511  -2.227  -5.399  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       4.374  -2.577  -3.023  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       3.442  -3.140  -2.963  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       5.024  -2.862  -2.196  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       4.074  -1.102  -2.941  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       4.528  -0.361  -1.865  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       4.253   0.991  -1.792  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       5.097  -0.840  -1.083  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       3.524   1.603  -2.794  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       4.609   1.569  -0.952  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       3.070   0.863  -3.870  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       3.310   2.661  -2.736  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.349  -0.488  -3.946  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       2.501   1.342  -4.653  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       2.999  -1.064  -4.789  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       3.849  -5.642  -6.706  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       3.168  -5.473  -7.540  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       3.328  -6.179  -5.915  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       5.044  -6.470  -7.183  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       5.878  -5.806  -7.412  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       4.767  -7.026  -8.078  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       5.453  -7.434  -6.099  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       4.562  -8.205  -5.547  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       4.901  -9.078  -4.580  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       6.233  -9.170  -4.134  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       3.924  -9.903  -4.002  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       7.205  -8.365  -4.693  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1       6.562 -10.075  -3.129  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       6.854  -7.495  -5.665  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       8.154  -8.422  -4.382  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       7.689  -6.772  -6.176  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1       5.584 -10.874  -2.579  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1       7.582 -10.151  -2.781  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       4.270 -10.784  -3.018  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1       5.841 -11.576  -1.800  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       3.513 -11.415  -2.577  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       2.899  -9.842  -4.335  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 9
+REMARK VINA RESULT:      -6.6      3.212      4.924
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1       4.644  -0.014  -6.272  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1       5.354  -1.123  -6.560  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1       4.782  -2.142  -6.886  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       5.102   0.800  -6.012  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1       3.181  -0.039  -6.353  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1       2.836  -1.073  -6.359  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1       2.737   0.646  -7.618  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1       2.198   0.010  -8.494  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1       2.940   1.964  -7.774  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1       3.561   2.394  -9.014  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1       2.789   2.633  -9.744  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1       4.171   3.279  -8.828  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1       4.192   1.594  -9.401  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       2.592   0.689  -5.144  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       2.762   1.761  -5.247  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       1.521   0.495  -5.089  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       3.258   0.195  -3.886  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1       3.229  -1.151  -3.570  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1       3.841  -1.603  -2.417  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1       2.729  -1.848  -4.225  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1       4.482  -0.710  -1.578  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1       3.819  -2.655  -2.170  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       4.511   0.635  -1.894  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1       4.961  -1.065  -0.676  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       3.903   1.087  -3.050  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       5.012   1.333  -1.239  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       3.931   2.137  -3.298  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       6.858  -1.098  -6.478  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       7.244  -0.302  -7.116  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1       7.257  -2.055  -6.811  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       7.286  -0.843  -5.031  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       6.472  -1.114  -4.359  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       7.526   0.213  -4.903  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       8.500  -1.676  -4.711  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       8.356  -2.854  -4.175  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       9.424  -3.620  -3.883  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1      10.728  -3.159  -4.145  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       9.245  -4.888  -3.309  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1      10.920  -1.914  -4.709  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1      11.819  -3.965  -3.832  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       9.841  -1.155  -5.001  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1      11.843  -1.578  -4.897  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       9.980  -0.053  -5.499  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1      11.615  -5.206  -3.269  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1      12.823  -3.618  -4.028  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1      10.329  -5.660  -3.011  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1      12.462  -5.830  -3.026  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1      10.184  -6.635  -2.568  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       8.249  -5.252  -3.104  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL
+MODEL 10
+REMARK VINA RESULT:      -6.6      3.752      9.133
+REMARK  9 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_1  and  O_2 
+REMARK    2  A    between atoms: O_2  and  C_3 
+REMARK    3  A    between atoms: C_3  and  C_5 
+REMARK    4  A    between atoms: C_5  and  C_7 
+REMARK    5  A    between atoms: C_5  and  N_14 
+REMARK    6  A    between atoms: C_7  and  C_8 
+REMARK       I    between atoms: N_14  and  C_15 
+REMARK    7  A    between atoms: C_15  and  C_17 
+REMARK    8  A    between atoms: C_17  and  C_18 
+REMARK    9  A    between atoms: C_18  and  C_19 
+ROOT
+ATOM      1  N   LIG d   1      10.130   4.643  -2.122  0.00  0.00    -0.302 N 
+ATOM      2  C   LIG d   1      10.452   3.856  -3.168  0.00  0.00     0.214 C 
+ATOM      3  O   LIG d   1      11.210   4.263  -4.022  0.00  0.00    -0.276 OA
+ATOM      4  H   LIG d   1       9.524   4.316  -1.439  0.00  0.00     0.149 HD
+ENDROOT
+BRANCH   1   5
+ATOM      5  C   LIG d   1      10.696   5.990  -2.018  0.00  0.00     0.124 C 
+ATOM      6  H   LIG d   1      11.499   6.104  -2.745  0.00  0.00     0.062 H 
+BRANCH   5   7
+ATOM      7  C   LIG d   1      11.242   6.199  -0.630  0.00  0.00     0.328 C 
+ATOM      8  O   LIG d   1      12.425   6.389  -0.467  0.00  0.00    -0.249 OA
+BRANCH   7   9
+ATOM      9  O   LIG d   1      10.415   6.173   0.428  0.00  0.00    -0.467 OA
+BRANCH   9  10
+ATOM     10  C   LIG d   1      10.952   5.652   1.672  0.00  0.00     0.082 C 
+ATOM     11  H   LIG d   1      10.171   5.113   2.208  0.00  0.00     0.066 H 
+ATOM     12  H   LIG d   1      11.779   4.974   1.457  0.00  0.00     0.066 H 
+ATOM     13  H   LIG d   1      11.310   6.477   2.287  0.00  0.00     0.066 H 
+ENDBRANCH   9  10
+ENDBRANCH   7   9
+ENDBRANCH   5   7
+BRANCH   5  14
+ATOM     14  C   LIG d   1       9.604   7.025  -2.297  0.00  0.00     0.001 C 
+ATOM     15  H   LIG d   1       8.627   6.541  -2.261  0.00  0.00     0.034 H 
+ATOM     16  H   LIG d   1       9.647   7.812  -1.545  0.00  0.00     0.034 H 
+BRANCH  14  17
+ATOM     17  C   LIG d   1       9.817   7.623  -3.663  0.00  0.00    -0.045 A 
+ATOM     18  C   LIG d   1      10.581   8.766  -3.808  0.00  0.00    -0.059 A 
+ATOM     19  C   LIG d   1      10.776   9.313  -5.062  0.00  0.00    -0.061 A 
+ATOM     20  H   LIG d   1      11.026   9.231  -2.941  0.00  0.00     0.062 H 
+ATOM     21  C   LIG d   1      10.207   8.718  -6.172  0.00  0.00    -0.062 A 
+ATOM     22  H   LIG d   1      11.374  10.206  -5.174  0.00  0.00     0.062 H 
+ATOM     23  C   LIG d   1       9.443   7.575  -6.028  0.00  0.00    -0.061 A 
+ATOM     24  H   LIG d   1      10.360   9.146  -7.152  0.00  0.00     0.062 H 
+ATOM     25  C   LIG d   1       9.252   7.025  -4.775  0.00  0.00    -0.059 A 
+ATOM     26  H   LIG d   1       8.998   7.110  -6.896  0.00  0.00     0.062 H 
+ATOM     27  H   LIG d   1       8.659   6.129  -4.664  0.00  0.00     0.062 H 
+ENDBRANCH  14  17
+ENDBRANCH   5  14
+ENDBRANCH   1   5
+BRANCH   2  28
+ATOM     28  C   LIG d   1       9.870   2.470  -3.275  0.00  0.00     0.029 C 
+ATOM     29  H   LIG d   1       9.453   2.175  -2.312  0.00  0.00     0.036 H 
+ATOM     30  H   LIG d   1      10.653   1.769  -3.562  0.00  0.00     0.036 H 
+BRANCH  28  31
+ATOM     31  C   LIG d   1       8.765   2.461  -4.334  0.00  0.00     0.003 C 
+ATOM     32  H   LIG d   1       9.205   2.285  -5.316  0.00  0.00     0.034 H 
+ATOM     33  H   LIG d   1       8.253   3.423  -4.333  0.00  0.00     0.034 H 
+BRANCH  31  34
+ATOM     34  C   LIG d   1       7.779   1.365  -4.022  0.00  0.00     0.106 A 
+ATOM     35  N   LIG d   1       6.727   1.626  -3.300  0.00  0.00    -0.245 NA
+ATOM     36  C   LIG d   1       5.829   0.666  -3.010  0.00  0.00     0.088 A 
+ATOM     37  C   LIG d   1       6.011  -0.650  -3.476  0.00  0.00     0.068 A 
+ATOM     38  C   LIG d   1       4.699   0.970  -2.234  0.00  0.00    -0.034 A 
+ATOM     39  N   LIG d   1       7.117  -0.964  -4.240  0.00  0.00    -0.319 N 
+ATOM     40  C   LIG d   1       5.073  -1.628  -3.161  0.00  0.00    -0.036 A 
+ATOM     41  C   LIG d   1       8.010   0.007  -4.528  0.00  0.00     0.271 A 
+ATOM     42  H   LIG d   1       7.255  -1.896  -4.574  0.00  0.00     0.169 HD
+ATOM     43  O   LIG d   1       8.995  -0.241  -5.200  0.00  0.00    -0.266 OA
+ATOM     44  C   LIG d   1       3.973  -1.303  -2.397  0.00  0.00    -0.060 A 
+ATOM     45  H   LIG d   1       5.207  -2.641  -3.513  0.00  0.00     0.064 H 
+ATOM     46  C   LIG d   1       3.793  -0.005  -1.938  0.00  0.00    -0.060 A 
+ATOM     47  H   LIG d   1       3.246  -2.063  -2.153  0.00  0.00     0.062 H 
+ATOM     48  H   LIG d   1       2.927   0.236  -1.339  0.00  0.00     0.062 H 
+ATOM     49  H   LIG d   1       4.548   1.976  -1.871  0.00  0.00     0.064 H 
+ENDBRANCH  31  34
+ENDBRANCH  28  31
+ENDBRANCH   2  28
+TORSDOF 9
+ENDMDL

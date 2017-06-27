@@ -63,9 +63,7 @@ def getNamesMols(input_ligands_path,data_binaries_dir):
 		for ligand_file in ligand_list:
 			if ligand_file[-4:] == ".pdb":
 				ligand_name = ligand_file[:-6]
-				#print(ligand_file)
 				mol = Chem.MolFromPDBFile("{}{}".format(input_ligands_path,ligand_file))
-				#print("{}\n".format(mol))
 				if (mol != None):
 					allValidMols.append([ligand_name,mol])
 		if v:
@@ -81,13 +79,11 @@ def getAllFeatures(names,ligands,features_bin_dir):
 	features = []
 	labels = []
 	count = 0
-	#print("Starting with library of {} ligands".format(len(ligands)))
+	print("Using generated RDKit mol objects to produce feature sets...")
 	for lig in range(len(ligands)):
-		if (count % 10000 == 0):
+		if (count % 100 == 0):
 			print("Ligand No: {} / {}".format(count,len(ligands)))
 		f_data = computeFeatures(ligands[lig])
-		#for entry in names[lig]:
-		#	f_data.append(entry)
 		d_hist = f_data[13:33]															# Checking for ligands where distribution of path distance
 		all_zero = True																	#   from hba/hbd pairs failed to compute and marking their
 		keep = True																		#   samples for removal from the dataset
@@ -101,12 +97,11 @@ def getAllFeatures(names,ligands,features_bin_dir):
 			keep = False
 		if keep:
 			features.append(f_data)
-			#labels.append(ligand[ki_index])
 		count += 1
 	features = np.asarray(features)
 	print("Collected  {}  features per sample".format(len(features[0])))
+	features = preprocessing.normalize(features,norm='l2',axis=1)
 	np.save("{}".format(features_bin_dir),features)
-	#np.save("{}".format(labels_bin_dir),labels)
 	return features
 
 def computeFeatures(mol):

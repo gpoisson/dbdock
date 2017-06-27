@@ -1,0 +1,40 @@
+REMARK  3 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: C_4  and  C_7 
+REMARK    2  A    between atoms: C_8  and  C_15 
+REMARK    3  A    between atoms: C_15  and  O_16 
+ROOT
+ATOM      1  C   LIG d   1      -0.278   3.561  -0.171  0.00  0.00
+ATOM      2  C   LIG d   1      -0.951   2.386  -0.116  0.00  0.00
+ATOM      3  N   LIG d   1      -0.021   1.380   0.123  0.00  0.00
+ATOM      4  C   LIG d   1      -0.010   0.012   0.288  0.00  0.00
+ATOM      5  C   LIG d   1       1.130  -0.638   0.518  0.00  0.00
+ATOM      6  S   LIG d   1       2.321   0.693   0.519  0.00  0.00
+ATOM      7  C   LIG d   1       1.186   2.025   0.208  0.00  0.00
+ATOM      8  N   LIG d   1       1.030   3.305   0.034  0.00  0.00
+ATOM      9  H   LIG d   1      -0.936  -0.540   0.230  0.00  0.00
+ATOM     10  H   LIG d   1       1.291  -1.696   0.666  0.00  0.00
+ENDROOT
+BRANCH   1  11
+ATOM     11  C   LIG d   1      -0.877   4.897  -0.411  0.00  0.00
+ATOM     12  C   LIG d   1      -2.075   5.248   0.209  0.00  0.00
+ATOM     13  C   LIG d   1      -2.628   6.492  -0.018  0.00  0.00
+ATOM     14  H   LIG d   1      -2.570   4.547   0.865  0.00  0.00
+ATOM     15  C   LIG d   1      -1.994   7.390  -0.858  0.00  0.00
+ATOM     16  H   LIG d   1      -3.556   6.765   0.462  0.00  0.00
+ATOM     17  C   LIG d   1      -0.805   7.047  -1.476  0.00  0.00
+ATOM     18  H   LIG d   1      -2.430   8.363  -1.032  0.00  0.00
+ATOM     19  C   LIG d   1      -0.241   5.808  -1.253  0.00  0.00
+ATOM     20  H   LIG d   1      -0.316   7.752  -2.132  0.00  0.00
+ATOM     21  H   LIG d   1       0.689   5.543  -1.732  0.00  0.00
+ENDBRANCH   1  11
+BRANCH   2  22
+ATOM     22  C   LIG d   1      -2.437   2.202  -0.284  0.00  0.00
+ATOM     23  H   LIG d   1      -2.841   3.029  -0.868  0.00  0.00
+ATOM     24  H   LIG d   1      -2.631   1.262  -0.802  0.00  0.00
+BRANCH  22  25
+ATOM     25  O   LIG d   1      -3.062   2.176   1.000  0.00  0.00
+ATOM     26  H   LIG d   1      -4.021   2.060   0.969  0.00  0.00
+ENDBRANCH  22  25
+ENDBRANCH   2  22
+TORSDOF 3

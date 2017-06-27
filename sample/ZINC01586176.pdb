@@ -1,0 +1,31 @@
+REMARK  2 active torsions:
+REMARK  status: ('A' for Active; 'I' for Inactive)
+REMARK    1  A    between atoms: CB_1  and  CA_2 
+REMARK       I    between atoms: CA_2  and  C_4 
+REMARK       I    between atoms: CA_2  and  N_6 
+REMARK    2  A    between atoms: N_6  and  C_7 
+ROOT
+ATOM      1  CA  ALA d   1       0.002  -0.004   0.002  0.00  0.00
+ATOM      2  HA  ALA d   1       0.512  -0.356  -0.895  0.00  0.00
+ATOM      3  C   ALA d   1       0.731  -0.503   1.223  0.00  0.00
+ATOM      4  O   ALA d   1       0.161  -1.210   2.020  0.00  0.00
+ATOM      5  N   ALA d   1      -1.372  -0.511   0.012  0.00  0.00
+ATOM      6  H   ALA d   1      -1.794  -0.752   0.852  0.00  0.00
+ATOM      7  OXT ALA d   1       2.014  -0.163   1.425  0.00  0.00
+ENDROOT
+BRANCH   1   8
+ATOM      8  CB  ALA d   1      -0.019   1.526   0.010  0.00  0.00
+ATOM      9  HB1 ALA d   1       1.004   1.903   0.003  0.00  0.00
+ATOM     10  HB2 ALA d   1      -0.546   1.887  -0.873  0.00  0.00
+ATOM     11  HB3 ALA d   1      -0.529   1.877   0.907  0.00  0.00
+ENDBRANCH   1   8
+BRANCH   5  12
+ATOM     12  C   UNK d   0      -2.070  -0.646  -1.178  0.00  0.00
+ATOM     13  S   UNK d   0      -1.551  -0.282  -2.794  0.00  0.00
+ATOM     14  C   UNK d   0      -3.055  -0.758  -3.634  0.00  0.00
+ATOM     15  C   UNK d   0      -3.818  -1.146  -2.585  0.00  0.00
+ATOM     16  H   UNK d   0      -3.292  -0.737  -4.688  0.00  0.00
+ATOM     17  N   UNK d   0      -3.301  -1.080  -1.372  0.00  0.00
+ATOM     18  H   UNK d   0      -4.826  -1.502  -2.737  0.00  0.00
+ENDBRANCH   5  12
+TORSDOF 4
