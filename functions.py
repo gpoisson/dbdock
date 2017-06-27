@@ -100,7 +100,7 @@ def getAllFeatures(names,ligands,features_bin_dir):
 		count += 1
 	features = np.asarray(features)
 	print("Collected  {}  features per sample".format(len(features[0])))
-	features = preprocessing.normalize(features,norm='l2',axis=1)
+	features = preprocessing.normalize(features,norm='l2',axis=0)
 	np.save("{}".format(features_bin_dir),features)
 	return features
 
