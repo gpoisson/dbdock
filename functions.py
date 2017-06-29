@@ -8,9 +8,6 @@ from sklearn import preprocessing
 import operator
 import os, sys
 
-v = True
-energies_file = "energies_sorted.dat"
-
 
 
 # Iterate through autodock outputs and obtain list of energies
@@ -31,10 +28,33 @@ def getRigidDockingEnergies(autodock_output_directory,rigid_energies_dir):
 						try:
 							ki = (float)(split[7])
 							energies.append([ligand_name,ki])
+							print("Energy for {}".format(ligand_name))
 						except:
 							print("FILE NOT WELL-FORMED: {}\n{}".format(filename,split))
-	np.save(rigid_energies_dir,energies)
-	return energies
+
+	# Since mulitple modes can (and should be) present in the rigid docking file, we only keep the most negative value for each ligand
+	# This is done by using a dictionary, which acts as a set, and only allows one value per key.
+	# Then the ligand energies are fed in one at a time, comparing with any possible previous modes
+	energies_reduced = {}
+	for e in energies:
+		name = e[0]
+		energy = (float)(e[1])
+		#  Attempt to find another energy value for the current ligand
+		#  Replace it with the new sample if its energy value is lower
+		try:
+			if (energies_reduced[name] > energy):
+				energies_reduced[name] = energy
+		#  If there isn't an energy value for the current ligand in the dictionary yet, add the new sample
+		except:
+			energies_reduced[name] = energy
+
+	temp = []
+	for index in energies_reduced:
+		temp.append([index,energies_reduced[index]])
+	print("Saving rigid energy file. Sample entry [0]: {}".format(temp[0]))
+	print("len(temp) = {}".format(len(temp)))
+	np.save(rigid_energies_dir,temp)
+	return temp
 
 # Executes a Linux command to create a new file which is an existing PDBQT file converted to a PDB format
 def convert_PDBQT_to_PDB(filename):
@@ -62,12 +82,11 @@ def getNamesMols(input_ligands_path,data_binaries_dir):
 		ligand_list = os.listdir(input_ligands_path)
 		for ligand_file in ligand_list:
 			if ligand_file[-4:] == ".pdb":
-				ligand_name = ligand_file[:-6]
+				ligand_name = ligand_file[:-4]
 				mol = Chem.MolFromPDBFile("{}{}".format(input_ligands_path,ligand_file))
 				if (mol != None):
 					allValidMols.append([ligand_name,mol])
-		if v:
-			print " Read in {} ligand files, encountered {} failures.".format(len(ligand_list),fails)
+		print " Read in {} ligand files, encountered {} failures.".format(len(ligand_list),fails)
 	
 	allValidMols = np.asarray(allValidMols)
 	np.save("{}ligand_name_rdkit_mol.npy".format(data_binaries_dir),allValidMols)
@@ -79,6 +98,7 @@ def getAllFeatures(names,ligands,features_bin_dir):
 	features = []
 	labels = []
 	count = 0
+	fails = 0
 	print("Using generated RDKit mol objects to produce feature sets...")
 	for lig in range(len(ligands)):
 		if (count % 100 == 0):
@@ -91,18 +111,21 @@ def getAllFeatures(names,ligands,features_bin_dir):
 			if d != 0:
 				all_zero = False
 			elif d == 99999:		
+				fails += 1
 				keep = False
 				break
 		if all_zero:
+			fails += 1
 			keep = False
 		if keep:
 			features.append(f_data)
 		count += 1
 	features = np.asarray(features)
-	print("Collected  {}  features per sample".format(len(features[0])))
+	print("Collected  {}  features per sample for {} samples ({} failures)".format(len(features[0]),len(features),fails))
 	features = preprocessing.normalize(features,norm='l2',axis=0)
-	np.save("{}".format(features_bin_dir),features)
-	return features
+	allValidFeatures = [names, [features]]
+	np.save("{}".format(features_bin_dir),allValidFeatures)
+	return names, features
 
 def computeFeatures(mol):
 	numRings = rdMolDescriptors.CalcNumRings(mol)
@@ -286,100 +309,8 @@ def countDoubleBonds(mol):
 			doubleBonds += 1
 	return doubleBonds
 
-# combineSplitBinaries()
-
 
 '''
-
-# Reads in energy valus for each ligand
-def readInputEnergies():
-	deltaGs = {}
-	engs = open(energies_file,'r')
-	for line in engs:
-		line = line.split()
-		if (len(line) >= 2):
-			name = line[0]
-			if (name[-1] == '.'):		# trim off trailing periods
-				name = name[:-1]
-			dg = float(line[1])
-			try:
-				deltaGs[name] = dg
-			except KeyError:
-				continue
-	return deltaGs
-
-def makeSinglePlot(x_data,y_data,title='Plot',x_label='x',y_label='y',axes_on=True,marker_type='x',add_lobf=True,x_min=None,x_max=None,y_min=None,y_max=None,axis_equal=False):
-	plt.figure()																	# make a plot figure
-	plt.plot(x_data,y_data,marker_type)												# add the data to the plot
-	if add_lobf:																	# add a line of best fit
-		plt.plot(x_data, np.poly1d(np.polyfit(x_data, y_data, 1))(x_data))
-	plt.suptitle(title)																# add plot title, labels
-	plt.xlabel(x_label)
-	plt.ylabel(y_label)
-	if (x_min != None):																# fix boundaries of the plot
-		plt.xlim([x_min,x_max])
-	if (y_min != None):
-		plt.ylim([y_min,y_max])
-	if axes_on:																		# enable grid axes
-		plt.grid(True)
-	if axis_equal:
-		plt.axis('equal')
-	plt.show()
-
-# Compile all ligand name, coordinate, and energy data into one comprehensive binary file for faster accessing
-def makeUnsortedBinary(coords_dir,out_dir):
-	allValidMols = []
-	ligand_list = os.listdir(coords_dir)
-	fails = 0
-	for ligand_file in ligand_list:
-		if ligand_file[-4:] == "mol2":
-			ligand_name = ligand_file[:-4]
-			print(ligand_file,ligand_name)
-			try:
-				mol = Chem.MolFromMol2File("{}{}".format(coords_dir,ligand_file))
-				allValidMols.append([ligand_name,mol])
-			except IOError:
-				fails += 1
-				continue
-	if v:
-		print " Read in all {} molecules, encountered {} failures.".format(len(ligand_list),fails)
-	
-	np.save("{}ligand_name_rdkit_mol.npy".format(out_dir),allValidMols)
-
-# Splits the unsorted binary into multiple smaller binaries.
-# Binaries are <100 MB for GitHub purposes.
-
-def makeSplitUnsortedBinary():
-	mols_per_bin = 100000				# number of ligands to store in each binary file (to regulate file size)
-	binary = loadUnsortedBinary()
-	bin_count = 0
-	binr = []
-	for mol in binary:
-		binr.append(mol)				# add ligands to binr array
-		if (len(binr) >= mols_per_bin):										# if max no. of mols is reached,
-			print ("Binr size: {} mols".format(len(binr)))					# save out the binary and start a
-			binr = np.asarray(binr)											# new one.
-			np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)
-			bin_count += 1
-			binr = []
-	if (len(binr) >= 0):													# once all mols have been read through,
-		binr = np.asarray(binr)												# save out whatever mols are left in 
-		np.save("unsorted_ligs_part_{}.npy".format(bin_count),binr)			# memory
-
-# Assembles split binaries into one single ligand db binary
-def combineSplitBinaries():
-	files = os.listdir("./")
-	bins = []
-	master_bin = []
-	for f in files:
-		if (f[:-5] == "unsorted_ligs_part_"):			# find any partial ligand binaries in the directory
-			bins.append(f)
-	for b in bins:
-		t = np.load(b)
-		for mol in t:
-			master_bin.append(mol)
-	master_bin = np.asarray(master_bin)
-	np.save("unsorted_ligs.npy",master_bin)
 
 
 # Sort input data into training and testing datasets
@@ -480,23 +411,11 @@ def saveAsBin(train,test):
 	binary_outfile = "sorted_ligs_{}.npz".format(dataSize)
 	np.savez(binary_outfile,train,test)
 
-def loadUnsortedBinary():
-	t = np.load("unsorted_ligs.npy")
-	return t
-
-# Takes an entry from unsorted_ligs.npy and draws it to a PNG file
+# Takes a mol object and draws it to a PNG file
 def drawMolToPng(mol):
 	m2 = Chem.AddHs(mol[1])
 	AllChem.EmbedMolecule(m2)
 	AllChem.Compute2DCoords(m2)
 	Draw.MolToFile(m2,"{}.png".format(mol[0]))
-
-
-def compileFeaturesAndLabels():
-	ligands = np.load("unsorted_ligs.npy")
-	
-	[features, labels] = getAllFeatures(ligands)
-	np.save("features.npy",features)
-	np.save("labels.npy",labels)
 
 '''

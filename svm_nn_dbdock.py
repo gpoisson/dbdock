@@ -35,7 +35,7 @@ learning_rate = 0.012				# speed at which the SGD algorithm proceeds in the oppo
 #############################################################
 ### SVM PARAMETERS
 #############################################################
-C = 100000.0
+C = 10000.0
 epsilon = 0.001
 
 #############################################################
@@ -94,7 +94,7 @@ def get_data(lig_file,label_file,batch,subset="all_features"):
 
 	for sample in range(len(train_ligands)):
 		trainingdataX[-1].append(train_ligands[sample])
-		trainingdataY[-1].append([(float)(labels[sample][1])])
+		trainingdataY[-1].append((float)(labels[sample][1]))
 		if ((len(trainingdataX[-1])) >= batch_size):
 			trainingdataX.append([])
 			trainingdataY.append([])
@@ -383,6 +383,10 @@ def train_and_test_svm_and_nn(ligand_file, label_file):
 	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(ligand_file, label_file, batch=False,subset="all_features")
 	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(ligand_file, label_file, batch=True,subset="all_features")
 
+	print(svm_tr_X[0])
+	print(svm_tr_y[0])
+	print(nn_tr_X[0])
+	print(nn_tr_y[0])
 	svm_model, r2_svm = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
 	nn_model, r2_nn = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
 	svm_pred = svm_model.predict(svm_ts_X)
