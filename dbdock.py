@@ -105,7 +105,6 @@ if __name__ == "__main__":
 		print(" No feature binary available. Checking for existance of binaries containing RDKit mol objects from which to compute features...")
 		names, mols = getNamesMols(input_ligands_path,data_binaries_dir)
 		names, features = getAllFeatures(names,mols,feature_binary_dir)
-		features = features[0]
 
 	print("Loaded total of {} samples, {} features each.".format(len(features),len(features[0])))
 
@@ -125,8 +124,6 @@ if __name__ == "__main__":
 
 	print("{} sample feature sets".format(len(features)))
 	print("{} rigid energies".format(len(rigid_energies)))
-	print(features[0])
-	print(rigid_energies[0])
 
 
 	# MACHINE LEARNING MODEL TRAINING ON RIGID DOCKING RESULTS

@@ -7,8 +7,8 @@
 #         		they will be converted to (not replaced with) PDB files. This is because RDKit is able to quickly convert a PDB
 #         		to a "mol" object, from which features may be computed.
 # input_ligands_path = /mnt/sda/drug_binding_data/ligands_before_rigid_docking/
-# input_ligands_path = sample/
-input_ligands_path = small_sample/
+input_ligands_path = sample/
+# input_ligands_path = small_sample/
 
 # 		Receptor PDBQT file
 protein_path = /home/greg/Documents/dbdock/receptor/
@@ -17,7 +17,7 @@ protein_path = /home/greg/Documents/dbdock/receptor/
 
 # 		Rigid docking output directory
 # rigid_output_ligands_path = /mnt/sda/drug_binding_data/ligands_after_rigid_docking_10_modes/
-rigid_output_ligands_path = small_sample_rigid/
+rigid_output_ligands_path = sample_rigid/
 
 
 

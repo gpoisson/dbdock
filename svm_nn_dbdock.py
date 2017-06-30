@@ -58,6 +58,31 @@ def get_data(lig_file,label_file,batch,subset="all_features"):
 	ligands = np.load(lig_file)							# Reads the binary file containing ligand mol objects
 	labels = np.load(label_file)						# Reads the binary file containing docking energy measurements
 
+	# ligands = [ ['ligandA_name','ligandB_name', ...] , [ [ligA_feature1, ligA_feature2, ...] , [ligB_feature2, ligB_feature2, ...] , ... ] ]
+	# labels  = [ ['ligandC_name', ligC_deltaG] , ['ligandB_name', ligB_deltaG] , ...]
+
+	# Since the set of ligands after autodock may be smaller than the set of ligands before autodock, the number and order of labels may not match that of the ligands
+	x_data = []
+	y_data = []
+
+	for sample in range(len(labels)):
+		label_name = labels[sample][0]
+		label_value = labels[sample][1]
+		#print("label_name: {}".format(label_name))
+		#print("label_value: {}".format(label_value))
+		for index in range(len(ligands[0])):
+			ligand_name = ligands[0][index]
+			feature_data = ligands[1][0][index]
+			#print("ligand_name: {}".format(ligand_name))
+			#print("feature_data: {}".format(feature_data))
+			if (ligand_name == label_name):
+				x_data.append(feature_data)
+				y_data.append(label_value)
+
+	ligands = x_data
+	labels = y_data
+
+
 	if (subset == "first_order_only"):					# subset=1 --> only first 13 features (1st order features)	
 		ligands = ligands[:,:13]
 	elif (subset == "second_order_only"):				# subset=2 --> only last 20 features (2nd order)
@@ -383,10 +408,7 @@ def train_and_test_svm_and_nn(ligand_file, label_file):
 	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = get_data(ligand_file, label_file, batch=False,subset="all_features")
 	nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y = get_data(ligand_file, label_file, batch=True,subset="all_features")
 
-	print(svm_tr_X[0])
-	print(svm_tr_y[0])
-	print(nn_tr_X[0])
-	print(nn_tr_y[0])
+
 	svm_model, r2_svm = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y)
 	nn_model, r2_nn = train_NN(nn_tr_X, nn_tr_y, nn_ts_X, nn_ts_y)
 	svm_pred = svm_model.predict(svm_ts_X)
