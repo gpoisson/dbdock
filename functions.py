@@ -90,6 +90,7 @@ def getNamesMols(input_ligands_path,data_binaries_dir):
 	
 	allValidMols = np.asarray(allValidMols)
 	np.save("{}ligand_name_rdkit_mol.npy".format(data_binaries_dir),allValidMols)
+	print(allValidMols[0])
 	names,mols = allValidMols[:,0],allValidMols[:,1]
 	return names,mols
 	

@@ -12,8 +12,6 @@ input_ligands_path = None
 rigid_output_ligands_path = None
 flexible_output_ligands_path = None
 protein_path = None
-svm_param_path = None
-nn_param_path = None
 autodock_path = None
 rigid_ligand_count = None
 flexible_ligand_count = None
@@ -42,10 +40,6 @@ def checkInput(configure):
 				flexible_output_ligands_path = split[2][:-1]
 			elif (split[0] == "protein_path"):
 				protein_path = split[2][:-1]
-			elif (split[0] == "svm_param_path"):
-				svm_param_path = split[2][:-1]
-			elif (split[0] == "nn_param_path"):
-				nn_param_path = split[2][:-1]
 			elif (split[0] == "autodock_path"):
 				autodock_path = split[2][:-1]
 			elif (split[0] == "rigid_ligand_count"):
@@ -57,26 +51,24 @@ def checkInput(configure):
 
 # Execute rigid docking on <rigid_ligand_count> ligands
 def rigidDocking():
-	input_lig_list = os.listdir(input_ligands_path)
-	print("Performing rigid docking on {} of {} ligands...".format(rigid_ligand_count,len(input_lig_list)))
+	input_lig_contents = os.listdir(input_ligands_path)
+	protein_path_contents = os.listdir(protein_path)
+	protein = protein_path_contents[0]
+	print("Performing rigid docking on {} of {} ligands against receptor {}...".format(rigid_ligand_count,len(input_lig_contents),protein_path_contents))
 
-	###################
-	#### Insert rigid docking scripts here:
-	# os.system("rigid_docking_script.sh")			# Executes bash script to run rigid docking on input ligands
+	os.system("./rigid_docking_script.sh {} {} {}".format(input_ligands_path,protein,rigid_energies_dir))			# Executes bash script to run rigid docking on input ligands
 
-	print("  < INSERT RIGID DOCKING SCRIPT >")
 	print("...Rigid docking complete")
 
 
 # Execute flexible docking on <rigid_ligand_count> ligands
 def flexibleDocking():
+	protein_path_contents = os.listdir(protein_path)
+	protein = protein_path_contents[0]
 	print("Performing flexible docking on {} of {} ligands...".format(flexible_ligand_count,rigid_ligand_count))
 
-	###################
-	#### Insert flexible docking scripts here:
-	# os.system("flexible_docking_script.sh")			# Executes bash script to run rigid docking on input ligands
+	os.system("./flexible_docking_script.sh {} {} {}".format(rigid_energies_dir,flexible_energies_dir,protein))			# Executes bash script to run rigid docking on input ligands
 
-	print("  < INSERT FLEXIBLE DOCKING SCRIPT >")
 	print("...Flexible docking complete")
 
 
