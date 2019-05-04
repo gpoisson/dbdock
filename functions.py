@@ -56,6 +56,44 @@ def getRigidDockingEnergies(autodock_output_directory,rigid_energies_dir):
 	np.save(rigid_energies_dir,temp)
 	return temp
 
+
+# Iterate through autodock outputs and obtain list of energies
+def getFlexibleDockingEnergies(flexible_energies_dir, binary_outfile):
+	flexible_energies_file = open(flexible_energies_dir, 'r')
+	energies = []
+	for line in flexible_energies_file:
+		line_split = line.split(" ")
+		if (len(line_split) == 22):
+			ligand_name = line_split[0].split(".")[0]
+			flexible_docking_energy_value = (float)(line_split[9])
+			energies.append([ligand_name, flexible_docking_energy_value])
+	np.save(binary_outfile, energies)
+	return energies
+
+	# Since mulitple modes can (and should be) present in the rigid docking file, we only keep the most negative value for each ligand
+	# This is done by using a dictionary, which acts as a set, and only allows one value per key.
+	# Then the ligand energies are fed in one at a time, comparing with any possible previous modes
+	energies_reduced = {}
+	for e in energies:
+		name = e[0]
+		energy = (float)(e[1])
+		#  Attempt to find another energy value for the current ligand
+		#  Replace it with the new sample if its energy value is lower
+		try:
+			if (energies_reduced[name] > energy):
+				energies_reduced[name] = energy
+		#  If there isn't an energy value for the current ligand in the dictionary yet, add the new sample
+		except:
+			energies_reduced[name] = energy
+
+	temp = []
+	for index in energies_reduced:
+		temp.append([index,energies_reduced[index]])
+	print("Saving rigid energy file. Sample entry [0]: {}".format(temp[0]))
+	print("len(temp) = {}".format(len(temp)))
+	np.save(rigid_energies_dir,temp)
+	return temp
+
 # Executes a Linux command to create a new file which is an existing PDBQT file converted to a PDB format
 def convert_PDBQT_to_PDB(filename):
 	pdbName = filename[:-2]

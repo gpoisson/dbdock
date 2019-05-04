@@ -1,9 +1,11 @@
 import sys, os
 import numpy as np 
 from functions import getRigidDockingEnergies
+from functions import getFlexibleDockingEnergies
 from functions import getNamesMols
 from functions import getAllFeatures
 from svm_nn_dbdock import train_and_test_svm_and_nn
+from svm_nn_dbdock import train_SVM
 
 #############################################################
 ### GLOBAL VARIABLES
@@ -71,6 +73,62 @@ def flexibleDocking():
 
 	print("...Flexible docking complete")
 
+def parseOutAllLigandsWhichAppearInBothDatasets(rigid_energies, flexible_energies):
+	# To create a good set of training and testing data, we can only use ligands which appear in both sets (rigid and flexible).
+	# We must first go through and see how many of these values we have. Since this was developed with some previously-
+	# generated data, and not by using actual autodock, there wasn't a guarantee that these two sets would contain the same ligands.
+	# When using real autodock, however, this should not be an issue.
+
+	features_dataset = []
+	labels_dataset = []
+
+	for rigid_energy in rigid_energies:
+		ligand_name_r = rigid_energy[0]
+		for flexible_energy in flexible_energies:
+			ligand_name_f = flexible_energy[0]
+			if (ligand_name_r == ligand_name_f):
+				features_dataset.append(rigid_energy)
+				labels_dataset.append(flexible_energy)
+				break
+
+	return features_dataset, labels_dataset
+
+
+def splitIntoTrainingAndTestingGroup(rigid_energies, flexible_energies):
+	# Each entry in rigid_energies and flexible_energies is of the form:
+	#   ['LIGAND_NAME', -7.2]
+	features_dataset, labels_dataset = parseOutAllLigandsWhichAppearInBothDatasets(rigid_energies, flexible_energies)
+
+	total_samples_count = len(features_dataset)
+	training_to_testing_ratio = 0.7
+	split_index = (int)(total_samples_count * training_to_testing_ratio)
+	data_index = 1
+
+	training_features = features_dataset[:split_index]
+	temp = []
+	for entry in training_features:
+		temp.append([(float)(entry[data_index])])
+	training_features = temp
+
+	training_labels = labels_dataset[:split_index]
+	temp = []
+	for entry in training_labels:
+		temp.append([(float)(entry[data_index])])
+	training_labels = temp
+
+	testing_features = features_dataset[split_index:]
+	temp = []
+	for entry in testing_features:
+		temp.append([(float)(entry[data_index])])
+	testing_features = temp
+
+	testing_labels = labels_dataset[split_index:]
+	temp = []
+	for entry in testing_labels:
+		temp.append([(float)(entry[data_index])])
+	testing_labels = temp
+
+	return training_features, training_labels, testing_features, testing_labels
 
 
 #############################################################
@@ -90,7 +148,7 @@ if __name__ == "__main__":
 	#         the train_and_test_svm_and_nn() method just loads the features binary from disk.
 
 	try:
-		print("Attempting to load feature data from a binary...")
+		print("Attempting to load feature data from a binary at {}...".format(feature_binary_dir))
 		names, features = np.load(feature_binary_dir)
 		features = features[0]
 	except:
@@ -125,8 +183,22 @@ if __name__ == "__main__":
 	#   The r2 value is computed using new test data to measure predictive performance
 	svm_model, r2_svm, nn_model, r2_nn = train_and_test_svm_and_nn(feature_binary_dir,rigid_energies_dir)
 
-
-
 	# FLEXIBLE DOCKING  --  TARGET DATA COMPILATION
 	flexibleDocking()
-	
+
+	print("Rigid energies data ready to be used as feature data ({} samples)...".format(len(rigid_energies)))
+	try:
+		print(" Attempting to load known flexible docking energy data from a binary for training a new SVM...")
+		flexible_energies = np.load(flexible_energies_dir)
+		print(" Flexible binding energies binary was successfully loaded.")
+	except:
+		print(" Parsing new flexible docking results for energy values.")
+		flexible_energies_dat_file = "energies_sorted_flexible.dat"
+		flexible_energies = getFlexibleDockingEnergies(flexible_energies_dat_file, flexible_energies_dir)	
+
+
+	svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y = splitIntoTrainingAndTestingGroup(rigid_energies, flexible_energies)
+
+	svm_model, r2_svm = train_SVM(svm_tr_X, svm_tr_y, svm_ts_X, svm_ts_y, C=1.0, epsilon=0.01)
+
+	print("Predicting the flexible docking energy of ligands with rigid docking energies of -3.0, -6.0, and -9.0  --> {}".format(svm_model.predict([[-3.0], [-6.0], [-9.0]])))

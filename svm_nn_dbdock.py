@@ -55,8 +55,8 @@ instance_permutation_order = []			# this is used to keep track of the order in w
 def get_data(lig_file,label_file,batch,subset="all_features"):
 	global training_set_size, test_set_size
 
-	ligands = np.load(lig_file)							# Reads the binary file containing ligand mol objects
-	labels = np.load(label_file)						# Reads the binary file containing docking energy measurements
+	ligands = np.load(lig_file, allow_pickle=True)							# Reads the binary file containing ligand mol objects
+	labels = np.load(label_file, allow_pickle=True)						# Reads the binary file containing docking energy measurements
 
 	# ligands = [ ['ligandA_name','ligandB_name', ...] , [ [ligA_feature1, ligA_feature2, ...] , [ligB_feature2, ligB_feature2, ...] , ... ] ]
 	# labels  = [ ['ligandC_name', ligC_deltaG] , ['ligandB_name', ligB_deltaG] , ...]
@@ -119,7 +119,7 @@ def get_data(lig_file,label_file,batch,subset="all_features"):
 
 	for sample in range(len(train_ligands)):
 		trainingdataX[-1].append(train_ligands[sample])
-		trainingdataY[-1].append((float)(labels[sample][1]))
+		trainingdataY[-1].append((float)(labels[sample]))
 		if ((len(trainingdataX[-1])) >= batch_size):
 			trainingdataX.append([])
 			trainingdataY.append([])
@@ -140,7 +140,8 @@ def get_data(lig_file,label_file,batch,subset="all_features"):
 
 	for sample in range(len(test_ligands)):
 		testdataX[-1].append(test_ligands[sample])
-		testdataY[-1].append([(float)(test_labels[sample][1])])
+		test_label = (float)(test_labels[sample])
+		testdataY[-1].append([test_label])
 		if ((len(testdataX[-1])) >= batch_size):
 			testdataX.append([])
 			testdataY.append([])
@@ -336,7 +337,7 @@ class Net(nn.Module):
 
 		return x
 
-def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY):
+def train_SVM(trainingdataX,trainingdataY,testdataX,testdataY,C=C,epsilon=epsilon):
 	clf = SVR(C=C, epsilon=epsilon,kernel='rbf')
 	clf.fit(trainingdataX,(trainingdataY))
 
@@ -374,10 +375,11 @@ def train_NN(trainingdataX,trainingdataY,testdataX,testdataY):
 			labels = Variable(torch.FloatTensor(labels))
 			optimizer.zero_grad()
 			outputs = net(inputs)
-			loss = criterion(outputs, labels)
+			fixed_outputs = torch.reshape(outputs, (-1,))
+			loss = criterion(fixed_outputs, labels)
 			loss.backward()        
 			optimizer.step()
-			running_loss += loss.data[0]
+			running_loss += float(loss)
 			if ((i > 10) & (i % 20 == 0)):
 				avg_running_loss = running_loss / epochs_count
 				losses.append(avg_running_loss)
@@ -422,6 +424,7 @@ def train_and_test_svm_and_nn(ligand_file, label_file):
 			nn_pred.append(batch_prediction[p])
 			actual.append(nn_ts_y[batch][p])
 			losses.append(abs(nn_pred[-1] - nn_ts_y[batch][p]))
+
 
 	try:
 		plt.figure()
